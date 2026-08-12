@@ -1,0 +1,450 @@
+Day 22 - Cloud Fundamentals (AWS) [RDS and DynamoDB]:
+=====================================================
+A database stores application data, but the way that data is structured, queried, scaled, and related can be very different. AWS provides managed database services for both approaches.
+
+The two services we are focusing on are:
+ . Amazon RDS → Relational database
+ . Amazon DynamoDB → NoSQL database
+
+1. What is a database?
+----------------------
+A database is a system used to store, organize, retrieve, and manage application data.
+
+For example, an online shopping application may need to store:
+ . Customer information
+ . Product information
+ . Orders
+ . Payments
+ . Delivery details
+Instead of storing all this information in files, the application uses a database.
+
+2. Relational Database
+----------------------
+A relational database stores information in tables consisting of rows and columns.
+
+Example:
+Customer table
+| Customer_ID | Name  | Email                                         | City      |
+| ----------- | ----- | --------------------------------------------- | --------- |
+| 101         | Arun  | [arun@example.com](mailto:arun@example.com)   | Chennai   |
+| 102         | Priya | [priya@example.com](mailto:priya@example.com) | Bangalore |
+| 103         | Ravi  | [ravi@example.com](mailto:ravi@example.com)   | Mumbai    |
+
+Each row represents a record.
+Each column represents an attribute of that record.
+
+For example:
+Customer_ID → 101
+Name        → Arun
+Email       → arun@example.com
+City        → Chennai
+
+Relational databases commonly use SQL — Structured Query Language.
+
+For example:
+SELECT * FROM Customers
+WHERE City = 'Chennai';
+
+The database returns customers from Chennai.
+
+Relationships Between Tables:
+-----------------------------
+The important word in relational database is relationship.
+Instead of putting everything into one huge table, we can create multiple tables and connect them.
+
+For example:
+Customers
+| Customer_ID | Name  |
+| ----------- | ----- |
+| 101         | Arun  |
+| 102         | Priya |
+
+Orders
+| Order_ID | Customer_ID | Product  |
+| -------- | ----------- | -------- |
+| 5001     | 101         | Laptop   |
+| 5002     | 102         | Mobile   |
+| 5003     | 101         | Keyboard |
+
+Here:
+Customers.Customer_ID
+Orders.Customer_ID
+
+The Customer_ID connects the two tables.
+
+This allows the database to answer questions such as:
+"Show me all orders placed by Arun."
+
+This is one of the major strengths of relational databases.
+
+3. What is NoSQL?
+-----------------
+NoSQL generally means databases that don't primarily use the traditional relational table-and-SQL model.
+
+NoSQL databases are commonly designed for:
+ . Very large amounts of data
+ . High request volumes
+ . Flexible data structures
+ . Horizontal scaling
+ . Low-latency access
+Instead of requiring every record to follow exactly the same table structure, many NoSQL databases allow more flexible data.
+
+Example
+Imagine an e-commerce application storing products.
+
+One product may have:
+Product ID: P101
+Name: Laptop
+Price: 60000
+RAM: 16GB
+Storage: 512GB
+
+Another product might have:
+Product ID: P102
+Name: Mobile
+Price: 30000
+Camera: 50MP
+Battery: 5000mAh
+
+The attributes aren't necessarily identical.
+A NoSQL database can be well suited to this kind of flexible structure.
+
+4. Relational vs NoSQL — Simple Comparison:
+-------------------------------------------
+| Feature           | Relational                                                               | NoSQL                                           |
+| ----------------- | ------------------------------------------------------------------------ | ----------------------------------------------- |
+| Data structure    | Tables                                                                   | Flexible structures                             |
+| Data organization | Rows + columns                                                           | Items/records depending on database type        |
+| Query             | SQL                                                                      | Service/database-specific APIs/query mechanisms |
+| Schema            | Usually predefined                                                       | Often more flexible                             |
+| Relationships     | Strong support                                                           | Usually not the primary design approach         |
+| Scaling           | Traditionally vertical, though modern systems can scale horizontally too | Commonly designed for horizontal scaling        |
+| Best suited for   | Structured transactional data                                            | Large-scale, high-throughput, flexible data     |
+| AWS example       | Amazon RDS                                                               | Amazon DynamoDB                                 |
+
+5. Amazon RDS:
+--------------
+Amazon RDS = Amazon Relational Database Service.
+RDS is a managed relational database service from AWS.
+Instead of manually installing and managing a database server, AWS manages much of the underlying infrastructure.
+
+RDS supports database engines such as:
+ . PostgreSQL
+ . MySQL
+ . MariaDB
+ . Oracle
+ . Microsoft SQL Server
+ . Amazon Aurora
+
+AWS manages much of the underlying infrastructure, including capabilities around:
+ . Provisioning
+ . Automated backups
+ . Software patching
+ . Monitoring
+ . Storage management
+ . High availability options
+But RDS does not mean AWS manages your entire database application for you.
+
+You are still responsible for things such as:
+ . Database design
+ . Tables
+ . SQL queries
+ . Users and permissions
+ . Indexes
+ . Application-level data management
+
+6. Backups and Snapshots:
+-------------------------
+There are two terms students often confuse:
+ . Automated backups
+ . Snapshots
+Both help protect database data, but they're not exactly the same thing.
+
+ > Automated Backups:
+---------------------
+RDS can automatically create backups of your database.
+These backups support point-in-time recovery within the configured backup retention period.
+
+For example:
+Monday 10:00 → Data
+Monday 11:00 → Data
+Monday 12:00 → Data
+Monday 13:00 → Data
+
+Suppose someone accidentally deletes important data at 12:30.
+Depending on the backup configuration and available recovery window, you can restore the database to a previous point in time.
+
+ > RDS Snapshot:
+----------------
+A snapshot is a point-in-time backup of an RDS database.
+
+For example:
+RDS Database
+     ↓
+Create Snapshot
+     ↓
+RDS Snapshot
+You can use a snapshot to create another database from that saved state.
+
+Real-time example:
+Suppose your production database is:
+production-db
+
+Before making a major database change, you could create:
+production-db-snapshot-before-upgrade
+
+If something goes badly wrong, the snapshot gives you a recovery option.
+Snapshots are also useful for longer-term backup scenarios, database duplication, and migration-related workflows.
+
+Automated Backup vs Snapshot:
+-----------------------------
+| Feature  | Automated Backup                 | Snapshot                    |
+| -------- | -------------------------------- | --------------------------- |
+| Created  | Automatically by RDS             | Usually manually initiated  |
+| Recovery | Point-in-time recovery           | Restore to snapshot state   |
+| Purpose  | Regular operational backup       | Specific saved state        |
+| Example  | Recover database to earlier time | Save DB before major change |
+
+A simple way to remember:
+ . Automated backup = continuous backup/recovery capability
+ . Snapshot = saved picture of the database at a particular point
+
+7. DynamoDB:
+------------
+Amazon DynamoDB is AWS's fully managed NoSQL database service.
+It is designed for applications that need:
+ . Very fast response times
+ . High request volumes
+ . Automatic scaling
+ . Flexible data structures
+ . Low operational overhead
+DynamoDB is commonly used in applications where predictable, very fast access to individual records is important.
+
+DynamoDB Table:
+---------------
+In DynamoDB, data is stored in tables.
+For example:
+Table: Customers
+
+The table can contain customer records called items.
+Example:
+CustomerID: C101
+Name: Arun
+City: Chennai
+Email: arun@example.com
+
+DynamoDB Terminologies:
+-----------------------
+DynamoDB - Table - Item - Attribute
+
+Table:
+Container for the date.
+Example: Customers
+
+Item:
+One Individual record.
+Example:
+CustomerID = C101
+Name = Arun
+City = Chennai
+
+Attribute:
+A property of an item
+Example:
+Name
+City
+Email
+
+So:
+Table
+ ├── Item
+ │    ├── Attribute
+ │    ├── Attribute
+ │    └── Attribute
+ │
+ └── Item
+      ├── Attribute
+      └── Attribute
+
+Primary Keys in DynamoDB:
+-------------------------
+This is extremely important.
+A primary key uniquely identifies an item in a DynamoDB table.
+DynamoDB supports two main primary-key designs.
+
+Simple Primary Key
+Also called a Partition key.
+
+Example:
+CustomerID
+
+Table:
+| CustomerID | Name  | City      |
+| ---------- | ----- | --------- |
+| C101       | Arun  | Chennai   |
+| C102       | Priya | Bangalore |
+| C103       | Ravi  | Mumbai    |
+
+Here:
+Primary Key = CustomerID
+
+Each item must have a unique CustomerID.
+
+Composite Primary Key:
+----------------------
+The second type is a composite primary key.
+
+It contains:
+Partition Key + Sort Key
+
+Example:
+CustomerID + OrderID
+
+Suppose we have:
+| CustomerID | OrderID | Product  |
+| ---------- | ------- | -------- |
+| C101       | O001    | Laptop   |
+| C101       | O002    | Mouse    |
+| C101       | O003    | Keyboard |
+| C102       | O004    | Mobile   |
+
+Here:
+Partition Key = CustomerID
+Sort Key      = OrderID
+
+Why Do We Need a Sort Key?:
+---------------------------
+Suppose customer C101 has multiple orders.
+C101 → O001
+C101 → O002
+C101 → O003
+The partition key identifies the customer grouping.
+The sort key allows multiple items to exist under the same partition key and provides an ordering/key structure within that partition.
+
+This allows efficient access patterns such as:
+"Give me all orders for customer C101."
+
+Complete Topic Summary:
+-----------------------
+                   	AWS DATABASES
+                            │
+            ┌───────────┴───────────┐
+            │                              │
+          RDS                           DynamoDB
+            │                              │
+       RELATIONAL                         NoSQL
+            │                              │
+    Tables/Rows/Columns               Tables/Items
+            │                              │
+          SQL                           Attributes
+            │                              │
+    Relationships                      Primary Key
+            │                              │
+       Multi-AZ                       Partition Key
+            │                              │
+  Automated Backups                      Sort Key
+            │
+       Snapshots
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

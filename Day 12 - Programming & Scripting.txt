@@ -1,0 +1,948 @@
+Day 12 - Programming & Scripting 
+================================
+Yesterday we learned how to write a shell script. Today we'll learn how to make Linux run that script automatically, detect problems, record everything that happened, and automate daily system administration tasks.
+
+Module 1: Scheduling Tasks with Cron
+What is Cron?
+Imagine you have an employee who never sleeps.
+
+You tell him:
+ . Every day at 9 AM clean the office.
+ . Every Sunday create a backup.
+ . Every month generate a report.
+He never forgets.
+
+Linux has the same employee.
+That employee is called Cron.
+Cron automatically runs commands or shell scripts at a specified time.
+
+Instead of manually executing:
+./backup.sh
+Linux itself executes it.
+
+Real-Time Example:
+------------------
+Suppose you are a Linux Administrator.
+Every night at 11 PM
+You must
+ . Backup important files
+ . Compress logs
+ . Delete temporary files
+Nobody wants to wake up daily at 11 PM.
+
+So you tell Linux:
+"Run this script every day at 11 PM."
+
+Linux remembers forever.
+That is Cron.
+
+Terminologies:
+--------------
+Cron: 
+Background service that checks schedules.
+
+Think:
+"Scheduler"
+
+Cron Job:
+A scheduled task.
+
+Example:
+Run backup.sh every day
+That is one Cron Job.
+
+Crontab:
+Cron Table.
+A file containing all scheduled jobs.
+
+Think:
+Time
+Command
+
+Example
+0 23 * * * /home/user/backup.sh
+
+Cron Daemon:
+Daemon means background service.
+Cron daemon continuously checks
+
+Is it time?
+Yes?
+Run the script.
+
+Cron Time Format:
+Cron has 5 timing fields
+* * * * * command
+
+Looks confusing.
+
+Let's simplify.
+ . Minute
+ . Hour
+ . Day
+ . Month
+ . Weekday
+
+Example
+30 8 * * * script.sh
+
+Means
+8:30 AM every day
+
+Understanding Each Field:
+-------------------------
+Minute
+0-59
+Example
+15
+Means
+15th minute
+
+Hour
+0-23
+Example
+14
+Means
+2 PM
+
+Day
+1-31
+Example
+10
+Means
+10th day of month
+
+Month
+1-12
+Example
+7
+Means
+July
+
+Weekday:
+--------
+0-7
+0 or 7 = Sunday
+1 = Monday
+2 = Tuesday
+...
+6 = Saturday
+
+Special Characters
+*
+Means
+Every
+Example
+* * * * *
+Every minute.
+
+,
+Means
+Multiple values
+Example
+1,15,30
+Run on
+1st
+15th
+30th minute
+
+-
+Means range
+Example
+1-5
+Means
+Monday to Friday
+
+/
+Means interval
+Example
+*/10
+Every 10 minutes.
+
+
+Common Cron Examples
+--------------------
+Every minute
+* * * * *
+
+Every hour
+0 * * * *
+
+Every day at midnight
+0 0 * * *
+
+Every Sunday
+0 8 * * 0
+8 AM Sunday.
+
+Every Monday-Friday
+0 9 * * 1-5
+9 AM.
+
+Viewing Existing Cron Jobs:
+Command: crontab -l
+Shows,
+Current Scheduled tasks.
+
+Creating Cron Jobs:
+Commands: crontab -e
+Opens editor,
+Example 
+0 18 * * * /home/ubuntu/backup.sh
+save & Done.
+
+Removing Cron Jobs:
+Command: crontab -r
+Deletes all cron jobs.
+Use carefully.
+
+Hands-On:
+---------
+Create a file (vi hello.sh)
+Copy paste the below script
+
+#!/bin/bash
+echo "Cron executed at $(date)" >> /home/akshiv/cronlog.txt
+
+3. Provide permission (chmod +x hello.sh)
+4. Open cron (crontab -e), then Add
+
+* * * * * /home/akshiv/hello.sh
+
+[*** things to remember, using different terminal might show multiple options to open the editor, we can choose the accordingly to our requirement, I will be choosing here with the Option 2, which is vim basics; and clear if there are any existing content available there by giving the shortcut (ggdG)
+
+5. Wait a minute, then check (cat /home/akshiv/cronlog.txt)
+Output:
+Cron executed at ...
+Cron executed at ...
+
+Module 2: Script Debugging Techniques:
+--------------------------------------
+What is Debugging?
+Debugging means
+Finding and fixing mistakes inside a script.
+Programmers rarely write perfect code on the first attempt.
+They debug.
+
+Real-Time Example:
+------------------
+You wrote
+Backup completed.
+But no backup file exists.
+Something went wrong.
+Now you investigate.
+That investigation is debugging.
+
+Types of Errors:
+----------------
+1. Syntax Error
+Wrong script structure.
+
+Example
+
+if [ $a -gt 5 ]
+echo "Hi"
+fi
+
+Missing
+then
+
+Script fails immediately.
+
+2. Runtime Error
+Script starts correctly.
+Fails while running.
+
+Example
+cp file.txt backup/
+
+But
+file.txt
+
+doesn't exist.
+
+3. Logical Error
+Script runs.
+No error.
+But wrong result.
+
+Example
+Instead of adding
+10+5
+
+You accidentally subtract.
+Script finishes.
+Wrong output.
+
+Useful Debugging Commands:
+--------------------------
+bash -x
+Shows every command being executed.
+
+Example
+bash -x test.sh
+
+Output
++ pwd
++ ls
++ cp
+Very useful.
+
+set -x
+Inside script
+set -x
+Linux prints every executed line.
+
+set +x
+Stops debugging.
+
+echo
+Most common debugging tool.
+
+Example
+echo "Current username is $USER"
+Shows variable value.
+
+Hands-on:
+---------
+1. Create a file (vi test.sh), paste the below content
+
+#!/bin/bash
+
+a=10
+b=20
+
+echo "Before calculation"
+
+sum=$((a+b))
+
+echo "Answer=$sum"
+
+2. Run, 
+bash -x test.sh
+Observe execution line by line.
+
+Real-time Examples 1:
+---------------------
+Backup Script Fails
+Imagine every night a backup runs.
+
+Script:
+#!/bin/bash
+mkdir backup
+cp report.txt backup/
+echo "Backup Completed"
+
+Morning comes.
+
+The administrator sees
+Backup Completed
+
+But...
+backup/
+is empty.
+
+Question:
+Where did it fail?
+Instead of guessing, run
+bash -x backup.sh
+
+Output
++ mkdir backup
++ cp report.txt backup/
+cp: cannot stat 'report.txt'
++ echo Backup Completed
+
+Immediately you know:
+The file
+report.txt
+
+doesn't exist.
+Without -x, you might spend 30 minutes checking the wrong things.
+
+Example 2 – Deployment Script
+Imagine a DevOps engineer deploys an application.
+
+Script
+#!/bin/bash
+git pull
+docker build -t app .
+docker run app
+
+The deployment fails.
+Which command failed?
+
+Run
+bash -x deploy.sh
+
+Output
++ git pull
+Already up to date
++ docker build -t app .
+Successfully built
++ docker run app
+docker: port already allocated
+
+Now you know
+The failure happened during
+docker run
+Not
+git pull
+Not
+docker build
+
+Example 3 – Cron Job Isn't Working
+
+Suppose Cron runs
+backup.sh
+Every midnight.
+
+But
+backup.log
+
+never gets created.
+Instead of assuming Cron is broken,
+
+Run manually
+bash -x backup.sh
+
+Output
++ mkdir backup
+mkdir: Permission denied
++ cp file.txt backup/
+
+Now you realize
+Cron executes as a different user,
+so the script lacks permission.
+
+Why Professionals Love bash -x
+Suppose your script has 100 commands.
+Without bash -x:
+You may spend 30 minutes to 2 hours finding the issue.
+
+With bash -x:
+Run Script
+↓
+See Every Command
+↓
+Find Exact Failing Command
+↓
+Fix It
+You often identify the problem in just a few minutes.
+
+Module 3: Error Handling Basics:
+--------------------------------
+What is Error Handling?
+Error handling means
+Detecting whether a command succeeded or failed.
+
+Instead of assuming everything works,
+the script checks.
+
+Real-Time Example:
+------------------
+Suppose your backup fails.
+Without checking,
+script still says
+Backup Successful
+This is dangerous.
+Good scripts verify everything.
+
+Exit Status
+Every Linux command returns a number.
+0
+Means
+Success.
+
+Anything other than 0
+Means
+Failure.
+
+Checking Exit Status
+echo $?
+
+Example
+
+mkdir test
+echo $?
+
+Output
+0
+Success.
+
+Wrong command
+mkdir test
+again
+echo $?
+
+Output
+1
+Failure.
+
+Hands-on:
+---------
+1. Create a file (vi sample.sh), paste the below content
+
+#!/bin/bash
+
+mkdir backup
+
+if [ $? -eq 0 ]
+then
+    echo "Created"
+else
+    echo "Already exists"
+fi
+
+2. provide permission for file (chmod +x sample.sh)
+3. execute the file (./sample.sh) 
+1st time output: Created
+execute it for the 2nd time, 
+2nd time output: mkdir: cannot create directory ‘backup’: File exists
+Already exists
+
+Module 4: Logging Script Output:
+--------------------------------
+Logging means Saving script output into a file.
+Instead of displaying only on screen,
+store it permanently.
+
+Real-Time Example:
+------------------
+A company backup runs at midnight.
+Nobody watches the terminal.
+Next morning, administrator opens
+backup.log
+
+to check
+ . Started?
+ . Completed?
+ . Failed?
+ . Time taken?
+That is logging.
+
+Why Logging?
+Troubleshooting
+Audit
+History
+Error tracking
+Performance monitoring
+
+Redirection:
+------------
+Overwrite log
+>
+
+Append log
+>>
+
+Example:
+echo "Backup Started" >> backup.log
+
+Logging Errors:
+2>
+Stores errors only.
+
+Logging Entire Script:
+./backup.sh > backup.log 2>&1
+
+Hands-on: (1) [Simple Logging]
+---------
+1. Create a file (vi log.sh)
+2. Paste the below script
+
+#!/bin/bash
+echo "Backup Started"
+date
+hostname
+echo "Backup Completed"
+
+3. Provide permission (chmod +x log.sh)
+4. now, run the script (./log.sh > backup.log)
+5. Open the file now (cat backup.log)
+
+Hands-on: (2) [Appending Logs]
+---------
+1. Create another file (vi sample.sh)
+2. Paste the below script
+
+#!/bin/bash
+echo "===================="
+echo "Backup Started"
+date
+echo "Backup Completed"
+
+3. Provide permissions (chmod +x sample.sh)
+4. now, run the script (./sample.sh >> backups.log)
+5. Run it 3 more times
+6. Open the file now (cat backups.log)
+
+Hands-on: (3) [Capturing Errors]
+---------
+1. Create another file (vi logfile.sh)
+2. Paste the below script
+
+#!/bin/bash
+echo "Checking Files"
+ls Documents
+ls xyz
+echo "Script Finished"
+
+3. Provide permissions (chmod +x logfile.sh)
+4. now, run the script (./logfile.sh > backup1.log 2>&1)
+5. Open the file now (cat backup1.log)
+
+Explanation:
+------------
+now we can see no (2) denotes stderr [standard error]
+> = redirects
+&1 = move this to (1) denotes stdout [standard output]
+
+So What Does 2>&1 Actually Mean?
+Take File Descriptor 2
+(stderr)
+and redirect it
+to wherever
+File Descriptor 1
+(stdout)
+is currently pointing.
+
+| Number | Name   | Used For                 |
+| ------ | ------ | ------------------------ |
+| **0**  | stdin  | Keyboard or input source |
+| **1**  | stdout | Normal output            |
+| **2**  | stderr | Error output             |
+
+Real-Time Example:
+------------------
+A DevOps Engineer deploys a website.
+Deployment takes 20 minutes.
+
+Without logging:
+----------------
+Deployment Failed
+
+That's all you know.
+
+With logging:
+-------------
+Downloading Source Code...
+Installing Packages...
+Building Application...
+Docker Image Created...
+Deployment Completed
+
+If it fails:
+------------
+Downloading Source Code...
+Installing Packages...
+
+Error:
+Internet Connection Lost
+
+The administrator immediately knows where the problem occurred.
+
+Module 5: File and Process Automation:
+--------------------------------------
+This is where Linux becomes powerful.
+Instead of manually performing repetitive work, scripts automate it.
+
+File Automation:
+----------------
+Examples
+ . Create folders
+ . Delete old files
+ . Rename files
+ . Backup files
+ . Compress logs
+ . Move reports
+
+Real-Time Example:
+------------------
+Daily office reports
+Downloads
+Need to move automatically.
+
+Script
+mv ~/Downloads/*.pdf ~/Reports/
+
+Done automatically.
+
+Process Automation:
+-------------------
+Processes mean Running programs.
+
+Automation examples
+ . Start services
+ . Stop services
+ . Restart services
+ . Kill unwanted processes
+
+Useful Commands:
+----------------
+ps
+View processes
+ps
+
+top
+Live process monitoring
+top
+
+pgrep
+Find process ID
+pgrep nginx
+
+kill
+Terminate process
+kill PID
+
+pkill
+Terminate by process name
+pkill firefox
+
+systemctl
+Manage services
+systemctl start nginx
+systemctl stop nginx
+systemctl restart nginx
+systemctl status nginx
+
+Activity 1: Daily Backup Automation:
+------------------------------------
+Scenario
+
+You have joined a company as a Junior Linux Administrator.
+The company wants to automate the backup of important text files every day.
+Your task is to write a shell script.
+
+Requirements
+The script should:
+ . Display a welcome message.
+ . Create a folder called DailyBackup.
+ . Copy all .txt files into DailyBackup.
+ . Display a success message if the copy is successful.
+ . Display an error message if no .txt files are found.
+ . Store all output inside backup.log.
+ . Display the current date and hostname inside the log.
+
+Activity 2: System Health Report:
+---------------------------------
+Scenario
+
+Every morning, the System Administrator sends a health report to the Infrastructure Team.
+Participants should create a script that generates a report.
+
+The report should include:
+ . Hostname
+ . Current Date
+ . Logged-in User
+ . System Uptime
+ . Memory Usage
+ . Disk Usage
+
+Store everything in
+system_health.log
+
+Commands needed for this tasks:
+hostname, whoami, date, uptime, free -h, df -h
+
+Expected output:
+----------------
+==============================
+System Health Report
+Hostname : ubuntu-server
+User : ubuntu
+Date : Tue Jul 21
+Memory Usage
+Disk Usage
+System Uptime
+==============================
+
+Activity 3: Debugging Challenge:
+--------------------------------
+Instead of writing code, use this broken script.
+
+Tell them
+"Your job is to become a Linux Troubleshooting Engineer."
+
+Example
+#!/bin/bash
+echo "Starting Backup"
+mkdir Backup
+cp report.txt Backup
+echo Backup Completed
+
+Problems:
+ . report.txt doesn't exist.
+ . Backup already exists.
+
+Students should run
+bash -x backup.sh
+
+They should identify:
+ . Which command failed?
+ . Why?
+ . How can it be fixed?
+
+This activity teaches them how to troubleshoot, which is a real-world skill.
+
+Mini Project:
+-------------
+Scenario
+
+Your team is responsible for preparing a new Linux server.
+Create one script that performs all the following tasks:
+
+ . Display server information.
+ . Create a Project folder.
+ . Create Logs and Backup folders inside it.
+ . Ask the user for a project name.
+ . Create a project folder using the entered name.
+ . Generate a log file.
+ . Save the current date.
+ . Save the hostname.
+ . Save the logged-in username.
+ . Display "Project Setup Completed."
+
+If any folder creation fails,
+store the error in the log file.
+
+Finally, run the script using
+bash -x
+
+and observe the execution flow.
+
+HomeWorks:
+----------
+Homework 1: Personal System Information Script
+Create a script named
+systeminfo.sh
+
+The script should display:
+ . Your Name (hardcoded)
+ . Current User
+ . Hostname
+ . Date and Time
+ . Linux Distribution (cat /etc/os-release)
+ . Current Working Directory
+ . Total Memory
+ . Total Disk Space
+
+Save the output into
+systeminfo.log
+
+Homework 2: Automated Backup Script
+Create a script that:
+ . Creates a Backup folder if it doesn't exist.
+ . Copies all .txt files into the folder.
+ . Uses && and || to display appropriate success or failure messages.
+ . Logs all output to backup.log.
+ . Schedule the script using Cron to run every minute (for testing).
+
+Deliverables:
+ . Script file
+ . Screenshot of crontab -l
+ . Screenshot of backup.log
+
+Homework 3: Debugging Exercise
+Create a script with three intentional mistakes.
+
+Examples:
+ . Incorrect filename
+ . Wrong directory path
+ . Missing variable
+
+Run it using:
+bash -x script.sh
+
+Write down:
+ . Which command failed first?
+ . Why did it fail?
+ . How did you fix it?
+This helps participants develop troubleshooting skills.
+
+Homework 4: Build a Mini Linux Automation Tool
+Create a menu-driven shell script:
+
+============================
+Linux Automation Menu
+1. Show System Information
+2. Create Backup Folder
+3. Display Current Date
+4. Display Disk Usage
+5. Exit
+============================
+
+When the user enters a choice, perform the corresponding action.
+
+Requirements:
+ . Use case statements.
+ . Use at least one function.
+ . Log every menu selection into menu.log.
+ . Handle invalid input gracefully.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

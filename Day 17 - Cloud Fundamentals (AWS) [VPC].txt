@@ -1,0 +1,497 @@
+Day 17: Cloud Fundamentals (AWS) - VPC and Cloud Networking
+================================
+Whenever we create any AWS resource like
+ . EC2
+ . RDS
+ . Lambda (inside VPC)
+ . ECS
+ . EKS
+it must exist inside a network.
+
+AWS calls this network a Virtual Private Cloud (VPC).
+Without a network, AWS resources cannot communicate with each other or with the internet.
+
+What is Networking?:
+--------------------
+Networking means Connecting multiple devices together so they can communicate.
+
+Examples of devices
+ . Laptop
+ . Mobile
+ . Server
+ . Printer
+ . Database
+
+Communication happens using
+ . IP Address
+ . Routing
+ . Network Rules
+
+AWS follows the same concept.
+The only difference is instead of physical cables, AWS creates everything virtually.
+
+What is VPC?
+------------
+VPC stands for Virtual Private Cloud
+A VPC is your own private network inside AWS.
+
+Every resource you launch
+ . EC2
+ . RDS
+ . ECS
+ . EKS
+is launched inside a VPC.
+
+Simple Definition:
+------------------
+A VPC is a logically isolated network inside AWS where you control
+ . IP Address Range
+ . Subnets
+ . Routing
+ . Internet Access
+ . Security
+
+Why Do We Need a VPC?:
+----------------------
+Without a VPC
+All AWS customers would be using one common network.
+That would be insecure.
+
+Instead,
+
+AWS gives every customer their own isolated network.
+
+Benefits
+ . Network isolation
+ . Better security
+ . Control over communication
+ . Custom IP ranges
+ . Control internet access
+
+Characteristics of a VPC:
+-------------------------
+A VPC contains
+ . CIDR Block
+ . Subnets
+ . Route Tables
+ . Internet Gateway
+ . NAT Gateway
+ . Security Groups
+ . Network ACLs
+Everything starts with a VPC.
+
+CIDR Basics:
+------------
+Before creating a VPC,
+AWS asks
+"What IP Address range do you want?"
+This is called CIDR Block.
+
+ > What is CIDR?
+CIDR means Classless Inter-Domain Routing
+CIDR is simply a way of defining a range of IP addresses.
+
+Private IP Address:
+-------------------
+Private IP used inside the VPC, Cannot be accessed directly from the internet.
+
+Example
+10.0.1.25
+
+Public IP Address:
+------------------
+Public IP used to communicate over the internet.
+Anyone on the internet can reach it,
+provided firewall rules allow it.
+
+Elastic IP:
+-----------
+An Elastic IP is a static public IPv4 address provided by AWS.
+
+Normally,
+if an EC2 instance stops and starts,
+its automatically assigned public IP may change.
+
+Elastic IP remains the same until you release it.
+
+What is a Subnet?:
+------------------
+A Subnet is a smaller network created inside a VPC.
+
+Instead of placing every resource into one large network,
+we divide the VPC into smaller sections.
+Each section is called a Subnet.
+
+ > Why Do We Need Subnets?
+
+Subnets help us
+ . Organize resources
+ . Improve security
+ . Separate workloads
+ . Control internet access
+
+Public Subnet:
+--------------
+A Public Subnet can communicate with the Internet.
+
+ > Requirements for Public Subnet
+A subnet becomes public only when
+ . It has a route to an Internet Gateway.
+ . Resources have a public IP (or Elastic IP) if they need to be reached from the internet.
+Simply naming a subnet "Public" does not make it public.
+
+Private Subnet:
+---------------
+A Private Subnet cannot receive direct connections from the internet.
+
+Typical resources:
+ . Database
+ . Internal Application Servers
+ . Backend Services
+
+Benefits
+ . More secure
+
+Route Table:
+------------
+A Route Table is a set of rules that tells AWS where network traffic should go.
+
+Think of it as a
+Traffic Direction Table.
+
+Example:
+Destination        Target
+
+10.0.0.0/16        Local
+0.0.0.0/0          Internet Gateway
+
+Meaning:
+ . Traffic inside the VPC Stay inside.
+ . Traffic going anywhere else go to the Internet Gateway.
+
+ > Local Route:
+---------------
+Every VPC automatically contains Local
+This allows All subnets inside the VPC to communicate with each other.
+AWS creates this automatically.
+You cannot remove it.
+
+Internet Gateway (IGW):
+-----------------------
+An Internet Gateway connects a VPC to the public internet.
+Without an IGW, resources cannot communicate directly with the internet.
+
+Responsibilities
+Provides
+ . Internet access
+ . Public connectivity
+ . Two-way communication
+
+It is attached to a VPC.
+
+Requirements for Internet Access:
+---------------------------------
+An EC2 instance needs all of the following:
+ . It is in a public subnet.
+ . The subnet's route table has a route (0.0.0.0/0) pointing to an Internet Gateway.
+ . The EC2 instance has a public IP or Elastic IP.
+ . Security Groups and NACLs allow the required traffic.
+If any one of these is missing, internet connectivity will not work.
+
+NAT Gateway:
+------------
+NAT stands for Network Address Translation.
+
+A NAT Gateway allow Private subnet resources to access the internet
+without allowing the internet to start connections back to them.
+
+ > Example
+A server in a private subnet needs to
+ . Download software updates
+ . Install packages
+ . Access AWS APIs
+It can send traffic out through the NAT Gateway.
+The internet cannot initiate connections to that private server.
+
+Where is NAT Gateway Created?:
+------------------------------
+A NAT Gateway must be created in a Public Subnet and must be associated with an Elastic IP.
+Private subnets then route internet-bound traffic to the NAT Gateway.
+
+Internet Gateway vs NAT Gateway:
+--------------------------------
+| Internet Gateway                                                        | NAT Gateway                                                         |
+| ----------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| Connects VPC to the internet                                            | Allows private subnet resources to reach the internet               |
+| Supports incoming and outgoing traffic (when allowed by security rules) | Supports only outbound connections initiated from private resources |
+| Used by Public Subnets                                                  | Used by Private Subnets                                             |
+| No Elastic IP required for the gateway itself                           | Requires an Elastic IP                                              |
+| Attached to the VPC                                                     | Deployed inside a public subnet                                     |
+
+Security Groups:
+----------------
+Security Groups act as Virtual Firewalls for AWS resources.
+They decide Which traffic is allowed to enter and leave an EC2 instance (or other supported AWS resources).
+
+Rules contain
+ . Protocol
+ . Port Number
+ . Source or Destination
+
+Example:
+--------
+Allow
+SSH
+TCP
+22
+From
+203.0.113.10/32
+
+Network ACL (NACL):
+-------------------
+NACL stands for Network Access Control List
+
+A NACL is another firewall, but it works at the Subnet level instead of the individual resource level.
+Every subnet can be associated with one NACL.
+Every packet entering or leaving that subnet is checked against the NACL rules.
+
+ > Why Do We Need NACL?
+Security Groups protect individual resources.
+Sometimes we want to protect the entire subnet, regardless of how many EC2 instances are inside it.
+That is where NACL is useful.
+
+For example, if a subnet contains 20 EC2 instances, a NACL can enforce network rules for all of them together.
+
+NACL Rules:
+-----------
+Each rule contains:
+ . Rule Number
+ . Protocol
+ . Port
+ . Source or Destination
+ . Allow or Deny
+
+Default NACL:
+-------------
+When a VPC is created, AWS creates a Default NACL.
+By default it allows all inbound and outbound traffic.
+
+You can modify it, or create your own custom NACLs.
+
+Security Group vs NACL:
+-----------------------
+| Security Group                                           | Network ACL                                          |
+| -------------------------------------------------------- | ---------------------------------------------------- |
+| Works at Resource Level                                  | Works at Subnet Level                                |
+| Supports Allow rules only                                | Supports Allow and Deny rules                        |
+| Applied to EC2, RDS, and other supported resources       | Applied to Subnets                                   |
+
+Default VPC:
+------------
+Every new AWS account includes a Default VPC in each Region.
+
+It already contains:
+ . Public subnets
+ . Route tables
+ . Internet Gateway
+ . Default Security Group
+ . Default NACL
+
+This way we can launch an EC2 instances without manually creating networking components.
+In production environments, organizations commonly create their own custom VPCs instead of using the Default VPC.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,459 @@
+Day 15: Cloud Fundamentals (AWS) - Introduction to Cloud Computing and AWS Global Infra
+================================
+Module 1: What is Cloud Computing?
+What is Cloud Computing?
+Cloud Computing means using computing resources (servers, storage, databases, networking, applications, AI services, etc.) over the Internet instead of owning and maintaining them yourself.
+Instead of purchasing physical servers and keeping them in your office, you rent them whenever you need them.
+Cloud providers manage the infrastructure, and customers use it on demand.
+
+Traditional IT
+Company
+   │
+   ├── Purchase Servers
+   ├── Install OS
+   ├── Configure Network
+   ├── Buy Storage
+   ├── Maintain Hardware
+   └── Replace Failed Equipment
+Everything is managed by the company.
+
+Cloud Computing
+Company
+      │
+      ▼
+Cloud Provider (AWS)
+
+AWS provides:
+
+• Servers
+• Storage
+• Database
+• Networking
+• Security
+• Monitoring
+
+The customer simply rents what they need.
+
+Characteristics of Cloud Computing:
+-----------------------------------
+Cloud platforms provide:
+ . On-demand resources
+ . Pay only for what you use
+ . Scale resources up or down
+ . Global availability
+ . High availability
+ . Managed infrastructure
+
+Why Companies Use Cloud:
+------------------------
+ . Lower infrastructure cost
+ . Faster deployment
+ . Easy scalability
+ . Better reliability
+ . Global reach
+ . Built-in security services
+ . No hardware maintenance
+
+IaaS, PaaS and SaaS:
+--------------------
+These are called Cloud Service Models.
+They define who manages what.
+
+1. Infrastructure as a Service (IaaS):
+The cloud provider gives you the infrastructure.
+
+You manage:
+ . Operating System
+ . Applications
+ . Security configuration
+ . Data
+
+The provider manages:
+ . Physical servers
+ . Networking
+ . Storage
+ . Virtualization
+
+2. Platform as a Service (PaaS)
+The cloud provider manages both the infrastructure and the operating platform.
+Customers only deploy their application.
+
+Responsibilities:
+Customer
+
+Application
+ . Data
+
+Cloud Provider
+ . Runtime
+ . Middleware
+ . Operating System
+ . Virtualization
+ . Storage
+ . Networking
+ . Servers
+
+3. Software as a Service (SaaS)
+The cloud provider manages everything.
+Customers simply use the software.
+
+Responsibilities:
+Customer
+ . Uses the Software
+
+Provider
+ . Everything Else
+
+Examples:
+ . Microsoft 365
+ . Gmail
+ . Salesforce
+ . Zoom
+ . Dropbox
+
+Comparison:
+-----------
+| Feature                | IaaS     | PaaS              | SaaS                                           |
+| ---------------------- | -------- | ----------------- | ---------------------------------------------- |
+| Server Management      | Customer | Provider          | Provider                                       |
+| OS Management          | Customer | Provider          | Provider                                       |
+| Application Management | Customer | Customer          | Provider                                       |
+| Data Management        | Customer | Customer          | Provider (application data handled by service) |
+| Example                | EC2      | Elastic Beanstalk | Gmail                                          |
+
+Public, Private and Hybrid Cloud:
+---------------------------------
+These are called Cloud Deployment Models.
+
+Public Cloud:
+Infrastructure is owned by a cloud provider.
+Multiple customers use the provider's infrastructure, but each customer's resources are logically isolated.
+
+Examples:
+ . AWS
+ . Microsoft Azure
+ . Google Cloud
+
+Advantages:
+ . No hardware purchase
+ . Fast deployment
+ . Lower cost
+ . Global availability
+ . Easy scalability
+
+Private Cloud
+Infrastructure is dedicated to a single organization.
+
+It can be located:
+ . Inside the company's datacenter
+ . In a hosted private datacenter
+Only that organization uses it.
+
+Advantages:
+ . Greater control
+ . Organization-specific security policies
+ . Custom configurations
+ . Dedicated resources
+
+Hybrid Cloud
+Hybrid Cloud combines:
+ . Private Cloud
+ . Public Cloud
+Applications and data can operate across both environments.
+
+Introduction to AWS:
+--------------------
+What is AWS?
+AWS stands for Amazon Web Services.
+It is Amazon's cloud computing platform.
+AWS provides more than 300 cloud services.
+
+These services include:
+ . Compute
+ . Storage
+ . Database
+ . Networking
+ . Security
+ . AI/ML
+ . Analytics
+ . Monitoring
+ . Serverless
+ . DevOps
+
+Why AWS is Popular:
+-------------------
+ . Global infrastructure
+ . High availability
+ . Large service portfolio
+ . Strong security features
+ . Flexible pricing
+ . Broad industry adoption
+
+Regions, Availability Zones and Edge Locations:
+-----------------------------------------------
+AWS infrastructure is organized into three main layers.
+
+1. Region
+A Region is a geographic area where AWS operates one or more datacenters.
+
+Examples:
+ . US East (Ohio)
+ . Asia Pacific (Mumbai)
+ . Europe (Frankfurt)
+ . Asia Pacific (Singapore)
+Each Region is independent.
+
+Inside the Region, there are multiple Availability Zones.
+
+2. Availability Zone (AZ)
+An Availability Zone is one or more physically separate datacenters within a Region.
+
+Each AZ has:
+ . Independent power
+ . Independent cooling
+ . Independent networking
+AZs are connected using high-speed private links.
+
+Example
+Mumbai Region
+├── AZ-A
+├── AZ-B
+└── AZ-C
+
+If one AZ experiences a failure, applications deployed across multiple AZs can continue running from the remaining AZs.
+
+Why Use Multiple AZs?
+ . High availability
+ . Fault tolerance
+ . Disaster recovery within a Region
+
+3. Edge Location
+Edge Locations are AWS sites distributed around the world that deliver content closer to users.
+They are primarily used by services such as Amazon CloudFront and Route 53.
+
+Example
+Website hosted in:
+Mumbai Region
+
+Users access it from:
+ . Chennai
+ . Delhi
+ . Singapore
+ . London
+
+CloudFront can cache content at nearby Edge Locations so users receive faster responses without every request traveling back to the origin server.
+Edge Locations exist separately to help deliver content with lower latency.
+
+Shared Responsibility Model:
+----------------------------
+The AWS Shared Responsibility Model is a framework that defines which responsibilities belong to AWS and which belong to the customer when using AWS services. It is primarily focused on security, but it also includes operational and management responsibilities. The exact division of responsibilities depends on the AWS service being used: highly managed services shift more responsibility to AWS, while infrastructure services like EC2 require the customer to manage much more.
+AWS is responsible for the security of the cloud, while the customer is responsible for security in the cloud.
+
+AWS Responsibilities (Security of the Cloud)
+AWS manages:
+ . Physical datacenters
+ . Physical servers
+ . Networking hardware
+ . Storage hardware
+ . Hypervisors
+ . Power
+ . Cooling
+ . Physical security of facilities
+
+Customer Responsibilities (Security in the Cloud)
+Customers manage:
+ . IAM users and permissions
+ . MFA configuration
+ . Security Groups and Network ACLs
+ . Operating system updates (for EC2)
+ . Installed applications
+ . Data encryption choices
+ . Data backups
+ . Application security
+ . Customer data
+
+Real-Time Example:
+------------------
+A company launches an EC2 instance.
+
+AWS is responsible for:
+ . The physical server
+ . Disk hardware
+ . Power supply
+ . Networking equipment
+ . Datacenter security
+
+The customer is responsible for:
+ . Ubuntu OS updates
+ . SSH configuration
+ . Firewall rules (Security Groups/NACLs)
+ . Installed software (NGINX, Docker, Jenkins, etc.)
+ . User accounts and passwords
+ . Protecting application data
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

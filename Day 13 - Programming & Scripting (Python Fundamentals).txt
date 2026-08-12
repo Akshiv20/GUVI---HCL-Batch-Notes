@@ -1,0 +1,986 @@
+Day 13 - Programming & Scripting (Python Fundamentals):
+=======================================================
+We usually thinks: "Programming is difficult."
+
+What is Python?
+Let's first understand why Python was created.
+
+Imagine you work as a Linux Administrator.
+
+Every morning, you perform these tasks:
+ . Check server status
+ . Check disk usage
+ . Check memory usage
+ . Check if services are running
+ . Send a report to the team
+You perform these tasks every day.
+
+Can they be automated?
+Yes.
+
+Python helps us automate repetitive tasks.
+
+Simple Definition
+Python is a high-level, general-purpose programming language used to automate tasks, process data, build applications, create websites, develop AI solutions, and manage cloud infrastructure.
+
+Breaking Down the Definition:
+-----------------------------
+1. Programming Language:
+A programming language is a way of giving instructions to a computer.
+
+Example:
+You tell a person:
+"Please switch on the light."
+
+Similarly, in Python:
+print("Hello")
+
+The computer follows your instruction.
+
+2. High-Level Language
+Terminology
+ . High-Level Language
+ . Low-Level Language
+
+What is a High-Level Language?
+Computers understand only binary (0s and 1s).
+Humans don't.
+Python allows us to write code in English-like syntax.
+
+Example:
+print("Welcome")
+
+instead of writing binary.
+
+3. General-Purpose Language
+Some programming languages are designed for one job.
+
+Python can perform many jobs.
+Examples:
+ . Automation
+ . Web Development
+ . Cloud Automation
+ . Artificial Intelligence
+ . Data Analysis
+ . Cyber Security
+ . DevOps
+
+Why is Python So Popular?
+-------------------------
+Because Python is:
+ . Easy to learn
+ . Easy to read
+ . Requires fewer lines of code
+ . Huge community support
+ . Free and Open Source
+ . Works on Windows, Linux and macOS
+
+Real-Time Example:
+------------------
+Suppose you need to display:
+Welcome to Linux
+
+In C language
+Around 5–6 lines.
+
+In Python
+print("Welcome to Linux")
+
+One line.
+Less code means easier maintenance.
+
+History of Python:
+------------------
+Creator : Guido van Rossum
+Released : 1991
+
+Why was it named Python?
+Many beginners think it is named after the snake.
+
+It is not.
+
+It was inspired by the British comedy television show:
+"Monty Python's Flying Circus."
+
+Where is Python Used?:
+----------------------
+| Industry             | Example                         |
+| -------------------- | ------------------------------- |
+| DevOps               | Automating deployments          |
+| Linux Administration | Server monitoring               |
+| Cloud                | Managing AWS resources          |
+| AI & ML              | ChatGPT, Recommendation Systems |
+| Cyber Security       | Log analysis, Malware detection |
+| Data Analytics       | Excel and CSV processing        |
+| Automation           | File management                 |
+| Web Development      | Websites and APIs               |
+
+Python vs Shell Scripting:
+--------------------------
+| Shell Script                  | Python                                          |
+| ----------------------------- | ----------------------------------------------- |
+| Linux only                    | Cross-platform                                  |
+| Good for system commands      | Good for automation and application development |
+| Limited programming features  | Rich programming capabilities                   |
+| Difficult for large projects  | Better suited for large projects                |
+| Faster for simple Linux tasks | Easier to maintain for complex logic            |
+
+Terminologies:
+--------------
+| Term        | Meaning                           |
+| ----------- | --------------------------------- |
+| Source Code | Code written by the programmer    |
+| Script      | A Python program                  |
+| Interpreter | Executes Python code line by line |
+| `.py`       | Python file extension             |
+| Output      | Result produced by the program    |
+
+Hands-on:
+(First Python Program)
+----------------------
+1. Install Python from the official python downloads page
+2. Create a simple file (vi hello.py), paste the below context
+
+print("Hello World")
+
+3. Run using this command 
+python3 hello.py
+
+Output:
+Hello World
+
+What is Python Syntax?:
+-----------------------
+Before writing programs, we need to know Python's writing rules.
+
+Just as English has grammar,
+Python has syntax.
+
+Simple Definition
+Python syntax is the set of rules that tells us how to write Python programs correctly.
+
+If we don't follow the rules,
+Python immediately reports an error.
+
+Python is case-sensitive.
+
+That means
+print
+and
+Print
+are different.
+
+Terminology:
+------------
+Case Sensitive
+Python treats uppercase and lowercase letters differently.
+
+Example
+name = "Akshiv"
+Name = "Preethi"
+
+These are two different variables.
+
+Python Indentation:
+-------------------
+This is one of Python's most important concepts.
+
+Many programming languages use
+{
+}
+to define blocks.
+
+Python doesn't.
+It uses spaces.
+
+What is a Variable?:
+--------------------
+A variable is a named storage location used to store information that can be used later in a program.
+
+Real-Time Example (Mobile Contacts):
+------------------------------------
+Your friend's phone number is
+9876543210
+
+Do you memorize the number?
+No.
+
+You save it as
+Rahul
+
+Now you simply search
+Rahul
+
+instead of remembering the number.
+
+Variable Name
+↓
+Rahul
+Stored Value
+↓
+9876543210
+
+Hands-on:
+---------
+1. Create another file (vi sample.py), paste the below code
+
+name = "Akshiv"
+city = "Chennai"
+course = "Python"
+print(name)
+print(city)
+print(course)
+
+2. now run the file (python3 sample.py)
+Output:
+Akshiv
+Chennai
+Python
+
+this is how variable is going to work.
+
+Variable Naming Rules:
+----------------------
+This is an important interview topic.
+
+Rule 1:
+-------
+Must begin with a letter or underscore.
+
+Correct one:
+username = "Akshiv"
+_server = "Web01"
+
+Wrong one:
+1server = "Web01"
+
+Rule 2:
+-------
+No spaces.
+
+Correct
+server_name
+
+Wrong
+server name
+
+Rule 3:
+-------
+Special characters are not allowed.
+
+Wrong
+server-name
+server$name
+
+Rule 4:
+-------
+Case Sensitive
+
+name = "Akshiv"
+Name = "Preethi"
+
+Different variables.
+
+Best Naming Practice:
+---------------------
+Avoid
+
+a = "Chennai"
+x = "Ubuntu"
+
+Prefer
+
+city = "Chennai"
+server_name = "Ubuntu"
+
+Meaningful names make code easier to read.
+
+Variable Naming Styles:
+-----------------------
+Snake Case (Most Common in Python)
+
+server_name
+employee_id
+cloud_region
+
+Camel Case:
+serverName
+employeeId
+Less common in Python but used in other languages.
+
+Hands-on Activity:
+------------------
+Hands-on Activity 3
+
+Create variables for
+ . Company Name
+ . Server Name
+ . IP Address
+ . Cloud Region
+
+Example:
+company = "ABC Technologies"
+server = "WebServer01"
+ip_address = "192.168.1.20"
+region = "us-east-2"
+print(company)
+print(server)
+print(ip_address)
+print(region)
+
+Module 3: Data Types and Operations:
+------------------------------------
+Different kinds of information require different handling.
+That is exactly why Python has Data Types.
+
+What is a Data Type?
+A Data Type tells Python what kind of information is stored inside a variable.
+
+Types of Data in Python:
+------------------------
+| Data Type        | Meaning         | Example    |
+| ---------------- | --------------- | ---------- |
+| String (`str`)   | Text            | `"Akshiv"` |
+| Integer (`int`)  | Whole Numbers   | `25`       |
+| Float (`float`)  | Decimal Numbers | `98.5`     |
+| Boolean (`bool`) | True or False   | `True`     |
+
+1. String (str):
+----------------
+A String is a collection of characters enclosed within quotation marks.
+
+Examples
+name = "Akshiv"
+city = "Chennai"
+course = "Python"
+
+2. Integer (int):
+-----------------
+An Integer is a whole number without a decimal point.
+
+Examples
+age = 25
+employees = 150
+cpu = 8
+
+3. Float:
+---------
+A Float is a number that contains a decimal point.
+
+Examples
+temperature = 36.5
+salary = 45000.75
+memory = 15.8
+
+4. Boolean (bool):
+------------------
+This is one of the most important data types for automation.
+Boolean stores only two values.
+
+True
+False
+
+Checking Data Types:
+--------------------
+Python provides a built-in function:
+type()
+It tells us the type of a value.
+
+Example
+name = "Akshiv"
+print(type(name))
+
+Output:
+<class 'str'>
+
+Hands-on:
+---------
+1. Create another file (vi data.py), paste the below code
+
+name = "Akshiv"
+age = 25
+salary = 55000.75
+working = True
+print(type(name))
+print(type(age))
+print(type(salary))
+print(type(working))
+
+2. Run the file (python3 data.py)
+
+Output:
+<class 'str'>
+<class 'int'>
+<class 'float'>
+<class 'bool'>
+
+Operations in Python:
+---------------------
+Once data is stored, we usually perform operations on it.
+
+Arithmetic Operators:
+---------------------
+| Operator | Meaning             | Example   |
+| -------- | ------------------- | --------- |
+| `+`      | Addition            | `10 + 5`  |
+| `-`      | Subtraction         | `10 - 5`  |
+| `*`      | Multiplication      | `10 * 5`  |
+| `/`      | Division            | `10 / 5`  |
+
+Comparison Operators:
+---------------------
+Comparison operators compare two values and always return a Boolean (True or False).
+| Operator | Meaning               |
+| -------- | --------------------- |
+| `==`     | Equal to              |
+| `!=`     | Not Equal             |
+| `>`      | Greater Than          |
+| `<`      | Less Than             |
+| `>=`     | Greater Than or Equal |
+| `<=`     | Less Than or Equal    |
+
+Logical Operators:
+------------------
+Logical operators combine multiple conditions.
+| Operator | Meaning                             |
+| -------- | ----------------------------------- |
+| `and`    | Both conditions must be True        |
+| `or`     | At least one condition must be True |
+| `not`    | Reverses the result                 | [This is useful when you want to perform an action only if something is not true.]
+
+Hands-on:
+---------
+1. Create a file (vi dtypes.py)
+Scenario: Imagine you're monitoring a server.
+
+server = "Web01"
+cpu = 75
+memory = 16.5
+running = True
+print("Server:", server)
+print("CPU:", cpu)
+print("Memory:", memory)
+print("Running:", running)
+print("CPU Above 70%:", cpu > 70)
+print("Server Healthy:", running and cpu < 80)
+
+2. Run the file (python3 dtypes.py)
+
+Output:
+Server: Web01
+CPU: 75
+Memory: 16.5
+Running: True
+CPU Above 70%: True
+Server Healthy: True
+
+
+This combines data types, comparison operators, and logical operators in a simple monitoring example.
+
+Module 4: Conditions and Loops in Python:
+-----------------------------------------
+What is a Condition?
+A condition is a process of checking something is True or False. Based on the result, Python decides what to do next.
+
+Real-Time Examples
+1. A Linux Administrator checks:
+
+Disk Usage > 80% ?
+↓
+YES
+↓
+Send Alert
+↓
+NO
+↓
+Do Nothing
+
+2. Cloud Engineer
+
+EC2 Instance Running?
+↓
+YES
+↓
+Continue Deployment
+↓
+NO
+↓
+Start EC2
+
+3. DevOps Engineer
+
+Build Successful?
+↓
+YES
+↓
+Deploy Application
+↓
+NO
+↓
+Stop Deployment
+
+Decision Flow:
+--------------
+           Condition
+               │
+      True ────┴──── False
+        │              │
+ Execute Block A   Execute Block B
+
+The (if) statement:
+	(if) statement executes a block of code only when the conditions is True.
+
+Syntax:
+-------
+if condition:
+    statement
+
+Notice
+ . if
+ . condition
+ . colon (:)
+ . indentation
+All are mandatory.
+
+Simple Example:
+---------------
+age = 20
+
+if age >= 18:
+    print("Eligible to Vote")
+
+Output:
+Eligible to Vote
+
+Real-Time Example:
+------------------
+A Linux Administrator wants to know whether disk usage is high.
+
+disk_usage = 85
+
+if disk_usage > 80:
+    print("Warning: Disk Usage is High")
+
+Output:
+Warning: Disk Usage is High
+
+Another Example:
+----------------
+temperature = 42
+
+if temperature > 40:
+    print("High Temperature")
+
+if Statement Hands-on:
+----------------------
+cpu = 92
+
+if cpu > 90:
+    print("Critical CPU Usage")
+
+Change:
+-------
+cpu = 70
+
+Run again
+what happened? Nothing.
+Why? Because the condition became False.
+
+if...else Statement:
+--------------------
+Sometimes we need Python to do something whether the answer is True or False.
+The if-else statement executes one block if the condition is True and another block if it is False.
+
+Syntax:
+-------
+if condition:
+    statement
+else:
+    statement
+
+Example:
+--------
+age = 15
+
+if age >= 18:
+    print("Eligible")
+else:
+    print("Not Eligible")
+
+Output:
+Not Eligible
+
+Linux Example:
+--------------
+disk_usage = 55
+
+if disk_usage > 80:
+    print("Disk Full")
+else:
+    print("Disk Usage Normal")
+
+if-elif-else:
+-------------
+Can there be more than two choices?
+elif allows Python to check multiple conditions one after another.
+
+Syntax:
+-------
+if condition:
+    statement
+
+elif condition:
+    statement
+
+else:
+    statement
+
+Example:
+--------
+marks = 85
+
+if marks >= 90:
+    print("Grade A")
+
+elif marks >= 80:
+    print("Grade B")
+
+elif marks >= 70:
+    print("Grade C")
+
+else:
+    print("Fail")
+
+Output:
+Grade B
+
+Real-time Cloud Example:
+------------------------
+cpu = 88
+
+if cpu > 90:
+    print("Critical")
+
+elif cpu > 80:
+    print("High")
+
+elif cpu > 60:
+    print("Moderate")
+
+else:
+    print("Normal")
+
+Nested if:
+----------
+Sometimes one decision depends on another.
+
+Example:
+ATM Machine
+
+Card Valid?
+↓
+YES
+↓
+PIN Correct?
+↓
+YES
+↓
+Withdraw Money
+↓
+NO
+↓
+Invalid PIN
+
+Example:
+--------
+age = 25
+citizen = True
+
+if age >= 18:
+    if citizen:
+        print("Eligible to Vote")
+
+Real-Time DevOps Example:
+-------------------------
+build = True
+security_scan = True
+
+if build:
+    if security_scan:
+        print("Deploy Application")
+
+Introduction to Loops:
+----------------------
+A loop repeats a block of code multiple times until a condition changes or the required repetitions are completed.
+
+Types of Loops:
+---------------
+Python mainly has 2 loops.
+| Loop  | Purpose                                |
+| ----- | -------------------------------------- |
+| for   | Repeat a known number of times         |
+| while | Repeat until a condition becomes False |
+
+for Loop:
+---------
+A for loop repeats a block of code for each item in a sequence or for a fixed number of iterations.
+
+Syntax:
+-------
+for variable in sequence:
+    statement
+
+Example:
+--------
+for i in range(5):
+    print("Welcome")
+
+Output:
+Welcome
+Welcome
+Welcome
+Welcome
+Welcome
+
+What is range():
+----------------
+It generates a sequence of numbers.
+
+Example:
+range(5)
+
+Produces
+0
+1
+2
+3
+4
+
+Notice: 5 is not included.
+Because Python counts positions, not human counting.
+
+A Simple Rule for Range:
+------------------------
+| Code            | Meaning                       |
+| --------------- | ----------------------------- |
+| `range(5)`      | Repeat 5 times (values: 0–4)  |
+| `range(1,6)`    | Count from 1 to 5             |
+| `range(10)`     | Repeat 10 times (values: 0–9) |
+| `range(2,11,2)` | Count by 2s: 2, 4, 6, 8, 10   |	= count of every 2 numbers but as we mentioned here (11) this will get stopped before 11; that is why we can see the numbers from 2 to 10.
+
+Real-Time Example:
+------------------
+Suppose a company has five servers.
+
+for server in range(5):
+    print("Checking Server", server)
+
+Output:
+Checking Server 0
+Checking Server 1
+Checking Server 2
+Checking Server 3
+Checking Server 4
+
+while Loop:
+-----------
+A while loop keeps executing as long as the condition remains True.
+
+Syntax:
+-------
+while condition:
+    statement
+
+Example:
+--------
+count = 1
+
+while count <= 5:
+    print(count)
+    count += 1
+
+Output:
+-------
+1
+2
+3
+4
+5
+
+Real-Time Example:
+------------------
+Suppose you're waiting for a server to start.
+
+server_running = False
+
+while not server_running:
+    print("Waiting for Server...")
+    break
+
+In a real automation script, the condition would be updated after checking the server status repeatedly.
+
+break Statement:
+----------------
+break immediately exits the loop, even if more iterations remain.
+
+Example:
+--------
+for i in range(10):
+    if i == 5:
+        break
+    print(i)
+
+Output:
+0
+1
+2
+3
+4
+
+When i becomes 5, the loop stops immediately.
+
+Real-Time Example:
+------------------
+Suppose you're searching for a file.
+As soon as you find it, you stop searching.
+That's exactly what break does.
+
+continue Statement:
+-------------------
+continue skips the current iteration and moves to the next one.
+
+Example:
+--------
+for i in range(6):
+    if i == 3:
+        continue
+    print(i)
+
+Output:
+0
+1
+2
+4
+5
+
+The number 3 is skipped, but the loop continues.
+
+Real-Time Example:
+------------------
+Suppose you're checking 100 servers.
+One server is under maintenance.
+Skip it and continue checking the remaining servers.
+That's what continue does.
+
+Mini Real-Time Project:
+-----------------------
+Server Health Checker
+
+servers = ["Web01", "Web02", "DB01"]
+
+for server in servers:
+    print("Checking", server)
+
+cpu = 85
+
+if cpu > 80:
+    print("High CPU Usage")
+else:
+    print("CPU Usage Normal")
+
+This combines a loop with a condition, similar to what monitoring scripts do.
+
+Common Technologies:
+--------------------
+| Term         | Meaning                                                 |
+| ------------ | ------------------------------------------------------- |
+| Condition    | A test that evaluates to `True` or `False`              |
+| `if`         | Executes code only when the condition is `True`         |
+| `else`       | Executes when the `if` condition is `False`             |
+| `elif`       | Checks additional conditions                            |
+| Nested `if`  | An `if` statement inside another `if` statement         |
+| Loop         | Repeats a block of code                                 |
+| `for` Loop   | Repeats for each item or a fixed number of times        |
+| `while` Loop | Repeats while a condition remains `True`                |
+| `range()`    | Generates a sequence of numbers                         |
+| `break`      | Exits the loop immediately                              |
+| `continue`   | Skips the current iteration and continues with the next |
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

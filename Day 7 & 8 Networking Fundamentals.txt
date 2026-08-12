@@ -1,0 +1,722 @@
+Day 7 & 8: Networking Fundamentals
+==================================
+Module: IP, Addressing, Subnetting, Netmasking & CIDR
+
+1. Understanding IP Addressing:
+-------------------------------
+An IP Address (Internet Protocol Address) is a unique number assigned to every device connected to a network.
+
+Without an IP address,
+ . your laptop cannot communicate
+ . your mobile cannot browse websites
+ . servers cannot identify who is requesting data
+
+Think of it as:
+IP Address = Home Address of a Device
+
+Real Example
+Imagine your office.
+
+There are
+200 employees
+200 laptops
+
+How does the network know
+"Send this email to Akshiv's laptop."
+It uses the IP Address.
+
+Example:
+
+Laptop 1
+192.168.1.10
+
+Laptop 2
+192.168.1.20
+
+Printer
+192.168.1.30
+
+Server
+192.168.1.100
+
+Each one has its own address.
+No duplicates.
+
+IP Version:
+There are mainly two versions.
+| Version | Example             |
+| ------- | ------------------- |
+| IPv4    | 192.168.1.10        |
+| IPv6    | 2409:40f0:abcd::100 |
+
+
+IPv4 Structure:
+192.168.10.25
+
+It contains four numbers.
+192
+168
+10
+25
+
+Why are they called Octets?
+Each number is made up of 8 bits.
+
+8 bits
+↓
+One Octet
+
+There are four octets.
+8 + 8 + 8 + 8 = 32 bits
+
+Therefore
+IPv4 = 32-bit Address
+
+Range of each Octet:
+Each octet can have values from: 0 to 255
+
+Example: 
+Valid
+10.20.30.40
+192.168.10.5
+8.8.8.8
+
+Invalid
+300.10.20.1
+192.168.500.1
+because numbers cannot exceed 255.
+
+Binary Representation:
+Why only 255?
+Because computers understand only binary.
+Example:
+255 = 11111111
+
+8 bits
+Maximum value
+255
+That is why each octet ranges from 0–255.
+
+ > Structure of an IP Address:
+------------------------------
+An IP address has 2 parts
+Network Portion + Host Portion
+Both are required to locate a computer, because a computer needs
+ . Which network it belongs to
+ . Which device it is inside that network
+
+Networking follows the same hierarchy.
+A router first finds Correct Network
+Only then
+Correct Device
+This makes communication much faster.
+
+Ex: 192.168.1.25
+
+Here, 
+192.168.1
+↓
+Network
+25
+↓
+Host
+
+Why is the Network Portion Needed?
+Suppose Chennai has 10 lakh houses
+The courier first reaches (Correct Area), Then (Correct Building), Then (Correct flat)
+Networking works exactly like that.
+Router first finds the network.
+Then it finds the device.
+
+Terminologies to Introduce:
+---------------------------
+| Term                         | Meaning                                               |
+| ---------------------------- | ----------------------------------------------------- |
+| IP Address                   | Address of a device                                   |
+| Network                      | Collection of connected devices                       |
+| Host                         | Any device connected to a network                     |
+| Router                       | Connects different networks                           |
+| Switch                       | Connects devices within the same network              |
+| NIC (Network Interface Card) | Hardware that allows a device to connect to a network |
+| Gateway                      | The route used to reach other networks                |
+| Broadcast                    | Sending a message to all devices in the same network  |
+| Network ID                   | Identifies the network itself                         |
+| Host ID                      | Identifies a specific device within that network      |
+
+
+Why do we need subnetting?
+--------------------------
+Imagine Amazon has one warehouse for the whole country.
+Every parcel,
+Every city,
+Every state,
+comes into one building.
+Will it work efficiently?
+Obviously not.
+There will be delays and confusion.
+
+Same problem in Networking:
+Imagine one office with 5000 computers (all in one network)
+Problems:
+ . Huge broadcast traffic
+ . Slower communication
+ . Hard to manage
+ . More security risks
+ . Troubleshooting becomes difficult
+
+Solution:
+Divide the big network into smaller networks, This is Subnetting.
+
+Definition:
+Subnetting is the process of dividing one large network into multiple smaller networks called subnets.
+Instead of keeping all the departments under one single network, they will split it 
+
+HR
+192.168.10.x
+
+Finance
+192.168.20.x
+
+Sales
+192.168.30.x
+
+Development
+192.168.40.x
+
+Benefits:
+ . Better security
+ . Faster communication
+ . Easier management
+ . Less broadcast traffic
+
+ > Apartment Example:
+---------------------
+Entire Apartment
+↓
+One Network
+
+Each Floor
+↓
+One Subnet
+
+Each Flat
+↓
+Host
+
+ > What is a Netmask (Subnet Mask)?
+-----------------------------------
+Why Do We Need a Subnet Mask?
+Suppose I show this address: 192.168.1.50
+
+Question:
+---------
+Which part is the network?
+Which part is the host?
+You cannot tell.
+We need another number.
+That number is called the Subnet Mask
+
+What Does It Do?
+The subnet mask tells the computer:
+"This part belongs to the network, and this part belongs to the host."
+
+A subnet mask is a 32-bit value that tells a device which part of an IP address represents the network and which part represents the host.
+
+Deep-dive:
+Does every machine have only one IP address?
+Not necessarily.
+A machine can have multiple IP addresses.
+
+For example, your laptop may have:
+Wi-Fi Adapter
+192.168.1.25
+
+Ethernet Adapter
+10.10.1.50
+
+Virtual Machine
+192.168.56.1
+
+Docker Network
+172.17.0.1
+
+VPN Adapter
+10.8.0.15
+Each network interface (NIC) can have its own IP address.
+
+Where did this subnet mask come from?
+Example:
+IP Address
+192.168.1.25
+
+Subnet Mask
+255.255.255.0
+
+Nobody randomly invents this subnet mask.
+It is assigned by whoever designs the network.
+That could be:
+ . Network Administrator [In companies, mostly it is going to be Network Admin]
+ . DHCP Server
+ . Home Wi-Fi Router
+
+ > Think of an Apartment
+------------------------
+Suppose a builder constructs an apartment.
+He decides
+There will be
+5 Floors
+20 Flats per Floor
+Nobody living there decides this.
+The builder decides.
+
+Similarly,
+A Network Administrator decides
+"My network will use /24."
+Then every device joining that network receives
+
+Subnet Mask
+255.255.255.0
+
+So is the Subnet Mask another IP Address?
+No.
+This is probably the biggest misconception.
+
+IP Address: 192.168.1.25
+Subnet Mask: 255.255.255.0
+They look similar because both use four numbers separated by dots.
+But they have completely different jobs.
+
+| IP Address                          | Subnet Mask                                     |
+| ----------------------------------- | ----------------------------------------------- |
+| Identifies a device                 | Defines the network boundary                    |
+| Unique per device (within a subnet) | Usually the same for all devices in that subnet |
+| Changes from device to device       | Often identical across the subnet               |
+
+Why 255?
+--------
+Remember
+255
+=
+11111111
+
+Binary
+All 1s mean
+"This belongs to the network."
+
+All 0s mean
+"This belongs to the host."
+
+Example:
+255.255.255.0
+
+Binary
+11111111
+11111111
+11111111
+00000000
+
+Meaning:
+24 Network Bits
+8 Host Bits
+
+Where is the subnet mask stored?
+Every computer stores it as part of its network configuration.
+If you run, Windows open command prompt and give (ipconfig)
+
+IPv4 Address
+192.168.1.25
+
+Subnet Mask
+255.255.255.0
+
+Default Gateway
+192.168.1.1
+
+For Linux, give command (ip addr) pr (ifconfig) - you'll see the same information.
+
+Every machine stores:
+ . IP Address
+ . Subnet Mask
+ . Gateway
+ . DNS Server
+These are separate configuration values.
+
+How are these subnet masks chosen?
+This depends on how many devices you need.
+Imagine you are designing a company network.
+
+Scenario 1
+HR Department
+Only 100 computers.
+You choose: 
+/24
+255.255.255.0
+Because it supports 254 usable devices.
+
+Scenario 2
+Factory
+10,000 devices.
+A /24 is too small.
+You might choose
+/16
+255.255.0.0
+which supports over 65,000 usable host addresses.
+
+These are four different configuration values, each with a different purpose:
+ . IP Address → "Who am I?"
+ . Subnet Mask → "Which part of my IP is the network, and which part is the host?"
+ . Default Gateway → "Where do I send traffic that's outside my network?"
+ . DNS Server → "How do I translate names like google.com into IP addresses?"
+
+CIDR Notation:
+--------------
+Instead of writing: 255.255.255.0
+Network engineering write: /24
+This is called Classless Inter-Domain Routing
+
+What Does "/24" Mean?
+24 bits
+↓
+Network
+
+8 bits
+↓
+Host
+That's it.
+
+Examples:
+| Subnet Mask     | CIDR |
+| --------------- | ---- |
+| 255.0.0.0       | /8   |
+| 255.255.0.0     | /16  |
+| 255.255.255.0   | /24  |
+| 255.255.255.128 | /25  |
+| 255.255.255.192 | /26  |
+| 255.255.255.224 | /27  |
+| 255.255.255.240 | /28  |
+| 255.255.255.248 | /29  |
+| 255.255.255.252 | /30  |
+| 255.255.255.254 | /31  |
+| 255.255.255.255 | /32  |
+
+ > CIDR Explained with a Pizza 🍕:
+-----------------------------------
+Imagine a pizza cut into 32 slices.
+
+□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□□
+
+Each slice = 1 bit.
+
+A /24 means:
+■■■■■■■■■■■■■■■■■■■■■■■■□□□□□□□□
+24 filled slices = Network bits.
+8 empty slices = Host bits.
+
+As the / number gets larger, more bits are reserved for the network and fewer remain for hosts. That means you create smaller networks.
+
+For example:
+/16 → Large network (many hosts)
+/24 → Medium-sized network
+/28 → Small network (few hosts)
+
+Understanding Network ID, Host ID, Broadcast Address:
+-----------------------------------------------------
+These three terms appear everywhere in networking, cloud platforms, and DevOps.
+
+Network ID
+The Network ID identifies the subnet itself. It is not assigned to any device.
+
+IP Address:    192.168.10.25
+Subnet Mask:   255.255.255.0 (/24)
+
+Network ID:    192.168.10.0
+
+Think of it as the apartment name, not a specific flat.
+
+Host ID
+The Host ID identifies an individual device within that network.
+
+Examples:
+192.168.10.1
+192.168.10.2
+192.168.10.25
+192.168.10.100
+
+Each host ID must be unique within the subnet.
+
+Broadcast Address
+The Broadcast Address is used to send a message to every device in the subnet simultaneously.
+
+For the same /24 network:
+Network ID:    192.168.10.0
+Broadcast:     192.168.10.255
+
+Neither the Network ID nor the Broadcast Address can be assigned to hosts.
+
+Public vs Private IP Addresses:
+-------------------------------
+| Private IP Range                  | Purpose                  |
+| --------------------------------- | ------------------------ |
+| 10.0.0.0/8                        | Large private networks   |
+| 172.16.0.0 – 172.31.255.255 (/12) | Medium private networks  |
+| 192.168.0.0/16                    | Home and office networks |
+
+Private IPs work only inside private networks. To communicate on the internet, a router typically translates them to a public IP using Network Address Translation (NAT).
+
+Example:
+Laptop (Private IP)
+192.168.1.10
+      │
+Wi-Fi Router (NAT)
+      │
+Internet
+      │
+Public IP
+203.x.x.x
+
+Hands-on Activities:
+--------------------
+Hands-on 1 – Find Your IP Address
+Windows
+ipconfig
+
+Look for:
+ . IPv4 Address
+ . Subnet Mask
+ . Default Gateway
+
+Linux/macOS
+ip addr (or) hostname -I
+
+Hands-on 2 – Compare different CIDRs
+| CIDR | Approximate Usable Hosts | Typical Use                 |
+| ---- | -----------------------: | --------------------------- |
+| /24  |                      254 | Office LAN                  |
+| /25  |                      126 | Small department            |
+| /26  |                       62 | Team network                |
+| /27  |                       30 | Small lab                   |
+| /28  |                       14 | Tiny office or lab          |
+| /29  |                        6 | Network devices             |
+| /30  |                        2 | Point-to-point router links |
+| /32  |                        1 | Single host route           |
+
+Every time you increase the CIDR by 1, you borrow one host bit for the network. The network becomes smaller, and the number of usable host addresses roughly halves.
+
+[*** Tricky Part]
+when comes to network portion it denotes all 1s (255) and host portion denotes 0s; but what if the number is like 246? this is the combination of 11110110; how are we identifying whether this belongs to network or host?
+
+The subnet mask does NOT say "this entire octet is network" or "this entire octet is host."
+It works bit by bit, not octet by octet.
+
+1. The Easy Case
+Consider this subnet mask: 255.255.255.0
+Convert each octet to binary:
+255 = 11111111
+255 = 11111111
+255 = 11111111
+0   = 00000000
+
+So the mask becomes:
+11111111.11111111.11111111.00000000
+
+Every 1 means:
+This bit belongs to the Network
+
+Every 0 means:
+This bit belongs to the Host
+
+So:
+11111111.11111111.11111111.00000000
+
+^^^^^^^^^^^^^^^^^^^^^^^^
+Network (24 bits)
+
+........
+Host (8 bits)
+
+This is called /24.
+Very straightforward.
+
+2. Now Let's Use a Different Mask
+Suppose the subnet mask is: 255.255.255.192
+
+Now convert only the last octet.
+Everyone knows: 255 = 11111111
+
+Now let's convert 192.
+Decimal → Binary
+128 64 32 16 8 4 2 1
+
+Can we make 192?
+192 = 128 + 64
+
+so
+128 ✓
+64  ✓
+32 ✗
+16 ✗
+8  ✗
+4  ✗
+2  ✗
+1  ✗
+
+Binary becomes: 11000000
+
+Therefore:
+255.255.255.192
+=
+11111111.11111111.11111111.11000000
+
+Now notice something important.
+The last octet is not all 1s or all 0s.
+It is: 11000000
+
+Meaning
+11
+Network Bits
+
+000000
+Host Bits
+
+so we can see we got 26 (1s) and 6 (0s)
+
+so overall we got 26 (network bits)
+and 6 (host bits)
+
+3. Now let us comes to (246)
+Let's convert it: 246 = 128 + 64 + 32 + 16 + 4 + 2
+Binary: 11110110
+
+The 1s and 0s are mixed.
+This creates a serious problem.
+Where does the network end?
+Where does the host begin?
+You cannot tell.
+
+Is this a Valid Subnet Mask?
+A subnet mask must follow one rule.
+All the 1s must come first, followed by all the 0s.
+Once the first 0 appears,
+you are never allowed to have another 1 afterward.
+This is called a contiguous mask.
+
+Valid Examples:
+11111111
+11111110
+11111100
+11111000
+11110000
+11100000
+11000000
+10000000
+00000000
+
+but in our case we are getting 1 after 0, that means
+
+Network
+↓
+Host
+↓
+Network again
+
+Impossible.
+The computer cannot determine where the boundary is.
+Therefore
+246 can never be a subnet mask.
+
+All Valid Values for One Octet of a Subnet Mask:
+Because of this rule, only these values are possible:
+| Binary   | Decimal |
+| -------- | ------: |
+| 00000000 |       0 |
+| 10000000 |     128 |
+| 11000000 |     192 |
+| 11100000 |     224 |
+| 11110000 |     240 |
+| 11111000 |     248 |
+| 11111100 |     252 |
+| 11111110 |     254 |
+| 11111111 |     255 |
+
+That's it.
+No other values are valid in a subnet mask.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

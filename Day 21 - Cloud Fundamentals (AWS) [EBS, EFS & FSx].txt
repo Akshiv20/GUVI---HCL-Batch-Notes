@@ -1,0 +1,350 @@
+Day 21 - Cloud Fundamentals (AWS) [EBS, EFS & FSx]:
+===================================================
+EBS = storage attached to one EC2 instance
+EFS = shared file storage accessed by multiple EC2 instances
+FSx = AWS-managed file systems for specific workloads
+
+AWS Storage Services — EBS, EFS & FSx:
+--------------------------------------
+1. First understand the storage problem
+Suppose we have an application running on an EC2 instance.
+The application needs to store:
+ . Operating system files
+ . Application files
+ . Database files
+ . Logs
+ . User-uploaded files
+ . Configuration files
+ . Backups
+EC2 provides compute, but applications need persistent storage.
+
+AWS provides several storage options.
+
+| Service | Simple meaning                  | Typical usage                         |
+| ------- | ------------------------------- | ------------------------------------- |
+| **EBS** | Disk attached to EC2            | OS, applications, databases           |
+| **EFS** | Shared Linux file system        | Multiple EC2 instances sharing files  |
+| **FSx** | Managed specialized file system | Windows, HPC, enterprise workloads    |
+| **S3**  | Object storage                  | Images, videos, backups, static files |
+
+2. Introduction to EBS:
+-----------------------
+What is EBS?
+Amazon Elastic Block Store (EBS) provides block-level persistent storage for EC2.
+
+Think technically:
+EC2 Instance
+     |
+     | attached
+     ↓
+   EBS Volume
+     |
+     ├── OS files
+     ├── Application files
+     ├── Database files
+     └── Logs
+An EBS volume behaves much like a hard disk/SSD attached to a server.
+
+Why do we need EBS?
+Suppose you launch an EC2 instance.
+
+You install:
+Nginx
+Docker
+Application
+Database
+Configuration
+
+Now imagine the EC2 instance is stopped and started.
+The data stored on its EBS volume can remain available.
+This is why EBS is called persistent block storage.
+Important distinction:
+ > EC2 is compute.
+ > EBS is storage.
+
+EBS and its types:
+------------------
+There are several EBS volume types.
+
+| EBS Type | Technology | Typical usage                       |
+| -------- | ---------- | ----------------------------------- |
+| **gp3**  | SSD        | General-purpose workloads           |
+| **gp2**  | SSD        | Older general-purpose workloads     |
+| **io2**  | SSD        | High-performance critical databases |
+| **st1**  | HDD        | High-throughput workloads           |
+| **sc1**  | HDD        | Infrequently accessed data          |
+
+ > gp3:
+This should generally be your default choice for general-purpose workloads.
+
+Examples:
+ . Web server
+ . Application server
+ . Development environment
+
+ > io2
+Used when you need high IOPS and consistent performance, especially for demanding databases.
+The important point is that it is designed for high-performance, mission-critical workloads and supports provisioned IOPS.
+
+ > st1
+st1 is HDD-based and designed for high-throughput workloads.
+
+Examples:
+ . Large log processing
+ . Big data processing
+ . Sequential data processing
+
+ > sc1
+sc1 is also HDD-based, but optimized for infrequently accessed data where low cost matters more than performance.
+
+3. Introduction to EFS:
+-----------------------
+Now introduce a different problem.
+
+Imagine we have:
+EC2-1
+EC2-2
+EC2-3
+All three servers need access to the same files.
+
+For example:
+EC2-1 → application uploads
+EC2-2 → application reads uploads
+EC2-3 → application reads uploads
+
+If you use individual EBS volumes:
+EC2-1 → EBS-1
+EC2-2 → EBS-2
+EC2-3 → EBS-3
+These are separate disks.
+
+You need shared storage.
+That's where EFS comes in.
+
+What is EFS?
+Amazon Elastic File System (EFS) is a managed, scalable shared file system.
+Multiple EC2 instances can mount the same EFS file system.
+
+                   EFS
+                    |
+       ┌─────────┼─────────┐
+       ↓            ↓            ↓
+     EC2-1        EC2-2        EC2-3
+       |            |            |
+       └─────────┼─────────┘
+                    ↓
+              Shared files
+
+The EC2 instances can access the same directory structure.
+For Linux, EFS uses the NFS protocol.
+
+4. Introduction to FSx:
+-----------------------
+FSx is not one file system. FSx is AWS's managed service for running different types of file systems depending on the application's requirements.
+
+FSx gives you managed file systems such as:
+ . FSx for Windows File Server
+ . FSx for Lustre
+ . FSx for NetApp ONTAP
+ . FSx for OpenZFS
+
+ > FSx for Windows File Server
+Used when applications need a Windows-compatible file system.
+
+Typical enterprise workloads:
+ . Windows applications
+ . Shared departmental drives
+ . Microsoft-based environments
+
+ > FSx for Lustre
+This is targeted toward high-performance computing (HPC) and data-intensive workloads.
+
+Examples:
+ . Machine Learning
+ . High Performance Computing
+ . Scientific computing
+ . Large-scale data processing
+
+The important idea:
+Lustre is designed for very high-performance parallel file access.
+
+ > FSx for NetApp ONTAP
+NetApp is a company known for enterprise storage systems.
+Many organizations have traditionally used NetApp storage appliances in their data centers.
+Now suppose that company wants to migrate workloads to AWS.
+They may not want to completely redesign their storage architecture.
+That's where FSx for NetApp ONTAP comes in.
+
+Common use cases include:
+ . Enterprise applications
+ . Database workloads
+ . Migration of existing storage environments
+
+Real production example
+-----------------------
+Suppose a large enterprise has:
+100 TB
+of existing NetApp storage
+They are migrating applications to AWS.
+
+Instead of redesigning every application around a completely different storage system:
+
+Existing environment
+       ↓
+NetApp ONTAP
+       ↓
+AWS
+       ↓
+FSx for NetApp ONTAP
+
+This can make migration easier for workloads already designed around NetApp technologies.
+
+ > FSx for OpenZFS
+ZFS is a file system and storage technology originally developed at Sun Microsystems and now available through open-source implementations such as OpenZFS.
+ZFS is a storage/file-system technology known for strong data integrity, snapshots, and storage-management capabilities.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

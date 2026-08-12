@@ -1,0 +1,629 @@
+Day 19 - Cloud Fundamentals (AWS) [Auto Scaling and Load Balancing]:
+====================================================================
+Why do we need Auto Scaling and Load Balancing?
+-----------------------------------------------
+Imagine a web application deployed on a single EC2 instance.
+
+Users
+   │
+   ▼
+EC2 Instance
+
+Everything works until:
+ . Thousands of users access the application
+ . CPU becomes 100%
+ . Memory becomes full
+ . Server crashes
+ . AWS hardware fails
+ . Operating System hangs
+
+Result:
+ . Website becomes slow
+ . Requests fail
+ . Customers cannot access the application
+Cloud environments are expected to avoid these situations automatically.
+
+AWS solves this using:
+ . Multiple EC2 instances
+ . Load Balancer
+ . Auto Scaling
+
+High Availability (HA):
+-----------------------
+What is High Availability?
+
+High Availability means:
+The application should remain available even if one server fails, The objective is to reduce downtime.
+
+Instead of depending on one EC2 instance,
+we use,
+
+   Users
+    │
+    ▼
+Load Balancer
+    │
+ ┌─┴─────┐
+ │         │
+EC2-1    EC2-2 
+
+even if one EC2 machine stops or failed,
+Users continue using the application.
+They usually do not even know a server has failed.
+
+Why High Availability?
+It protects against:
+ . EC2 instance failure
+ . Operating system crash
+ . Application crash
+ . Hardware failure
+ . Availability Zone failure
+ . Maintenance activities
+
+Elastic Load Balancer (ELB):
+----------------------------
+What is a Load Balancer?
+A Load Balancer receives client requests first.
+Instead of users directly accessing EC2,
+they connect to
+
+    Users
+      │
+Load Balancer
+      │
+EC2 Instances
+
+The Load Balancer decides
+which EC2 should receive the request.
+Traffic is distributed.
+Every server handles fewer requests.
+
+Benefits
+ . Prevents one server from becoming overloaded
+ . Improves availability
+ . Improves performance
+ . Supports Auto Scaling
+ . Detects unhealthy instances
+ . Supports SSL/TLS termination
+ . Can route traffic based on rules
+
+Types of Elastic Load Balancer:
+-------------------------------
+AWS currently provides four types.
+
+1. Classic Load Balancer (CLB)
+Classic Load Balancer is the oldest load balancer provided by AWS.
+Years ago, AWS had only one load balancer.
+Later AWS introduced better services.
+Today, AWS recommends using ALB or NLB instead.
+
+What protocols does it support?
+ . HTTP
+ . HTTPS
+ . TCP
+ . SSL
+It supports both Layer 4 and Layer 7 features, but only basic functionality.
+
+What can it do?
+ . Distribute traffic
+ . Perform Health Checks
+ . Basic Load Balancing
+
+Limitations
+It cannot perform advanced routing.
+
+Example:
+Suppose your application has
+example.com/login
+example.com/payment
+example.com/profile
+
+Classic Load Balancer cannot understand
+/login
+/payment
+/profile
+It sends all requests to the same backend pool.
+
+Where was it commonly used?
+Older applications like
+ . Monolithic Java applications
+ . Traditional web servers
+ . Legacy enterprise applications
+
+2. Application Load Balancer (ALB)
+ALB understands HTTP and HTTPS requests.
+Works at Layer 7
+(Application Layer)
+
+it also understands
+ . URL
+ . Domain Name
+ . HTTP Headers
+ . HTTP Methods
+ . Query Parameters
+This makes it much smarter than CLB.
+
+Supports
+ . HTTP
+ . HTTPS
+ . Path-based routing
+ . Host-based routing
+
+Path-Based Routing:
+One domain
+Different applications.
+
+company.com/login
+↓
+Login Server
+
+company.com/products
+↓
+Product Server
+
+company.com/payment
+↓
+Payment Server
+One ALB can route requests to multiple Target Groups based on the URL path.
+
+Host-Based Routing
+Suppose a company owns multiple websites.
+
+hr.company.com
+sales.company.com
+support.company.com
+
+ALB checks the Host header and routes each request to the appropriate application.
+
+hr.company.com
+↓
+HR Application
+
+--------------------
+
+sales.company.com
+↓
+Sales Application
+
+--------------------
+
+support.company.com
+↓
+Support Application
+
+One ALB can serve multiple applications using different domain names.
+
+Typical Applications
+ALB is best for
+ . Company websites
+ . REST APIs
+ . Microservices
+ . Web applications
+ . E-commerce applications
+
+2. Network Load Balancer (NLB)
+Works at Layer 4 (Transport Layer)
+
+Not every application uses HTTP.
+Some applications use only
+TCP
+UDP
+TLS
+
+These applications do not have URLs such as
+/login
+/products
+Instead they communicate using network protocols.
+
+Supports
+ . TCP
+ . UDP
+ . TLS
+
+Why use NLB?
+NLB is designed for Very high speed, Very low latency
+Millions of connection.
+
+Example:
+Database Cluster
+
+Application
+↓
+Port 3306
+↓
+Network Load Balancer
+↓
+MySQL Servers
+
+NLB forwards TCP traffic without understanding database queries.
+
+Typical Applications
+NLB is best for
+ . Financial trading systems
+ . Database clusters
+
+Advantages:
+ . Extremely fast
+ . Handles millions of requests
+ . Very low latency
+ . High throughput
+
+Limitations:
+ . URLs
+ . HTTP headers
+ . Path-based routing
+ . Host-based routing
+
+4. Gateway Load Balancer (GWLB)
+This is the least commonly used load balancer, and many AWS users never configure one unless they work in networking or security.
+
+Why was GWLB introduced?
+Organizations often deploy security appliances between the Internet and their applications.
+
+Examples include:
+ . Firewalls
+ . Intrusion Detection Systems (IDS)
+ . Intrusion Prevention Systems (IPS)
+ . Deep Packet Inspection (DPI)
+ . Traffic Monitoring appliances
+If there are many such appliances, distributing traffic to them becomes difficult.
+GWLB solves this problem.
+
+Real Applications
+Gateway Load Balancer is used for
+ . Palo Alto Firewalls
+ . Fortinet Firewalls
+ . Cisco Secure Firewall
+ . Network monitoring appliances
+
+Advantages
+ . Scales security appliances automatically
+ . Centralized inspection
+ . High availability for firewalls
+ . Easy integration with third-party security vendors
+
+Limitations
+Not designed for
+ . Websites
+ . REST APIs
+ . Microservices
+ . General application traffic routing
+It is specifically for network security traffic inspection.
+
+Which Load Balancer should you choose?
+| Application Type                   | Recommended Load Balancer       | Why?                                                                                          |
+| ---------------------------------- | ------------------------------- | --------------------------------------------------------------------------------------------- |
+| Company Website                    | Application Load Balancer (ALB) | Understands HTTP/HTTPS, URLs, and can route requests intelligently.                           |
+| E-commerce Platform                | Application Load Balancer (ALB) | Supports path-based routing for services like login, products, payments, and orders.          |
+| REST API                           | Application Load Balancer (ALB) | Designed for HTTP-based APIs with advanced routing features.                                  |
+| Microservices                      | Application Load Balancer (ALB) | Can route different URLs or hostnames to different services.                                  |
+| Kubernetes (Ingress)               | Application Load Balancer (ALB) | Integrates well with Kubernetes Ingress controllers.                                          |
+| Online Multiplayer Game            | Network Load Balancer (NLB)     | Handles high-volume TCP/UDP traffic with very low latency.                                    |
+| Database Cluster                   | Network Load Balancer (NLB)     | Efficiently forwards TCP connections without inspecting application data.                     |
+| IoT/MQTT Platform                  | Network Load Balancer (NLB)     | Ideal for custom TCP/UDP protocols.                                                           |
+| Financial Trading System           | Network Load Balancer (NLB)     | Optimized for high throughput and minimal latency.                                            |
+| Firewall or IDS/IPS Infrastructure | Gateway Load Balancer (GWLB)    | Built specifically to distribute traffic across security appliances.                          |
+| Older Legacy Web Application       | Classic Load Balancer (CLB)     | Mainly for existing deployments; AWS recommends migrating to ALB or NLB for new applications. |
+
+Target Groups:
+--------------
+What is a Target Group?
+A Target Group is a collection of resources that receive traffic from the Load Balancer.
+
+Targets can be:
+ . EC2 instances
+ . IP addresses
+ . Lambda functions
+
+The Load Balancer sends traffic only to the Target Group.
+
+Health Checks:
+--------------
+Health Check means AWS periodically verifies whether an EC2 instance is healthy.
+
+Why?
+Sometimes
+EC2 is running
+but
+Application is crashed.
+Without Health Checks,
+Load Balancer still sends requests.
+Users receive errors.
+
+Health Check verifies
+ . Application responding?
+ . Correct HTTP status?
+ . Correct port open?
+ . Timeout?
+ . Response received?
+
+Health Check Parameters:
+------------------------
+Protocol
+HTTP
+HTTPS
+TCP
+
+Port
+Which port to check.
+Example
+80
+443
+8080
+
+Path
+Example
+/
+/health
+/status
+/api/health
+
+Interval
+How often AWS checks.
+Example
+Every 30 seconds.
+
+Timeout
+Maximum waiting time.
+Example
+5 seconds.
+
+Healthy Threshold
+Number of successful checks before marking healthy.
+
+Unhealthy Threshold
+Number of failed checks before marking unhealthy.
+
+Auto Scaling Group (ASG):
+-------------------------
+What is ASG?
+An Auto Scaling Group automatically manages EC2 instances.
+Instead of manually creating servers,
+AWS launches or terminates instances automatically.
+
+Responsibilities
+ASG
+ . Launches EC2
+ . Terminates EC2
+ . Replaces failed EC2
+ . Maintains desired capacity
+ . Scales according to demand
+
+Desired Capacity:
+3 Instances
+If one crashes:
+Running (2) - ASG launches (1 New Instance) - Back to (3)
+No manual work.
+
+Launch Template:
+----------------
+ASG creates EC2 instances using a Launch Template.
+
+The Launch Template defines:
+ . AMI
+ . Instance type
+ . Security Groups
+ . Key Pair
+ . IAM Role
+ . Storage (EBS)
+ . User Data script
+Every new EC2 launched by the ASG uses this configuration unless the template is updated.
+
+ASG Capacity Terminologies:
+---------------------------
+Three important values:
+
+ > Minimum Capacity
+Lowest number of EC2 instances.
+
+Example
+Minimum = 2
+
+AWS never goes below 2.
+
+ > Desired Capacity
+Current number AWS tries to maintain.
+
+Example
+Desired = 4
+
+AWS always tries to keep 4 running.
+
+ > Maximum Capacity
+Upper limit.
+
+Example
+Maximum = 10
+
+Even during heavy traffic,
+AWS never creates more than 10.
+
+Example:
+--------
+Minimum
+2
+
+Desired
+4
+
+Maximum
+10
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,824 @@
+Day 10 - Programming & Scripting:
+=================================
+ . Variables → Store information.
+ . User Input → Receive information.
+ . Conditional Statements → Make decisions based on information.
+ . Loops → Repeat work automatically.
+
+ > Conditional Statements:
+--------------------------
+Before learning (if), we should first understand why we need conditions.
+
+Why do we need conditional statements?
+Suppose a user enters their age:
+Age = 20
+
+If the age is greater than or equal to 18, 
+print
+Eligible to Vote
+
+Otherwise, 
+
+print
+Not Eligible
+
+Can Bash automatically know what to print?
+No.
+
+The script needs to make a decision.
+That decision is called a Condition.
+
+What is a Condition?
+A condition is simply a true or false question.
+
+Example:
+--------
+1. Is file present?
+Yes
+or
+No
+
+2. Is service running?
+Yes
+or
+No
+
+3. Is user root?
+Yes
+or
+No
+
+Every condition has only two possible results.
+TRUE (or) FALSE
+
+What is an if Statement?
+------------------------
+An if statement checks whether a condition is true.
+If it is true,
+execute the commands.
+Otherwise,
+skip them.
+
+Syntax:
+
+if [ condition ]
+then
+    commands
+fi
+
+Explanation:
+------------
+if: starts the decision.
+condition: The rule that is checked.
+
+Example:
+Age > 18
+File exists
+Directory exists
+Value is equal
+
+then: if the condition is true, execute these commands.
+fi: marks the end of the if statement.
+
+(if) ends with (fi)
+it is simply the closing keyword.
+
+Flow:
+-----
+     Condition
+        │
+   Is it TRUE?
+   │         │
+  YES        NO
+   │         │
+Execute     Skip
+Commands
+
+Example:
+--------
+#!/bin/bash
+
+age=20
+
+if [ $age -ge 18 ]
+then
+    echo "Eligible to Vote"
+fi
+
+Output: 
+Eligible to Vote
+
+Now change:
+age=15
+
+Output:
+(No output)
+
+Why?
+Because the condition became FALSE.
+
+Understanding the Condition:
+----------------------------
+[ $age -ge 18 ]
+Means
+Is age greater than or equal to 18?
+
+if Yes
+  |
+Execute
+
+if No
+  |
+Skip
+
+Common Comparison Operators:
+----------------------------
+These are the most frequently used comparison operators in Bash.
+
+| Operator | Meaning                  |
+| -------- | ------------------------ |
+| `-eq`    | Equal to                 |
+| `-ne`    | Not equal to             |
+| `-gt`    | Greater than             |
+| `-lt`    | Less than                |
+| `-ge`    | Greater than or equal to |
+| `-le`    | Less than or equal to    |
+
+Example:
+num=50
+
+if [ $num -gt 20 ]
+then
+    echo "Number is greater"
+fi
+
+Hands-on:
+---------
+#!/bin/bash
+
+marks=80
+
+if [ $marks -ge 35 ]
+then
+    echo "Pass"
+fi
+
+Change the marks:
+20
+35
+100
+Observe the output.
+
+ > if...else:
+-------------
+Sometimes we want to execute another block when the condition is FALSE.
+
+For that we use: else
+
+Syntax:
+if [ condition ]
+then
+    commands
+else
+    commands
+fi
+
+Flow:
+-----
+  Condition
+     │
+   TRUE ?
+ │       │
+YES      NO
+ │       │
+then    else
+
+Example:
+--------
+#!/bin/bash
+
+age=15
+
+if [ $age -ge 18 ]
+then
+    echo "Eligible"
+else
+    echo "Not Eligible"
+fi
+
+Output:
+Not Eligible
+
+Change,
+age=25
+
+Output:
+Eligible
+
+Hands-on:
+---------
+#!/bin/bash
+
+read -p "Enter marks : " marks
+
+if [ $marks -ge 35 ]
+then
+    echo "PASS"
+else
+    echo "FAIL"
+fi
+
+Run multiple times.
+
+Enter:
+90
+70
+40
+20
+Observe the output.
+
+if...elif...else:
+-----------------
+Sometimes there are more then two possibilities.
+
+Example:
+--------
+Marks = 95
+
+Grade A
+Marks = 80
+
+Grade B
+Marks = 60
+
+Grade C
+Marks = 20
+Fail
+
+Now one condition is not enough, we need multiple conditions.
+
+Syntax:
+-------
+if [ condition ]
+then
+
+commands
+
+elif [ condition ]
+then
+
+commands
+
+else
+
+commands
+
+fi
+
+Flow:
+-----
+Condition 1
+   │
+ TRUE ?
+   │
+  YES
+ Stop
+   │
+   NO
+   │
+Condition 2
+   │
+ TRUE ?
+   │
+  YES
+  Stop
+   │
+   NO
+   │
+  Else
+
+Example:
+--------
+#!/bin/bash
+
+read -p "Enter Marks : " marks
+
+if [ $marks -ge 90 ]
+then
+    echo "Grade A"
+
+elif [ $marks -ge 75 ]
+then
+    echo "Grade B"
+
+elif [ $marks -ge 50 ]
+then
+    echo "Grade C"
+
+else
+    echo "Fail"
+fi
+
+Test:
+-----
+95
+82
+60
+25
+
+Outputs:
+--------
+Grade A
+Grade B
+Grade C
+Fail
+
+Real-Time Example:
+------------------
+Checking whether a service is running
+
+#!/bin/bash
+
+if systemctl is-active --quiet nginx
+then
+    echo "Nginx is Running"
+else
+    echo "Nginx is Stopped"
+fi
+
+This is a common check used by Linux administrators and DevOps engineers.
+
+Looping Concepts:
+-----------------
+What if we want to execute the same command
+10 times?
+
+Without loops, 
+
+echo Hello
+echo Hello
+echo Hello
+echo Hello
+echo Hello
+
+Not a good idea.
+We need repetition.
+
+What is a Loop?
+---------------
+A loop executes the same block of code multiple times.
+Instead of writing commands repeatedly,
+write them once.
+The loop repeats them automatically.
+
+Example:
+Print Hello
+10 Times
+
+Instead of 
+echo Hello
+echo Hello
+echo Hello
+...
+Use a loop.
+
+Flow:
+-----
+Start
+↓
+Run Commands
+↓
+More Repetitions?
+↓
+YES
+↓
+Run Again
+↓
+NO
+↓
+Stop
+
+Types of Loops:
+---------------
+In Bash, the most common loops are:
+ . for
+ . while
+
+for Loop:
+---------
+A for loop is used when you already know how many times the commands should repeat.
+
+Examples:
+ . Print numbers from 1 to 10.
+ . Process 5 files.
+ . Execute a command 3 times.
+
+Syntax:
+-------
+for variable in values
+do
+    commands
+done
+
+Understanding the Keywords:
+---------------------------
+ . for → Starts the loop.
+ . variable → Stores the current value in each repetition.
+ . in → Specifies the list of values.
+ . do → Begins the commands to repeat.
+ . done → Ends the loop.
+
+Example:
+--------
+#!/bin/bash
+
+for num in 1 2 3 4 5
+do
+    echo $num
+done
+
+Output:
+-------
+1
+2
+3
+4
+5
+
+What happens Internally?
+------------------------
+num = 1
+Print
+↓
+num = 2
+Print
+↓
+num = 3
+Print
+↓
+Continue until all values are used
+
+Example:
+--------
+for fruit in Apple Mango Orange
+do
+    echo $fruit
+done
+
+Output:
+-------
+Apple
+Mango
+Orange
+
+Example 3 - Using a Range:
+--------------------------
+for i in {1..5}
+do
+    echo "Iteration : $i"
+done
+
+Output:
+-------
+Iteration : 1
+Iteration : 2
+Iteration : 3
+Iteration : 4
+Iteration : 5
+
+Real-Time Example:
+------------------
+Display the names of log files.
+
+for file in *.log
+do
+    echo $file
+done
+
+The loop prints every file ending with .log in the current directory.
+
+Hands-on:
+---------
+#!/bin/bash
+
+for i in {1..10}
+do
+    echo "Welcome"
+done
+
+Observe that the same message is printed ten times.
+
+While Loop:
+-----------
+A while loop repeats as long as the condition remains TRUE.
+Unlike the for loop, you usually do not know in advance how many times it will run.
+
+Syntax:
+-------
+while [ condition ]
+do
+    commands
+done
+
+Example:
+--------
+#!/bin/bash
+
+count=1
+
+while [ $count -le 5 ]
+do
+    echo $count
+    count=$((count+1))
+done
+
+Output:
+-------
+1
+2
+3
+4
+5
+
+Understanding this line:
+------------------------
+count=$((count+1))
+
+This increases the value of (count) by one.
+
+Execution:
+----------
+count = 1
+↓
+count = 2
+↓
+count = 3
+↓
+count = 4
+↓
+count = 5
+↓
+Stop
+
+What happens if we remove it?
+-----------------------------
+Suppose the script becomes:
+
+count=1
+
+while [ $count -le 5 ]
+do
+    echo $count
+done
+
+Now (count) is always 1.
+
+The condition
+1 <= 5
+is always TRUE.
+The loop never stops.
+This is called an Infinite Loop.
+
+Hands-on:
+---------
+#!/bin/bash
+
+count=1
+
+while [ $count -le 10 ]
+do
+    echo "Current Count : $count"
+    count=$((count+1))
+done
+
+Infinite Loops:
+---------------
+An infinite loop is a loop that never ends on its own.
+This happens when the stopping condition never becomes FALSE.
+
+Example:
+--------
+while true
+do
+    echo "Running..."
+done
+
+Output:
+-------
+Running...
+Running...
+Running...
+Running...
+Running...
+...
+
+it continues until you stop it manually.
+
+Another Example:
+----------------
+count=1
+
+while [ $count -gt 0 ]
+do
+    echo $count
+done
+
+Since (count) never changes, the condition is always TRUE.
+
+How to Stop an Infinite Loop?
+-----------------------------
+Press: ctrl + c
+
+This sends an interrupt signal to the running program, and Bash terminates the script.
+
+Real-Time Uses of Infinite Loops:
+---------------------------------
+Examples:
+ . Monitoring server health continuously.
+ . Watching log files for new entries.
+ . Waiting for new user requests.
+ . Continuously checking whether a service is available.
+A simple monitoring script might repeatedly check a service every few seconds until you stop it.
+
+Hands-on:
+---------
+Create a simple monitoring script:
+
+#!/bin/bash
+
+while true
+do
+    date
+    sleep 5
+done
+
+New command: sleep
+
+Sleep 5
+
+The sleep command pauses the script for 5 seconds before continuing.
+
+Output:
+-------
+Fri Jul 10 10:00:00
+(wait 5 seconds)
+
+Fri Jul 10 10:00:05
+(wait 5 seconds)
+
+Fri Jul 10 10:00:10
+...
+
+Stop the script using:
+ctrl + C
+
+Summary:
+--------
+| Concept       | Purpose                                                              |
+| ------------- | -------------------------------------------------------------------- |
+| `if`          | Execute commands only when a condition is TRUE                       |
+| `else`        | Execute an alternate block when the condition is FALSE               |
+| `elif`        | Check additional conditions                                          |
+| `for` loop    | Repeat commands for a known set of values or a fixed number of times |
+| `while` loop  | Repeat commands while a condition remains TRUE                       |
+| Infinite loop | A loop that continues until stopped manually or the program exits    |
+| `sleep`       | Pause script execution for a specified number of seconds             |
+
+Homework (Day 2)
+----------------
+Homework 3 – Student Result
+Ask the user for marks.
+
+Display:
+ . Grade A (90 and above)
+ . Grade B (75–89)
+ . Grade C (50–74)
+ . Fail (below 50)
+Expected concepts: if, elif, else.
+
+Homework 4 – Multiplication Table
+Ask the user for a number.
+Use a for loop to print its multiplication table from 1 to 10.
+
+Example:
+5 x 1 = 5
+5 x 2 = 10
+...
+5 x 10 = 50
+
+Homework 5 – Countdown
+Use a while loop to print:
+
+10
+9
+8
+...
+1
+
+Then print:
+Completed
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

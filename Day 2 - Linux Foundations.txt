@@ -1,0 +1,757 @@
+Day 2 - Linux Foundations:
+==========================
+What is Virtualization?
+-----------------------
+Virtualization is the technology that allows us to create multiple virtual computers (Virtual Machines) on a single physical computer.
+Instead of buying 10 physical servers, we can buy one powerful server and divide its resources into multiple virtual servers.
+Each virtual server behaves like a completely independent computer.
+
+Without Virtualization:
+-----------------------
+Suppose a company has
+ . Web Server
+ . Database Server
+ . Mail Server
+ . HR Application
+ . Monitoring Server
+
+Without virtualization:
+They buy
+5 Physical Servers
+
+Problem
+ . Very expensive
+ . Wastes electricity
+ . Wastes space
+ . Hard to maintain
+ . Most servers use only 10–20% CPU
+
+Example
+| Server     | CPU Usage |
+| ---------- | --------- |
+| Web Server | 15%       |
+| Database   | 20%       |
+| Mail       | 10%       |
+| HR         | 8%        |
+| Monitoring | 12%       |
+
+Nearly 80% of every server is sitting idle.
+
+With Virtualization:
+--------------------
+Now imagine one powerful server
+ . 64 CPU Cores
+ . 256 GB RAM
+ . 4 TB SSD
+
+Create
+ . VM1 → Web Server
+ . VM2 → Database
+ . VM3 → Mail
+ . VM4 → HR
+ . VM5 → Monitoring
+
+Now
+One physical machine
+
+Runs
+Five independent servers.
+Much cheaper.
+
+Simple Diagram:
+---------------
+Without Virtualization
+
+Server 1 → Website
+Server 2 → Database
+Server 3 → Mail
+Server 4 → HR
+Server 5 → Monitoring
+
+
+
+With Virtualization
+
+            Physical Server
+
+      CPU RAM Storage Network
+
+              Hypervisor
+
+----------------------------------------
+
+ VM1    VM2    VM3    VM4    VM5
+
+Web     DB     Mail   HR     Monitor
+
+What is a Virtual Machine (VM)?
+A Virtual Machine is a software-based computer.
+It has
+ . CPU
+ . RAM
+ . Disk
+ . Network
+ . Operating System
+
+Just like a real computer.
+But the hardware is virtual.
+
+VM Example:
+Your laptop
+16 GB RAM
+8 CPU
+512 GB SSD
+
+Create
+VM1
+Ubuntu
+4 GB RAM
+2 CPU
+100 GB Disk
+
+VM2
+Windows Server
+8 GB RAM
+4 CPU
+200 GB Disk
+
+Both run at the same time.
+
+What is a Host Machine?
+-----------------------
+The real physical computer.
+
+Example
+Dell Server
+HP Server
+Lenovo Server
+AWS Physical Server
+Azure Physical Server
+Google Cloud Physical Server
+
+This machine owns the actual hardware.
+
+What is a Guest Machine?
+------------------------
+The virtual machine running inside the host.
+Host
+↓
+Guest
+
+Example:
+Host
+Dell PowerEdge
+
+Guests
+Ubuntu VM
+Windows VM
+RedHat VM
+
+Host vs Guest
+| Host Machine      | Guest Machine         |
+| ----------------- | --------------------- |
+| Physical Computer | Virtual Computer      |
+| Owns hardware     | Uses virtual hardware |
+| One host          | Many guests           |
+| Real CPU          | Virtual CPU           |
+| Real RAM          | Virtual RAM           |
+
+What is Hypervisor:
+-------------------
+The Hypervisor is the software responsible for creating and managing Virtual Machines.
+
+Think of it as the manager.
+
+It decides
+ . CPU allocation
+ . RAM allocation
+ . Disk allocation
+ . Network allocation
+ . VM startup
+ . VM shutdown
+
+Without a Hypervisor
+No Virtual Machines.
+
+Hypervisor Responsibilities
+---------------------------
+It controls
+✓ CPU
+✓ RAM
+✓ Storage
+✓ Network
+✓ VM Creation
+✓ VM Deletion
+✓ Snapshots
+✓ Isolation
+
+Popular Hypervisors:
+--------------------
+| Hypervisor           | Company     |
+| -------------------- | ----------- |
+| VMware ESXi          | VMware      |
+| Microsoft Hyper-V    | Microsoft   |
+| KVM                  | Linux       |
+| Oracle VM VirtualBox | Oracle      |
+| Xen                  | Open Source |
+
+Why Do We Need Virtualization?
+------------------------------
+Before virtualization
+Companies bought
+100 servers
+Actual usage
+Only 10%
+90% hardware wasted.
+Virtualization solves this problem.
+
+Advantages of Virtualization:
+-----------------------------
+1. Better Hardware Utilization
+
+Instead of 10 servers
+Use
+1 server
+Run 10 VMs.
+Huge savings.
+
+2. Cost Savings
+
+Less
+ . Hardware
+ . Electricity
+ . Cooling
+ . Rack Space
+ . Maintenance
+
+3. Faster Deployment
+Physical Server
+
+Order
+Ship
+Install
+Configure
+May take weeks.
+
+Virtual Machine
+Create VM
+5 Minutes
+
+4. Isolation
+If one VM crashes
+Other VMs continue working.
+
+5. Easy Backup
+Hypervisors support Snapshots.
+A snapshot captures the VM's state at a point in time.
+
+If something breaks
+Restore.
+
+6. Easy Migration
+Move VM
+
+Server A
+↓
+Server B
+
+Sometimes with almost zero downtime.
+
+7. Multiple Operating Systems
+One computer can run
+ . Windows
+ . Ubuntu
+ . Red Hat
+ . Debian
+At the same time.
+
+8. Better Testing
+Developers can
+
+Create
+Delete
+Recreate
+
+VMs without buying new hardware.
+
+9. Disaster Recovery
+If a server fails
+Restore VM backup on another host.
+Business continues.
+
+Types of Hypervisors:
+---------------------
+There are two major types.
+
+ >>> Type 1 Hypervisor (Bare Metal)
+-----------------------------------
+Runs directly on the hardware.
+ . Applications
+ . Operating System (Guest)
+ . Hypervisor
+ . Hardware
+
+Examples
+ . VMware ESXi
+ . Microsoft Hyper-V (Server installation)
+ . Xen
+
+Advantages
+ . Faster
+ . More secure
+ . Better performance
+ . Used in data centers and cloud environments
+
+Type 2 Hypervisor (Hosted Virtualization)
+-----------------------------------------
+Hosted virtualization means the hypervisor runs on top of an existing operating system instead of directly on the hardware.
+
+Architecture:
+ . Applications
+ . Guest OS
+ . Hypervisor
+ . Host Operating System
+ . Hardware
+
+Examples
+ . Oracle VM VirtualBox
+ . VMware Workstation
+
+Example
+Your laptop:
+Windows 11 (Host OS)
+
+Install VirtualBox.
+
+Create:
+ . Ubuntu VM
+ . Kali Linux VM
+ . Windows Server VM
+
+Here:
+ . Windows = Host OS
+ . VirtualBox = Hypervisor
+ . Ubuntu = Guest OS
+
+Advantages
+ . Easy to install
+ . Great for learning
+ . Good for development and testing
+
+Disadvantages
+ . Slightly slower because requests go through the host operating system
+ . Depends on the host OS being stable
+
+What is Nested Virtualization?:
+-------------------------------
+Nested virtualization means running a hypervisor inside a virtual machine, allowing that VM to create and run its own VMs.
+
+Think of it as:
+Physical Server
+↓
+Hypervisor
+↓
+Virtual Machine
+↓
+Another Hypervisor
+↓
+Another Virtual Machine
+
+Example:
+Laptop
+↓
+VirtualBox
+↓
+Ubuntu VM
+↓
+Install KVM inside Ubuntu
+↓
+Create another Ubuntu VM
+
+A VM is now hosting another VM.
+
+Why is Nested Virtualization Used?
+----------------------------------
+ . Learning virtualization technologies
+ . Hypervisor development and testing
+ . Cloud platform testing
+ . Kubernetes or lab environments that need virtual machines
+Cloud providers such as AWS, Azure, and GCP support nested virtualization only on selected VM families and configurations.
+
+Hosted Virtualization vs Nested Virtualization:
+-----------------------------------------------
+| Feature             | Hosted Virtualization                   | Nested Virtualization                             |
+| ------------------- | --------------------------------------- | ------------------------------------------------- |
+| Purpose             | Run VMs on a desktop or laptop          | Run VMs inside another VM                         |
+| Host                | Physical machine with a Host OS         | A virtual machine                                 |
+| Hypervisor Location | Installed on the Host OS                | Installed inside a guest VM                       |
+| Performance         | Generally good for development          | Additional performance overhead                   |
+| Complexity          | Easy                                    | Advanced                                          |
+| Common Use          | Learning, testing, software development | Hypervisor testing, cloud labs, advanced training |
+
+Hands-on:
+---------
+Difference between VirtualBox / WSL:
+	VirtualBox and WSL are fundamentally different technologies, even though both let you run Linux on a Windows machine.
+
+VirtualBox
+-----------
+Oracle VM VirtualBox is a Type 2 (Hosted) Hypervisor.
+It creates a complete Virtual Machine (VM) with virtual hardware.
+
+Architecture:
+ . Applications
+ . Ubuntu OS (Guest)
+ . VirtualBox
+ . Windows (Host OS)
+ . Physical Hardware
+
+The Ubuntu VM has:
+ . Its own kernel
+ . Own RAM
+ . Own virtual CPU
+ . Own virtual disk
+ . Own virtual network card
+ . Own boot process
+It behaves exactly like a separate physical computer.
+
+Example
+
+Your laptop:
+Windows 11
+16 GB RAM
+
+Create:
+Ubuntu VM
+4 GB RAM
+2 CPUs
+100 GB Disk
+
+Ubuntu thinks it is installed on a real computer.
+
+Advantages
+ . Complete isolation
+ . Run almost any operating system
+ . Great for learning servers
+ . Can simulate enterprise environments
+ . Snapshots
+ . Clone VMs
+
+Disadvantages
+ . Uses more RAM
+ . Uses more CPU
+ . Slower boot
+ . Larger disk usage
+
+WSL (Windows Subsystem for Linux)
+---------------------------------
+Windows Subsystem for Linux is not a traditional hypervisor like VirtualBox.
+Its goal is to let Linux applications run seamlessly on Windows.
+There are two versions.
+
+WSL 1:
+WSL 1 does not use virtualization.
+Instead, it translates Linux system calls into Windows system calls.
+
+Architecture:
+ . Linux Applications
+ . WSL Translation Layer
+ . Windows Kernel
+ . Hardware
+
+There is no real Linux kernel.
+
+WSL 2:
+WSL 2 does use virtualization, but not in the same way as VirtualBox.
+It runs a lightweight virtual machine using Microsoft Hyper-V.
+
+Architecture:
+ . Linux Applications
+ . Linux Kernel
+ . Lightweight VM
+ . Hyper-V
+ . Windows
+ . Hardware
+
+Microsoft ships a real Linux kernel inside that lightweight VM.
+Unlike VirtualBox, you don't manually create virtual hardware or install the OS from an ISO.
+
+VirtualBox vs WSL 2:
+--------------------
+| Feature              | VirtualBox                                      | WSL 2                                           |
+| -------------------- | ----------------------------------------------- | ----------------------------------------------- |
+| Technology           | Type 2 Hypervisor                               | Lightweight VM using Hyper-V                    |
+| Full Virtual Machine | ✅ Yes                                          | Internally yes, but managed automatically       |
+| Install Linux ISO    | ✅ Yes                                          | ❌ No                                          |
+| Separate BIOS/Boot   | ✅ Yes                                          | ❌ No                                          |
+| GUI Linux Desktop    | ✅ Easy                                         | Possible but not the primary purpose            |
+| Performance          | Good                                            | Usually faster for development workloads        |
+| Resource Usage       | Higher                                          | Lower                                           |
+| Best For             | Learning servers, networking, OS administration | Software development, scripting, Docker, DevOps |
+
+Can WSL Replace VirtualBox?
+---------------------------
+It depends on your goal.
+If you're learning Linux commands
+WSL 2 is often enough.
+
+You can practice:
+ . Shell scripting
+ . Git
+ . Docker
+ . Kubernetes CLI
+ . Terraform
+ . Ansible
+ . Python
+ . DevOps tools
+
+If you're learning system administration
+Use VirtualBox.
+
+You can practice:
+ . OS installation
+ . Disk partitioning
+ . GRUB bootloader
+ . Networking
+ . Multiple VMs
+ . Firewalls
+ . DHCP
+ . DNS
+ . Active Directory labs
+
+for DevOps
+WSL 2 is usually the better choice because many tools integrate well with Windows and Linux together.
+For infrastructure labs involving multiple machines or networking scenarios, VirtualBox remains more suitable.
+
+Simple Analogy:
+---------------
+Imagine learning to drive.
+VirtualBox is like owning a complete practice car. You can open the hood, replace parts, install a different engine, or even break the system and rebuild it.
+WSL 2 is like having a powerful driving simulator built into your house. It gives you an excellent environment to practice driving, but it doesn't expose every aspect of a real car.
+
+Summary:
+--------
+| Question                     | VirtualBox   | WSL 2                              |
+| ---------------------------- | ------------ | ---------------------------------- |
+| Is it virtualization?        | ✅ Yes       | ✅ Yes (lightweight virtualization)|
+| Is it a traditional VM?      | ✅ Yes       | ❌ No (managed lightweight VM)    |
+| Uses Hyper-V?                | ❌ Usually no| ✅ Yes                            |
+| Best for DevOps?             | Good         | Excellent                          |
+| Best for OS learning?        | Excellent    | Limited                            |
+| Best for enterprise VM labs? | Excellent    | Not ideal                          |
+
+1. via VMWare, choose from my official site of the VMware download and install one.
+
+2. next, we need to have an (.iso) file of ubuntu and download it in the host system (https://ubuntu.com/download/desktop)
+
+3. choose the latest version, and click on the download [make sure to download according to the host system: to know that click (windows + i) - go to system - scroll down and select about - where we can find whether our system using [Intel/AMD 64/ARM 64] - make sure to download it accordingly.
+[Do remember this is a time taking process]
+
+4. once done, open the VirtualBox/VMWare - click on (new virtual machine) - now we need to provide the following details like
+iso image: browse to wherever the file is there and select it
+next
+provide the full name: Akshiv Rajendran
+username: akshiv
+password & confirm password also change it
+next
+provide a name for virtual machine name: Ubuntu
+provide the disk size: 30gb
+Finish
+
+5. wait until it is getting powering up; once it got, let us proceed with the setup - click on Try ubuntu - once the window came - click on the (install ubuntu) - then, let us proceed with selecting the language (English) - give next until we reach the install window - under install ubuntu choose (interactive installation) - keep on give next until reaches to the create user account - and provide the user information like username & password - next - select the region - review and proceed with Install. [This is a time taking process upto 45mins]
+
+WSL installation:
+-----------------
+Before installing, let us make sure that WSL is available in our system
+1. open powershell/cmd - run the command (wsl --status)
+[if wsl is not present, in modern systems open powershell as administrator and give the command (wsl --install) this command will do everything]
+[if older machines, then we need to do manually, go to control panel - programs - Turn windows features on or off - we can see options like 1. windows subsystem for linux 2. virtual machine platform; make sure to enable both these] restart your machine and now to confirm open powershell and check for the (wsl --status).
+
+2. let us check the installed linux distribution, using command (wsl -l -v)
+
+3. if ubuntu is not there, then we can install one using the command (wsl --install -d ubuntu) - make sure to restart the system once after this one (or) the easy option go to Microsoft store - and download from there (ubuntu) once done open the terminal and provide details accordingly.
+
+4. to start ubuntu - let us click on start menu - search for (ubuntu) - this opens the terminal and this will take sometime for the first time; we do need to create the user information's
+
+5. for practising DevOps we can install this basic tools (sudo apt install git curl wget unzip vim tree net-tools -y)
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+What is an ISO file?
+An ISO file (also called an ISO image) is an exact digital copy of an entire CD, DVD, or bootable disk.
+Think of it as a virtual DVD stored in a single file.
+Instead of inserting a physical DVD into a computer, you provide the ISO file to software like VirtualBox, and it behaves as if a DVD has been inserted.
+
+Real-World Example:
+-------------------
+Imagine Ubuntu wants to distribute its operating system.
+
+Old Method
+They would manufacture DVDs: Ubuntu DVD
+Ubuntu DVD
+Contains:
+✔ Boot Loader
+✔ Linux Kernel
+✔ Installer
+✔ Packages
+✔ Drivers
+✔ Filesystem
+You would insert the DVD into your computer and install Ubuntu.
+
+Modern Method
+Instead of shipping a physical DVD, Ubuntu provides:
+ubuntu-24.04-live-server-amd64.iso
+This ISO contains everything that would have been on the DVD
+
+Why it is called ISO?
+The name comes from the International Organization for Standardization ISO 9660 standard.
+ISO 9660 defines how data is stored on CDs and DVDs.
+
+So:
+ISO = Standardized disk image format
+ISO file = Copy of an entire optical disk
+
+What Does an ISO Contain?
+-------------------------
+An operating system ISO usually contains:
+ . Boot Loader (starts the installation)
+ . Operating System Kernel
+ . Installer Program
+ . Device Drivers
+ . Software Packages
+ . Default Configuration Files
+ . File System Structure
+Everything needed to install the operating system.
+
+Are there other formats besides ISO?
+------------------------------------
+Yes, Different platforms use different formats depending on how the operating system is distributed.
+| Format   | Used For                    | Example           |
+| -------- | --------------------------- | ----------------- |
+| `.iso`   | Bootable installation image | Ubuntu, Windows   |
+| `.img`   | Raw disk image              | Raspberry Pi OS   |
+| `.vhd`   | Virtual Hard Disk           | Microsoft Hyper-V |
+| `.vhdx`  | Improved Virtual Hard Disk  | Hyper-V           |
+| `.vmdk`  | Virtual machine disk        | VMware            |
+| `.vdi`   | Virtual machine disk        | VirtualBox        |
+| `.qcow2` | Virtual machine disk        | KVM/QEMU          |
+| `.ova`   | Complete virtual appliance  | Prebuilt VM       |
+| `.ovf`   | VM configuration package    | VMware/VirtualBox |
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

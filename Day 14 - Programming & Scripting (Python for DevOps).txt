@@ -1,0 +1,1116 @@
+Day 14 - Programming & Scripting (Python for DevOps):
+=====================================================
+What is a Function?
+A function is a reusable block of code that performs a specific task.
+
+Creating a Function:
+--------------------
+Syntax:
+
+def welcome():
+    print("Welcome to Python")
+
+Explain every keyword
+---------------------
+def
+↓
+Defines a Function
+
+welcome
+↓
+Function Name
+
+()
+↓
+Parameters (currently empty)
+
+Calling a Function:
+-------------------
+Creating a function doesn't execute it.
+You must call it.
+
+Syntax:
+
+def welcome():
+    print("Welcome to Python")
+
+welcome()
+
+Output:
+Welcome to Python
+
+Why Not Just Use print()?
+-------------------------
+Because today your function prints one line.
+Tomorrow it may contain 50 lines.
+Still, you call only
+
+welcome()
+
+Real-Time DevOps Example:
+-------------------------
+Instead of writing
+print("Checking CPU")
+print("Checking Memory")
+print("Checking Disk")
+
+many times,
+
+create
+
+def system_check():
+    print("Checking CPU")
+    print("Checking Memory")
+    print("Checking Disk")
+
+call:
+system_check()
+
+Functions with Parameters:
+--------------------------
+Now ask: Can every employee have the same name?
+No.
+
+Sometimes, we need to pass information.
+
+Example
+
+def welcome(name):
+    print("Welcome", name)
+
+welcome("Akshiv")
+welcome("Preethi")
+
+Output:
+Welcome Akshiv
+Welcome Preethi
+
+Multiple Parameters:
+--------------------
+def employee(name, department):
+    print(name)
+    print(department)
+
+employee("Akshiv","IT")
+
+Return Statement:
+-----------------
+Until now, our functions only displayed information.
+Sometimes, we need to return a result.
+
+Example:
+--------
+def add(a,b):
+    return a+b
+
+result = add(10,20)
+
+print(result)
+
+Output: 30
+
+What is a Module?
+-----------------
+A module is a Python file that contains reusable functions, variables, or classes.
+
+Built-in Modules:
+-----------------
+Python already provides many modules
+
+| Module   | Purpose                            |
+| -------- | ---------------------------------- |
+| math     | Mathematical calculations          |
+| random   | Generate random values             |
+| os       | Interact with the operating system |
+| datetime | Date and time                      |
+| shutil   | Copy, move and manage files        |
+
+Example:
+--------
+import math
+print(math.sqrt(25))
+
+Output
+5.0
+
+Another example:
+----------------
+import datetime
+print(datetime.datetime.now())
+
+Real-Time DevOps Example:
+-------------------------
+import os
+print(os.getcwd())
+
+Output
+Displays the current working directory.
+
+File Handling:
+--------------
+Suppose your manager asks:
+"Every day at 6 PM, save the server health report."
+
+The report contains:
+ . CPU Usage
+ . Memory Usage
+ . Disk Usage
+ . Date
+ . Hostname
+
+If you use only print():
+print("CPU Usage: 75%")
+print("Memory Usage: 60%")
+
+Where does this information go?
+It appears on the screen.
+
+Now ask:
+What happens after you close the terminal?
+
+The answer is:
+Everything disappears.
+
+That is the problem.
+We need a place to store information permanently.
+That place is a file.
+
+What is File Handling?
+File handling is the process of creating, reading, writing, updating, and managing files using Python.
+Think of a notebook.
+
+You can:
+ . Read existing notes.
+ . Write new notes.
+ . Add more notes.
+ . Update notes.
+ . Delete notes.
+
+Python does exactly the same thing with files.
+
+Real-Time Examples:
+-------------------
+Where is file handling used?
+
+Linux Administrator
+Stores:
+ . Backup reports
+ . Server health reports
+ . User details
+
+DevOps Engineer
+Stores:
+ . Deployment logs
+ . Build reports
+ . Pipeline status
+
+Security Engineer
+Stores:
+ . Login attempts
+ . Failed login records
+ . Security scan results
+
+Cloud Engineer
+Stores:
+ . EC2 inventory
+ . IAM user reports
+ . Cost reports
+
+Example:
+---------
+A company has 500 servers.
+
+Every day Python checks:
+ . CPU
+ . Memory
+ . Disk
+
+Should Python only display them?
+No.
+
+The company wants a report like:
+
+Server Report
+Date : 25-07-2026
+Hostname : Web01
+CPU : 35%
+Memory : 60%
+Disk : 45%
+
+Python writes this information into a file.
+That is file handling.
+
+Opening a File:
+---------------
+Python uses the open() function.
+file = open("report.txt", "r")
+
+Break it down.
+open()
+↓
+Built-in function
+report.txt
+↓
+File Name
+r
+↓
+Mode
+
+Understanding File Modes:
+-------------------------
+| Mode  | Meaning | If File Doesn't Exist        |
+| ----- | ------- | ---------------------------- |
+| `"r"` | Read    | Error                        |
+| `"w"` | Write   | Creates a new file           |
+| `"a"` | Append  | Creates a new file           |
+| `"x"` | Create  | Error if file already exists |
+
+Read Mode (r):
+--------------
+Read mode is used only to read an existing file.
+
+Suppose you already have:
+employees.txt
+
+Contents:
+Rahul
+Priya
+Arun
+
+Python:
+file = open("employees.txt", "r")
+print(file.read())
+file.close()
+
+Output:
+Rahul
+Priya
+Arun
+
+Real-Time Example
+A Linux Administrator wants to read:
+server_list.txt
+The script reads all server names and performs health checks.
+
+What Happens if the File Doesn't Exist?
+file = open("abc.txt", "r")
+
+Output:
+FileNotFoundError
+
+Python cannot read a file that isn't there.
+
+Write Mode (w):
+---------------
+Write mode creates a new file or overwrites an existing one.
+
+Example:
+file = open("report.txt", "w")
+file.write("Python File Handling")
+file.close()
+
+Result:
+report.txt
+
+↓
+Python File Handling
+
+Real-Time Example
+A DevOps pipeline completes successfully.
+
+Python creates:
+deployment_report.txt
+
+and writes:
+Deployment Successful
+
+Important Warning
+Suppose:
+report.txt
+contains
+Server Healthy
+
+Now run:
+file = open("report.txt", "w")
+file.write("Backup Completed")
+
+The old content disappears.
+
+New file:
+Backup Completed
+
+Ask the class:
+Did Python add the new line?
+No.
+It replaced everything.
+
+Append Mode (a):
+----------------
+Now imagine:
+You maintain a daily diary.
+
+Day 1:
+Studied Python
+
+Day 2:
+Should you erase Day 1?
+
+No.
+
+You add a new entry.
+That is Append Mode.
+
+Example:
+file = open("log.txt", "a")
+file.write("Backup Completed\n")
+file.close()
+
+Run it again:
+file = open("log.txt", "a")
+file.write("Deployment Successful\n")
+file.close()
+
+Contents:
+Backup Completed
+Deployment Successful
+
+Real-Time Example
+ . Every Jenkins build writes a new log entry.
+ . Python keeps adding new entries.
+ . It never deletes previous logs.
+
+Create Mode (x):
+----------------
+This mode creates a new file.
+
+file = open("newfile.txt", "x")
+file.close()
+
+If the file already exists:
+FileExistsError
+
+Reading Methods:
+----------------
+Python provides several ways to read a file.
+
+read()
+Reads the entire file.
+
+file = open("employees.txt", "r")
+print(file.read())
+file.close()
+
+readline()
+Reads only one line.
+
+Example file:
+Rahul
+Priya
+Arun
+
+Code:
+file = open("employees.txt", "r")
+print(file.readline())
+file.close()
+
+Output:
+Rahul
+
+readlines()
+Reads all lines into a list.
+
+file = open("employees.txt", "r")
+print(file.readlines())
+file.close()
+
+Output:
+['Rahul\n', 'Priya\n', 'Arun\n']
+
+Explain that:
+\n means a new line character.
+
+file.close()
+This releases the file so other programs can use it.
+
+Better Way: with
+-----------------
+What if I forget to close the file?
+Python provides a better method.
+
+with open("report.txt", "r") as file:
+    print(file.read())
+
+The moment the block finishes:
+Python automatically closes the file.
+
+Why Do Professionals Use with?
+------------------------------
+Instead of:
+
+file = open("report.txt", "r")
+print(file.read())
+file.close()
+
+They use:
+
+with open("report.txt", "r") as file:
+    print(file.read())
+
+Benefits:
+ . Less code.
+ . Automatically closes the file.
+ . Safer if an error occurs.
+
+Error Handling:
+---------------
+Suppose:
+
+with open("abc.txt", "r") as file:
+    print(file.read())
+
+The file doesn't exist.
+Python crashes.
+
+Instead:
+
+try:
+    with open("abc.txt", "r") as file:
+        print(file.read())
+
+except FileNotFoundError:
+    print("File not found.")
+
+Now the program continues gracefully.
+
+Mini Real-Time Project
+----------------------
+Server Health Report Generator
+
+1. Create a file (vi sample.py), and paste the below code
+
+code:
+from datetime import datetime
+
+with open("server_report.txt", "w") as file:
+    file.write("Server Health Report\n")
+    file.write("---------------------\n")
+    file.write("Date: " + str(datetime.now()) + "\n")
+    file.write("Hostname: Web01\n")
+    file.write("CPU: 45%\n")
+    file.write("Memory: 60%\n")
+    file.write("Disk: 35%\n")
+
+print("Report generated successfully.")
+
+2. run the file (python3 sample.py) & we can see an output message like (Report generated successfully)
+3. Now, (ls) and we can see a file got generated called (server_report.txt)
+4. view the file using (cat server_report.txt); this displays the below output.
+
+Output file:
+Server Health Report
+---------------------
+Date: 2026-07-23 14:30:12
+Hostname: Web01
+CPU: 45%
+Memory: 60%
+Disk: 35%
+
+This simulates a simple monitoring report.
+
+Hands-on Activity:
+------------------
+Create a program called:
+employee_report.py
+
+Requirements:
+1. Ask the user to enter:
+ . Employee Name
+ . Department
+2. Save the information to:
+ . employee_details.txt
+
+Expected output file:
+Employee Name: Rahul
+Department: IT
+
+Common Terminologies:
+---------------------
+| Term                | Meaning                                         |
+| ------------------- | ----------------------------------------------- |
+| File Handling       | Reading, writing, and managing files            |
+| `open()`            | Opens a file                                    |
+| File Mode           | Specifies how the file will be used             |
+| `"r"`               | Read existing file                              |
+| `"w"`               | Write (creates or overwrites)                   |
+| `"a"`               | Append (adds to the end)                        |
+| `"x"`               | Create a new file only                          |
+| `read()`            | Reads the entire file                           |
+| `readline()`        | Reads one line                                  |
+| `readlines()`       | Reads all lines into a list                     |
+| `close()`           | Closes the file                                 |
+| `with`              | Automatically manages opening and closing files |
+| `FileNotFoundError` | Error when a file doesn't exist                 |
+
+Module - 3: Python Automation Basics:
+-------------------------------------
+What is Automation?
+Automation is the process of using software to perform repetitive tasks automatically with little or no human intervention.
+
+Where is Automation used?
+| Role                | Automation Example                    |
+| ------------------- | ------------------------------------- |
+| Linux Administrator | User creation, backups, health checks |
+| DevOps Engineer     | Build, deployment, monitoring         |
+| Cloud Engineer      | EC2 creation, snapshots, IAM reports  |
+| Security Engineer   | Log analysis, vulnerability scanning  |
+| Network Engineer    | Device configuration, backups         |
+
+Why Python for Automation?
+--------------------------
+Can Python log in to Linux?
+Yes.
+
+Can Python execute commands?
+Yes.
+
+Can Python create reports?
+Yes.
+
+Can Python work with AWS?
+Yes.
+
+Can Python send emails?
+Yes.
+
+Can Python read log files?
+Yes.
+
+That is why Python is so popular in DevOps.
+
+Running Linux Commands from Python:
+-----------------------------------
+Python provides a built-in module called:
+subprocess
+
+What is subprocess?
+The subprocess module allows Python to execute commands that you would normally type in the Linux terminal.
+
+Why Use Python Instead of the Terminal?
+---------------------------------------
+Suppose your manager wants this report:
+
+Hostname
+Date
+Memory
+Disk
+CPU
+
+Instead of typing five commands every day,
+Python can execute them all.
+
+Combining Commands:
+-------------------
+import subprocess
+print("===== System Report =====")
+subprocess.run(["hostname"])
+subprocess.run(["date"])
+subprocess.run(["free","-h"])
+subprocess.run(["df","-h"])
+
+This becomes a simple health check script.
+
+1. Create a file (vi test.py)
+2. Paste the above code & run the command (python3 test.py) & we can get the output.
+
+Real-Time Example:
+------------------
+A DevOps Engineer wants to create a report.
+
+import subprocess
+
+hostname = subprocess.run(
+    ["hostname"],
+    capture_output=True,
+    text=True
+)
+
+with open("system_report.txt","w") as file:
+    file.write(hostname.stdout)
+
+Now the hostname is saved into a file
+
+1. To view the output, give the command (cat system_report.txt)
+
+Use Functions for Automation:
+-----------------------------
+1. Create another file (vi first.py) & paste the below command
+
+import subprocess
+
+def run_command(command):
+    subprocess.run(command)
+
+run_command(["hostname"])
+run_command(["date"])
+
+2. Now run the file (python3 first.py) & we can see the output in the Terminal.
+
+Real-Time Project:
+------------------
+1. Create a file (second.py) & paste the below code
+
+import subprocess
+
+commands = [
+    "hostname",
+    "date",
+    "free -h",
+    "df -h"
+]
+
+with open("health_report.txt","w") as report:
+
+    for command in commands:
+
+        result = subprocess.run(
+            command,
+            shell=True,
+            capture_output=True,
+            text=True
+        )
+
+        report.write("Command: " + command + "\n")
+        report.write(result.stdout)
+        report.write("\n-----------------\n")
+
+2. now run the file (python3 second.py) & we can a file has been created
+3. open the file (cat health_report.txt) & we an see the output.
+
+Error Handling:
+---------------
+Suppose someone writes:
+subprocess.run(["abcd"])
+
+Output
+FileNotFoundError
+
+Instead,
+
+import subprocess
+try:
+    subprocess.run(["abcd"])
+except FileNotFoundError:
+    print("Command not found.")
+
+The program continues instead of crashing.
+
+Hands-on Activity 1:
+--------------------
+Create a script called:
+system_information.py
+
+Requirements:
+Display
+ . Hostname
+ . Date
+ . Current User
+ . Disk Usage
+
+Hands-on Activity 2:
+--------------------
+Create
+health_report.py
+
+Requirements
+Save the following information into
+health_report.txt
+
+ . Hostname
+ . Date
+ . Memory Usage
+ . Disk Usage
+
+Hands-on Activity 3:
+--------------------
+Create one function.
+run_command(command)
+
+Use it to execute
+ . hostname
+ . date
+ . whoami
+This reinforces both functions and automation.
+
+Module 4: API Overview:
+-----------------------
+What is an API?
+API (Application Programming Interface) is a way for two applications to communicate and exchange information.
+
+DevOps Example
+---------------
+Imagine Jenkins wants to know the latest source code.
+
+Does Jenkins log in to GitHub?
+No.
+
+Jenkins sends an API request.
+GitHub sends the response.
+
+Jenkins
+↓
+GitHub API
+↓
+Repository Information
+
+Another DevOps Example:
+-----------------------
+Terraform creates an EC2 instance.
+
+Does Terraform click buttons in the AWS Console?
+No.
+
+Terraform calls the AWS API.
+AWS creates the server.
+
+Terraform
+↓
+AWS API
+↓
+EC2 Instance Created
+
+This is why APIs are fundamental to cloud and DevOps.
+
+Client and Server:
+------------------
+Before talking about APIs, explain these two terms.
+
+Client
+The application requesting information.
+
+Examples:
+ . Browser
+ . Mobile App
+ . Python Script
+ . Jenkins
+ . Terraform
+
+Server
+The application providing information.
+
+Examples:
+ . GitHub
+ . AWS
+ . Azure
+ . Google Cloud
+ . Docker Hub
+
+Real-Time Example:
+You visit:
+https://github.com
+Your browser is the client.
+GitHub is the server.
+
+What is an API Request?:
+------------------------
+Suppose you ask:
+"Give me today's weather."
+That is a request.
+
+The server replies.
+That is a response.
+
+Exactly the same thing happens in APIs.
+
+HTTP Methods:
+-------------
+| Method | Meaning              | Real-Time Example                 |
+| ------ | -------------------- | --------------------------------- |
+| GET    | Retrieve data        | View employee details             |
+| POST   | Create data          | Create a new employee             |
+| PUT    | Update existing data | Update an employee's phone number |
+| DELETE | Remove data          | Delete an employee record         |
+
+Real-Time Banking Example:
+--------------------------
+Imagine internet banking.
+
+GET
+Show my account balance.
+
+POST
+Transfer money.
+
+PUT
+Update my mobile number.
+
+DELETE
+Close my beneficiary account.
+
+HTTP Response Codes:
+--------------------
+Every API replies with a status code.
+
+| Code | Meaning               |
+| ---- | --------------------- |
+| 200  | Success               |
+| 201  | Created Successfully  |
+| 400  | Bad Request           |
+| 401  | Unauthorized          |
+| 403  | Forbidden             |
+| 404  | Resource Not Found    |
+| 500  | Internal Server Error |
+
+Python and APIs:
+----------------
+Python uses a library called:
+requests
+
+Simple Definition
+The requests library allows Python to send HTTP requests to APIs and receive responses.
+
+Installing the Library:
+-----------------------
+Command:
+pip install requests
+
+Explain:
+This installs the library once on your system. After that, your Python programs can import and use it.
+
+Hands-on:
+---------
+First API Request
+We'll use a public API that doesn't require a login.
+
+import requests
+response = requests.get("https://jsonplaceholder.typicode.com/users")
+print(response.status_code)
+
+Output: 200
+Explain:
+Python asked the server for a list of users.
+The server responded successfully.
+
+Getting the Response Data
+
+import requests
+response = requests.get("https://jsonplaceholder.typicode.com/users")
+print(response.text)
+
+The output looks like:
+[
+   {
+      ...
+   }
+]
+
+What is JSON?:
+--------------
+When two people speak different languages, what do they need?
+A common language.
+
+Similarly,
+Python,
+Java,
+AWS,
+GitHub,
+Jenkins,
+Azure,
+Docker,
+
+all need a common format.
+That format is JSON (JavaScript Object Notation).
+
+JSON is a text format used to exchange structured data between applications.
+
+Real-Time Example:
+------------------
+An employee record.
+
+{
+   "name":"Rahul",
+   "department":"IT",
+   "city":"Chennai"
+}
+
+Explain it like a form.
+| Field      | Value   |
+| ---------- | ------- |
+| Name       | Rahul   |
+| Department | IT      |
+| City       | Chennai |
+
+Converting JSON to Python:
+--------------------------
+Instead of using:
+response.text
+
+use:
+data = response.json()
+
+Now,
+print(data)
+returns Python objects (typically a list or dictionary).
+
+Mini-Project (Get User Information):
+------------------------------------
+1. Create a file (four.py), paste the below code
+
+import requests
+response = requests.get("https://jsonplaceholder.typicode.com/users")
+users = response.json()
+for user in users:
+    print(user["name"])
+
+2. run the file (python3 four.py)
+
+output:
+-------
+Leanne Graham
+Ervin Howell
+...
+
+This demonstrates:
+------------------
+ . Sending a GET request.
+ . Receiving JSON.
+ . Converting JSON.
+ . Looping through results.
+
+What Happens When Python Runs?:
+-------------------------------
+Your Python Program
+        │  "Please send me the users."
+https://jsonplaceholder.typicode.com/users
+        │
+Database
+        │
+Returns User List
+        │
+Python Receives It
+
+Notice that Python never had those users.
+It simply requested them.
+
+This website is not a real company database.
+It is a free practice API created for developers.
+Think of it as a demo environment.
+Instead of using real employees,
+they created fake data, These are dummy users.
+
+Where Are These Users Stored?
+They're stored on the JSONPlaceholder server.
+
+Your Laptop
+↓
+Python Script
+↓
+Internet
+↓
+JSONPlaceholder Server
+↓
+Fake Database
+↓
+Returns Fake Users
+
+Your laptop does not store these users.
+The server does.
+
+Let's Prove It:
+---------------
+Suppose you open your browser and visit:
+https://jsonplaceholder.typicode.com/users
+Instead of a web page,
+This is exactly the same data that Python receives.
+Python isn't generating these users—it simply downloads the response.
+
+Hands-on Activity 1:
+--------------------
+Use the sample API:
+https://jsonplaceholder.typicode.com/users
+
+Requirements:
+ . Retrieve the list of users.
+ . Print each user's name.
+ . Print each user's email.
+
+Hands-on Activity 2:
+--------------------
+Modify the script to save the names into:
+users.txt
+
+Each name should be written on a new line.
+This combines API calls with file handling.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

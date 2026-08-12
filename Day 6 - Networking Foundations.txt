@@ -1,0 +1,786 @@
+Day 6 - Networking Foundations
+==============================
+Learning Objectives
+
+By the end of this session participants will understand:
+ . How data travels from a browser to a web server
+ . OSI Model in practical scenarios
+ . IP Addresses
+ . Ports
+ . Protocols
+ . DNS Resolution
+ . HTTP vs HTTPS
+ . SSH Remote Access
+ . Basic Network Troubleshooting
+ . Frequently used Linux Networking Commands
+
+Module Flow:
+1. How Internet Communication Works
+2. Data Flow (OSI)
+3. IP Address
+4. Ports
+5. Protocols
+6. DNS
+7. HTTP vs HTTPS
+8. SSH
+9. Network Troubleshooting
+10. Networking Commands
+11. Remote Access Hands-on
+12. Participant Lab
+
+How Data Travels from Browser to Web Server:
+--------------------------------------------
+What happens when we type
+www.google.com
+Nearly 15-20 networking steps happen in a fraction of a second.
+
+Complete Data Flow:
+-------------------
++------------+
+| User        |
+| Browser     |
++------+------+
+       |
+       |
+       v
++--------------+
+| DNS Server   |
++------+-------+
+       |
+       |
+       v
+IP Address Found
+       |
+       |
+       v
++--------------+
+| Internet     |
++------+-------+
+       |
+       |
+       v
++--------------+
+| Firewall     |
++------+-------+
+       |
+       |
+       v
++--------------+
+| LoadBalancer |
++------+-------+
+       |
+       |
+       v
++--------------+
+| Web Server   |
++------+-------+
+       |
+       |
+       v
+Application
+       |
+       |
+Database
+
+The response then follows the reverse path back to the user's browser.
+
+Step-by-Step Explanation:
+-------------------------
+1. Browser receives URL (www.google.com)
+Browser does not know
+ . IP Address
+ . Server Location
+So it asks DNS
+
+2. DNS converts
+www.google.com
+to
+54.62.84.51
+now browser knows where to go
+
+3. Browser creates an HTTP/HTTPS request.
+ex:
+GET /
+
+4. Packets travels through
+ . WiFi
+ . Router
+ . ISP
+ . Internet
+ . Firewall
+
+5. Firewall checks
+Is this request allowed?
+If Yes = Forward
+If No = Drop.
+
+6. Load Balancer receives request.
+If there are
+server 1
+server 2
+server 3
+It selects one server.
+
+7. Application Server processes request
+Example:
+Login
+Search
+Product
+Payment
+
+8. Application may contact
+Database
+Redis
+Microservices
+Storage
+
+9. Application generates response
+Example:
+200 OK
+
+10. Browser displays webpage.
+
+This Entire process usually finishes in few milliseconds.
+
+Demo:
+-----
+1. Open Chrome, press f12, click network tab
+2. Open/Refresh google, 
+this shows
+ . DNS Lookup
+ . Request
+ . Response
+ . Status
+ . Headers
+ . Timing
+
+Data Flow using OSI Model:
+--------------------------
+OSI stands for
+Open Systems Interconnection, it is simply a model that explains how one computer communicates with another computer over a network.
+It is not a Software, Hardware, not installed anywhere; This is only a reference model. Engineers use it to understand how data moves.
+OSI Layers
+7 Application
+6 Presentation
+5 Session
+4 Transport
+3 Network
+2 Data Link
+1 Physical
+
+ > Practical Data Flow
+----------------------
+Browser
+↓
+HTTP
+↓
+TCP
+↓
+IP
+↓
+MAC Address
+↓
+Ethernet/Wifi
+↓
+Cable
+
+Layer 7 - Application:
+Where users interact
+Example: Chrome, Firefox, Edge
+Protocols: HTTP, HTTPS, FTP, SMTP
+
+Protocols used:
+Different applications use different protocols.
+Some common ones are:
+| Protocol | Purpose                   |
+| -------- | ------------------------- |
+| HTTP     | Load websites             |
+| HTTPS    | Secure websites           |
+| FTP      | Transfer files            |
+| SMTP     | Send emails               |
+| POP3     | Receive emails            |
+| IMAP     | Synchronize emails        |
+| DNS      | Resolve domain names      |
+| SSH      | Secure remote login       |
+| Telnet   | Remote login (not secure) |
+
+Protocols are simply rules.
+Example:
+HTTP defines
+ . how browsers ask for pages
+ . how servers reply
+ . what headers are used
+ . what status codes mean
+
+Layer 6 - Presentation:
+This layer prepares the data before sending it.
+Its main jobs are:
+ . Data format = Different systems store data differently.
+ex: an image may be JPEG but another application may require PNG (This layer helps ensure data is in a usable format)
+ . Encryption = (password: Hello123), Without encryption, someone can read it, with encryption this becomes unreadable; so only the intended receiver can decrypt it.
+ . Compression = 100 MB compressed to 25 MB, less data travels over the network (Ex: ZIP, GZIP)
+Example:
+HTTPS encrypts data before transmission.
+
+Layer 5 - Session:
+Responsible for:
+ . Establishing communication
+ . Maintaining Sessions
+ . Closing Sessions
+Example: Keeping your login session active on a website.
+
+Layer 4 - Transport:
+Responsible for:
+ . Reliable communication
+ . Packet sequencing
+ . Error checking
+Protocols: 
+ . TCP (Transmission Control Protocol) = Reliable
+How it works:
+ > Establishes a connection.
+ > Sends data.
+ > Receiver acknowledges receipt (ACK).
+ > If a segment is lost, it is sent again.
+ > Data is reassembled in the correct order.
+used for: Banking, Login, Email, Web browsing
+
+ . UDP (User Datagram Protocol) = Fast but not reliable
+UDP does not establish a connection.
+It simply sends data.
+If a packet is lost, it is not retransmitted.
+used for: Video streaming, Gaming, Voice calls.
+
+Layer 3 - Network
+Responsible for routing using IP addresses.
+Examples:
+192.168.1.10
+10.0.0.5
+172.31.10.20
+Routers operate here.
+Responsibilities
+ . Assign logical addressing (IP).
+ . Route packets between networks.
+ . Choose the best available path.
+
+Layer 2 - Data Link
+Once the packet reaches the local network, the Data Link Layer is responsible for delivering it to the correct device on that network.
+Users MAC addresses.
+Example MAC:
+00:1A:2B:3C:4D:5E
+Switches operate here.
+
+Layer 1 - Physical
+Responsible for transmitting raw bits.
+Examples:
+ . Ethernet cable
+ . Fiber optic cable
+ . Wi-Fi radio signals.
+
+Complete Flow (Putting It All Together):
+----------------------------------------
+When you open:
+https://www.amazon.com
+
+the journey looks like this:
+
+Layer 7 (Application)
+Chrome creates an HTTPS request.
+↓
+Layer 6 (Presentation)
+The request is encrypted using TLS.
+↓
+Layer 5 (Session)
+A secure communication session is established.
+↓
+Layer 4 (Transport)
+TCP splits the request into segments, numbers them, and ensures reliable delivery.
+↓
+Layer 3 (Network)
+IP addressing determines where the request should go across the internet.
+↓
+Layer 2 (Data Link)
+Frames are created and sent to the next device using MAC addresses.
+↓
+Layer 1 (Physical)
+The frames are transmitted as electrical, optical, or radio signals.
+
+Ports and Protocols:
+--------------------
+Every application listens on a specific port.
+Think of an IP address as identifying the machine and a port as identifying the specific service running on that machine.
+
+Example:
+Laptop = 192.168.1.20
+Running
+SSH
+Web Server
+Database
+
+How does the Operating system know where to send incoming traffic?
+Using ports.
+
+Common Ports:
+| Service               | Port | Protocol |
+| --------------------- | ---- | -------- |
+| HTTP                  | 80   | TCP      |
+| HTTPS                 | 443  | TCP      |
+| SSH                   | 22   | TCP      |
+| FTP                   | 21   | TCP      |
+| DNS                   | 53   | UDP/TCP  |
+| SMTP                  | 25   | TCP      |
+| MySQL                 | 3306 | TCP      |
+| PostgreSQL            | 5432 | TCP      |
+| Kubernetes API Server | 6443 | TCP      |
+| Jenkins               | 8080 | TCP      |
+| SonarQube             | 9000 | TCP      |
+| Grafana               | 3000 | TCP      |
+| Prometheus            | 9090 | TCP      |
+
+Demo:
+-----
+1. Open ubuntu terminal, run command
+ss -tuln
+
+or
+
+netstat -tuln
+
+Explanation:
+------------
+ss = Socker Statistics [A socket is one endpoint of a network communication. Whenever an application communicates over a network (web server, SSH server, database, etc.), it uses sockets.]
+-t = Show TCP sockets
+-u = Show UDP sockets
+-l = Show only listening sockets
+-n = Display numeric values instead of resolving names.
+
+Example:
+Without -n:
+ssh
+http
+https
+
+With -n:
+22
+80
+443
+Numeric output is faster because Linux doesn't perform extra name lookups.
+
+DNS Working Principle:
+----------------------
+People remember names.
+Computers communicate using IP addresses.
+DNS translates names into IP addresses.
+
+ > DNS Resolution Flow:
+User
+   │
+   ▼
+Browser
+   │
+   ▼
+Local DNS Cache
+   │
+No?
+   ▼
+ISP DNS
+   │
+No?
+   ▼
+Root DNS
+   │
+TLD (.com)
+   │
+Authoritative DNS
+   │
+IP Address
+
+   ▼
+Web Server
+
+Demo:
+-----
+1. Open terminal, can give command
+nslookup google.com
+(name server lookup)
+[This command asks: "What is the IP address of this domain?"]
+
+or
+
+dig google.com
+
+Explain:
+ . Server
+ . Answer Section
+ . IP Address
+ . TTL
+Participant Challenge: Find the IP address of github.com.
+
+Explanation:
+------------
+What is nslookup?
+nslookup stands for:
+Name Server Lookup
+It is a command-line utility that asks a DNS server questions.
+The most common question is:
+"What is the IP address of this domain?"
+
+What is dig?
+dig stands for:
+Domain Information Groper
+"dig is an advanced DNS troubleshooting tool."
+Both nslookup and dig ask DNS questions.
+But dig provides much more information.
+
+HTTP vs HTTPS:
+--------------
+| HTTP                    | HTTPS               |
+| ----------------------- | ------------------- |
+| Port 80                 | Port 443            |
+| No encryption           | Encrypted           |
+| Data visible in transit | Data protected      |
+| Less secure             | More secure         |
+| No certificate          | SSL/TLS certificate |
+
+HTTPS Flow:
+-----------
+Browser
+↓
+SSL Handshake
+↓
+Certificate Validation
+↓
+Encrypted Connection
+↓
+HTTP Requests
+↓
+Encrypted Responses
+
+Demo:
+-----
+Visit:
+http://example.com
+
+and
+
+https://example.com
+Click the padlock icon and inspect the certificate.
+
+What Does the Lock 🔒 Symbol Mean?
+When you see this in the browser:
+🔒 https://amazon.com
+
+it means:
+ . The connection is encrypted using TLS.
+ . The server has presented a valid certificate.
+ . The browser successfully verified that certificate.
+It does not mean the website is trustworthy in every sense—it only means the connection is secure and the website proved control of its identity.
+
+What is SSL?
+SSL stands for Secure Sockets Layer
+It was the original technology used to encrypt communication between a client and a server.
+Today, SSL is considered obsolete because it has known security weaknesses.
+Modern systems no longer use SSL for secure communication.
+
+What is TLS?
+TLS stands for Transport Layer Security
+TLS is the modern and secure replacement for SSL.
+
+When people say:
+SSL Certificate
+they are usually referring to a certificate that is actually used with TLS.
+The term "SSL certificate" has remained popular even though modern websites use TLS.
+
+What is an SSL/TLS Certificate?
+A certificate is a digital identity card for a website.
+
+What Information Does a Certificate Contain?
+
+A certificate contains information such as:
+ . Domain name (e.g., www.amazon.com)
+ . Organization or owner (depending on certificate type)
+ . Public key (used during encryption)
+ . Certificate validity period (start and expiry dates)
+ . Name of the Certificate Authority (CA) that issued it)
+ . Digital signature from the CA
+This information allows the browser to verify the website's identity.
+
+SSH Basics:
+-----------
+SSH stands for Secure Shell.
+It allows secure remote access to another machine.
+
+SSH Flow:
+---------
+Laptop
+↓
+Internet
+↓
+SSH Port 22
+↓
+Linux Server
+
+SSH Command:
+ssh ubuntu@<server-ip>
+
+Example:
+ssh ubuntu@192.168.1.100
+
+First Connection
+Are you sure you want to continue connecting?
+
+Type:
+yes
+
+Then enter the password (or use an SSH key if configured).
+
+Why SSH?
+--------
+Server administration
+Application deployment
+Running commands remotely
+Copying files (scp/sftp)
+Automation (Ansible, Jenkins, GitHub Actions)
+
+Common Network Troubleshooting Techniques:
+------------------------------------------
+Problem
+   │
+Is Network Connected?
+   │
+Check IP Address
+   │
+Ping Gateway
+   │
+Ping Internet
+   │
+Check DNS
+   │
+Check Port
+   │
+Check Firewall
+   │
+Check Application
+
+Common Commands:
+----------------
+Check IP
+ip addr
+
+Check Routing Table
+ip route
+
+Ping
+ping 8.8.8.8
+
+DNS Lookup
+nslookup google.com
+
+Trace Network Path
+traceroute google.com
+
+Open Ports
+ss -tuln
+
+Network Interfaces
+ip link
+
+Test a TCP Port
+nc -zv google.com 443
+
+Important Networking Commands:
+------------------------------
+| Command       | Purpose                     |
+| ------------- | --------------------------- |
+| `ip addr`     | Show IP addresses           |
+| `ip route`    | Show routing table          |
+| `hostname -I` | Show assigned IP            |
+| `ping`        | Test reachability           |
+| `traceroute`  | Display packet path         |
+| `nslookup`    | Query DNS                   |
+| `dig`         | Detailed DNS query          |
+| `ss -tuln`    | List listening ports        |
+| `curl`        | Make HTTP/HTTPS requests    |
+| `wget`        | Download files              |
+| `nc`          | Test connectivity to a port |
+| `ssh`         | Remote login                |
+
+Capstone Hands-on Lab:
+----------------------
+Objective
+Investigate how a browser request reaches a web server and verify connectivity using Linux networking tools.
+
+Tasks
+1. Display your machine's IP address using ip addr or hostname -I.
+2. Identify the default gateway with ip route.
+3. Verify internet connectivity using ping 8.8.8.8.
+4. Resolve the IP address of github.com using nslookup or dig.
+5. Use traceroute github.com to observe the packet path.
+6. Check whether port 443 on github.com is reachable using nc -zv github.com 443.
+
+7. Send an HTTPS request using:
+curl -I https://github.com
+Identify the HTTP status code and important response headers.
+
+8. List listening services on your system using:
+ss -tuln
+
+9. Identify services running on ports 22, 80, or 443 if present.
+If two Linux VMs are available, connect from one to the other using SSH and execute:
+ . hostname
+ . whoami
+ . pwd
+ . uptime
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,695 @@
+Day 9 - Programming & Scripting:
+================================
+Before writing a script, we need to understand What a Shell is.
+
+What is a Shell?
+----------------
+A Shell is a program that allows users to communicate with the Linux Operating System.
+Whenever you type a command like: pwd (or) ls (or) mkdir project
+the shell receives the command, understands it, and asks the Linux kernel to execute it.
+
+Simple flow:
+User
+   │
+Shell
+   │
+Linux Kernel
+   │
+Hardware
+
+The shell itself does not create directories or copy files.
+It simply tells Linux:
+"The user wants to create a directory."
+Linux performs the work and sends the result back to the shell.
+
+What is a Shell Script?
+-----------------------
+Imagine you need to execute these commands every morning.
+
+cd /home/devops/project
+git pull
+docker compose up -d
+systemctl status nginx
+
+Every day you type them one by one.
+Instead, you can place all commands inside one file.
+
+ > Example:
+-----------
+#!/bin/bash
+cd /home/devops/project
+git pull
+docker compose up -d
+systemctl status nginx
+
+Save it as
+start_project.sh
+
+Now execute only one command.
+./start_project.sh
+
+All commands execute automatically. 
+This file is called a Shell Script.
+
+Definition:
+A Shell Script is simply
+A text file containing multiple Linux commands that execute one after another automatically.
+
+Why do we use Shell Scripting?
+------------------------------
+Without scripting, you execute every command manually.
+With scripting:
+Script -> Runs all commands automatically
+
+Benefits:
+ > Saves time
+ > Avoids typing repetitive commands
+ > Reduces mistakes
+ > Automates daily work
+ > Easy to reuse
+ > Can schedule scripts to run automatically.
+
+Real-Time Examples:
+-------------------
+Example 1:
+Take database backup every night
+Instead of manually doing
+
+Backup database
+Compress backup
+Move to backup folder
+Delete old backups
+
+one script does everything.
+
+Example 2:
+Deploy application
+Instead of typing
+
+Pull latest code
+Build application
+Create Docker Image
+Restart Container
+
+Run:
+./deploy.sh
+
+Example 3:
+Server Health Check
+
+One script checks
+ . CPU usage
+ . Memory usage
+ . Disk usage
+ . Running services
+and prints a report.
+
+Types of Shells:
+----------------
+Linux supports multiple shells.
+| Shell | Description                        |
+| ----- | ---------------------------------- |
+| Bash  | Most commonly used shell           |
+| Sh    | Original Unix shell                |
+| Zsh   | Advanced shell with extra features |
+| Ksh   | Korn Shell                         |
+| Csh   | C Shell                            |
+For DevOps, 
+Bash is the most commonly used.
+That is why we learn Bash Scripting.
+
+What is Bash?
+-------------
+Bash stands for "Bourne Again Shell"
+It is an improved version of the original Bourne Shell (sh).
+It is the default shell in many Linux distributions.
+
+Check Current Shell: echo $SHELL
+Example Output: /bin/bash
+Check Bash Version: bash --version
+
+Hands-on:
+---------
+1. Create a file
+touch first_script.sh
+
+2. Open it
+vi first_script.sh
+
+3. Write
+#!/bin/bash
+echo "Welcome to Bash Scripting"
+Save.
+
+4. Provide execute permission
+chmod +x first_script.sh
+
+5. Run it
+./first_script.sh
+
+6. Output: Welcome to Bash Scripting
+
+ >>> Understanding Every Line:
+------------------------------
+#!/bin/bash
+This line is called the Shebang.
+
+What is Shebang?
+It tells Linux
+	Which interpreter should execute this script.
+In our case
+#!/bin/bash
+means
+Use the Bash program to execute this script.
+
+What is an Interpreter?
+An interpreter is a program that reads code line by line and executes it immediately.
+
+Flow:
+Script - Interpreter (Bash) - Linux Commands Execute.
+
+Without Shebang
+Linux may not know which interpreter should execute the file.
+
+What is an Interpreter Path?
+----------------------------
+/bin/bash
+This is the location where Bash is installed.
+
+/ = Root directory
+bin = Contains executable programs
+bash = The Bash program.
+
+What is echo?
+echo = prints output on the terminal
+
+Example:
+echo "Hello"
+
+Output" Hello
+
+Another Example:
+echo "Linux"
+echo "Docker"
+echo "Kubernetes"
+
+Output:
+Linux
+Docker
+Kubernetes
+
+Comments:
+Sometimes we want to explain out code, but those lines should not execute.
+
+Example:
+# This script checks disk space
+
+Everything after
+#
+is ignored.
+
+Example:
+#!/bin/bash
+# Print welcome message
+echo "Welcome"
+
+Hands-on:
+---------
+Create: student.sh
+
+Write:
+#!/bin/bash
+# Student Information
+echo "Name : Rahul"
+echo "Course : DevOps"
+echo "Batch : July"
+
+Execute it.
+
+Script Structure and Syntax:
+----------------------------
+Every Bash script usually follows this structure.
+
+Example:
+
+#!/bin/bash
+
+# Print Date
+date
+
+# Print Current User
+whoami
+
+# Print Current Directory
+pwd
+
+Script Execution Flow:
+----------------------
+Linux executes the script from Top - Bottom, one line at a time.
+
+Commands are executed sequentially:
+Example:
+echo "One"
+echo "Two"
+echo "Three"
+
+output:
+One
+Two
+Three
+
+Blank Lines are ignored.
+Example:
+echo "Hello"
+
+
+echo "World"
+
+Output:
+Hello
+World
+
+Hands-on:
+---------
+Create a file (vi sample.sh)
+next provide the permission (chmod +x sample.sh)
+now proceed with execution (./sample.sh)
+
+Case Sensitivity:
+-----------------
+Linux is case-sensitive.
+Example:
+Name
+name
+NAME
+All are different.
+
+Similarly, 
+File
+file
+are different files.
+
+Hands-on:
+Write
+
+#!/bin/bash
+
+echo "Current User"
+whoami
+
+echo "Current Directory"
+pwd
+
+echo "Current Date"
+date
+
+Run it.
+
+Variables and Environment Variables:
+------------------------------------
+A variable stores data in memory so that we can use it later in the script.
+Instead of writing the same value repeatedly, we store it once in a variable and reuse it.
+
+For example:
+name="Rahul"
+
+Here:
+ . name - Variable name
+ . "Rahul" - Value stored in the variable
+To use the value, prefix the variable name with $
+
+echo $name
+
+Output:
+Rahul
+
+Variable Naming Rules:
+ . Can contain letters, numbers, and _
+ . Should start with a letter or _
+ . Cannot contain spaces
+ . Variable names are case-sensitive.
+
+Valid:
+name="John"
+user_age=25
+_course="DevOps"
+
+Invalid:
+user name="John"   # Space not allowed
+1name="John"       # Cannot start with a number
+
+Assigning Values:
+city="Chennai"
+course="DevOps"
+year=2026
+
+Using them:
+echo $city
+echo $course
+echo $year
+
+Double Quotes vs Single Quotes:
+-------------------------------
+Double quotes allow variable expansion.
+
+name="Akshiv"
+echo "Hello $name"
+
+Output:
+Hello Akshiv
+
+Single Quotes treat everything literally.
+echo 'Hello $name'
+
+Output:
+Hello $name
+
+What are Environment Variables?
+-------------------------------
+Environment variables are predefined variables provided by the operating system or the current shell.
+Unlike variables you create, these already exist when you open the terminal.
+
+Examples:
+| Variable    | Meaning                                       |
+| ----------- | --------------------------------------------- |
+| `$HOME`     | Home directory of the current user            |
+| `$USER`     | Current logged-in username                    |
+| `$PWD`      | Present Working Directory                     |
+| `$SHELL`    | Current shell being used                      |
+| `$PATH`     | Directories where Linux searches for commands |
+| `$HOSTNAME` | System hostname                               |
+
+View Environment Variables
+Display one variable:
+echo $HOME
+
+Output:
+/home/Akshiv
+
+Display another:
+echo $USER
+
+Output:
+Akshiv
+
+Display all environment variables:
+env (or) printenv
+
+Why is &PATH important?
+When you type: ls
+Linux doesn't know where ls is located immediately.
+It checks the directories listed in $PATH until it finds the executable.
+
+See the value:
+echo $PATH
+
+It may look like:
+/usr/local/bin:/usr/bin:/bin:/usr/sbin
+
+Each directory is separated by a colon (:)
+
+Local Variable vs Environment Variable:
+---------------------------------------
+Local Variable
+--------------
+Created by your script.
+Available only inside that shell or script unless exported.
+
+Environment Variable
+--------------------
+Already available in the shell.
+Can also be created by exporting a variable.
+Available to child processes.
+
+course="DevOps"
+export course
+echo $course
+
+The export command makes course an environment variable for programs started from that shell.
+
+Hands-on:
+---------
+Create a script:
+
+#!/bin/bash
+
+name="Akshiv"
+course="DevOps"
+
+echo "Student : $name"
+echo "Course  : $course"
+
+echo "Home Directory : $HOME"
+echo "Current User   : $USER"
+echo "Working Folder : $PWD"
+
+Run it and observe which values come from your script and which come from the operating system.
+
+User Input:
+-----------
+Until now, values were fixed in the script.
+
+Example:
+name="Rahul"
+
+Every time the script runs, the value stays the same.
+What if we want the user to enter the value?
+That is called user input.
+
+The (read) command:
+-------------------
+The read command waits for the user to type something and stores it in a variable.
+
+Example:
+--------
+read name
+
+Flow:
+Script starts
+↓
+Waits for user input
+↓
+User types a value
+↓
+Value is stored in the variable
+↓
+Script continues
+
+Basic Example:
+--------------
+#!/bin/bash
+echo "Enter your name:"
+read name
+echo "Welcome $name"
+
+Example run:
+------------
+Enter your name:
+Akshiv
+Welcome Akshiv
+
+Using a Prompt with -p
+Instead of using (echo), you can display the prompt directly with (read).
+
+read -p "Enter your city: " city
+echo "City: $city"
+
+Reading Multiple Values:
+
+read -p "Enter first and last name: " first last
+
+echo "First Name: $first"
+echo "Last Name : $last"
+
+Input:
+Akshiv Rajendran
+
+Output:
+First Name: Akshiv
+Last Name : Rajendran
+
+Password Input with -s:
+The -s option hides the characters while typing.
+
+read -s -p "Enter password: " password
+
+echo
+echo "Password received."
+
+The password is stored in the variable but is not displayed on the screen.
+
+Hands-on:
+---------
+Create a script:
+
+#!/bin/bash
+
+read -p "Enter your name: " name
+read -p "Enter your age: " age
+read -p "Enter your city: " city
+
+echo
+echo "----- Student Information -----"
+echo "Name : $name"
+echo "Age  : $age"
+echo "City : $city"
+
+Sample Output:
+Enter your name: Akshiv
+Enter your age: 30
+Enter your city: Chennai
+
+----- Student Information -----
+Name : Akshiv
+Age  : 30
+City : Chennai
+
+Homework (Day 1)
+----------------
+Homework 1 – Student Profile
+Create a script that:
+ . Accepts Name, Age, and City using read.
+ . Stores the values in variables.
+ . Displays the information neatly using echo.
+Expected concepts: Variables, read, echo.
+
+Homework 2 – Environment Information
+Create a script that displays:
+ . Current User ($USER)
+ . Home Directory ($HOME)
+ . Current Working Directory ($PWD)
+ . Current Shell ($SHELL)
+ . Hostname ($HOSTNAME)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

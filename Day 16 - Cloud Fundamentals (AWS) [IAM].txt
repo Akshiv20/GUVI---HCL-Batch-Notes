@@ -1,0 +1,518 @@
+Day 16: Cloud Fundamentals (AWS) - Identity and Access Management (IAM)
+================================
+
+What is IAM?
+------------
+IAM stands for Identity and Access Management
+
+It is an AWS service that helps you control:
+ . Who can access AWS
+ . What they can access
+ . What actions they can perform
+ . Which resources they can use
+
+Think of IAM as AWS's security guard.
+Whenever someone logs into AWS, IAM checks
+ . Who is this person?
+ . What are they allowed to do?
+
+If permission exists, AWS allows the action.
+Otherwise it denies it.
+
+Why Do We Need IAM?
+-------------------
+Imagine a company has
+5 employees
+
+Later it grows to
+500 employees
+
+Should everyone receive Administrator access?
+No.
+
+Different employees perform different jobs.
+
+Examples:
+1. Developer
+Needs
+ . EC2
+ . Lambda
+ . CloudWatch
+No need
+ . Billing
+ . Delete VPC
+
+2. Finance Team
+Needs
+ . Billing
+ . Cost Reports
+No need
+ . Launch EC2
+ . Delete S3
+
+3. Security Team
+Needs
+ . IAM
+ . CloudTrail
+ . Security Hub
+No need
+ . RDS Administration
+
+Without IAM:
+Everyone becomes Administrator.
+This is very dangerous because
+
+Anyone can
+ . delete servers
+ . stop databases
+ . create expensive resources
+ . leak sensitive information
+IAM solves this problem.
+
+Important Terminology:
+----------------------
+ > Identity
+Identity means A person or service trying to access AWS.
+
+Examples
+ . Human user
+ . Application
+ . EC2 Instance
+ . Lambda Function
+
+ > Authentication
+Authentication means Proving who you are.
+
+AWS asks
+"Are you really Akshiv?"
+
+You provide
+ . Username
+ . Password
+ . MFA
+AWS verifies it.
+Authentication happens first.
+
+ > Authorization
+After AWS knows who you are, it asks
+"What are you allowed to do?"
+
+Example
+Can this user
+ . Start EC2?
+ . Stop EC2?
+ . Create S3 Bucket?
+ . Delete RDS?
+This is Authorization.
+
+Authentication = Identity Verification
+Authorization = Permission Checking
+
+Root User:
+----------
+When an AWS account is created AWS automatically creates One Root User.
+This account has Full access to everything.
+It cannot be restricted.
+
+Because of this, AWS recommends Never use Root User for daily work.
+
+Instead
+ . Create IAM Users
+ . Give permissions
+ . Protect Root User using MFA
+Root User should only be used for a few special account-level tasks (for example, changing some account settings or closing the AWS account).
+
+IAM User:
+---------
+An IAM User represents One individual person.
+
+Each user has
+ . Username
+ . Password (for AWS Console)
+ . Access Keys (for CLI/API if needed)
+ . Permissions
+
+Example
+ > Akshiv
+ > Preethi
+ > John
+ > David
+
+Each person gets their own account.
+Never share one IAM User among multiple people because AWS will not know who performed an action.
+
+Why Individual IAM Users?:
+--------------------------
+Suppose everyone shares one account.
+Tomorrow someone deletes an EC2.
+
+CloudTrail shows deleted by Admin
+
+But
+Who is Admin?
+Nobody knows.
+
+Instead
+Each employee should have
+Their own IAM User.
+
+Now CloudTrail records
+Deleted by Akshiv
+
+Now the action is traceable.
+
+IAM Group:
+----------
+Managing permissions for hundreds of users individually becomes difficult.
+
+IAM Groups solve this.
+A Group is a collection of users.
+
+Benefits
+ . Easier management
+ . Less manual work
+ . Consistent permissions
+
+Important
+Groups contain only IAM Users.
+
+IAM Policy:
+-----------
+A Policy is a JSON document that defines permissions.
+
+Policy answers questions like
+Can the user
+ . Read?
+ . Create?
+ . Update?
+ . Delete?
+
+Example permissions
+Allow
+ . Start EC2
+ . Stop EC2
+ . Describe EC2
+(or)
+Deny
+Delete EC2
+
+Policies are attached to
+ . Users
+ . Groups
+ . Roles
+Policies define what actions are allowed or denied.
+
+Policy Structure (Basic):
+-------------------------
+Every policy mainly contains
+ . Effect
+ . Action
+ . Resource
+
+Example:
+--------
+ . Effect
+Allow
+Means permission is granted.
+
+ . Action
+s3:GetObject
+Means
+Read an object from S3.
+
+ . Resource
+arn:aws:s3:::training-bucket/*
+Specifies which AWS resource the permission applies to.
+
+Types of IAM Policies:
+----------------------
+1. AWS Managed Policy
+Created and maintained by AWS.
+
+Examples
+ . AmazonS3ReadOnlyAccess
+ . AmazonEC2ReadOnlyAccess
+ . AdministratorAccess
+
+Advantages
+ . Ready to use
+ . Updated automatically by AWS
+
+2. Customer Managed Policy
+Created by your organization.
+
+Example
+Allow only
+
+Advantages
+ . Custom permissions
+ . Better security
+ . Reusable across multiple identities
+
+3. Inline Policy
+Attached directly to One user (or) One role.
+Cannot be reused.
+Used only for special cases.
+Usually organizations prefer managed policies because they are easier to maintain.
+
+IAM Role:
+---------
+Role means Service to Service communication.
+There are situations where one service needs to communicate to another one, for that we need to attach the Roles.
+
+An IAM Role represents
+A set of temporary permissions that can be assumed by a trusted entity.
+
+A Role does not have
+ . Username
+ . Password
+
+Example:
+--------
+EC2 needs to upload files to S3.
+
+Create an IAM Role.
+Attach S3 permissions.
+Attach the Role to EC2.
+AWS automatically provides temporary credentials to the instance.
+
+This is the recommended and secure approach.
+Roles avoid storing long-term credentials in applications.
+
+Least Privilege:
+----------------
+Definition:
+Give only the permissions required to perform a task.
+Nothing more
+Nothing less.
+
+Why is Least Privilege Important?
+---------------------------------
+It
+ . Reduces accidental mistakes
+ . Limits damage if credentials are compromised
+ . Improves security
+ . Helps meet compliance requirements
+
+Principles of Least Privilege:
+------------------------------
+1. Give Minimum Permissions
+Only what the user needs.
+
+2. Start Small
+Begin with limited permissions.
+Add more only when required.
+
+3. Review Permissions Regularly
+Remove permissions that are no longer needed.
+
+4. Avoid Administrator Access
+Only a few trusted administrators should have full access.
+
+5. Use Roles Instead of Long-Term Credentials
+Prefer IAM Roles for AWS services like EC2 and Lambda.
+
+6. Monitor Activity
+Use services such as CloudTrail to see who performed which actions.
+
+What is MFA?:
+-------------
+MFA stands for Multi-Factor Authentication.
+
+Normally login requires
+ . Username
+ . Password
+
+With MFA
+AWS asks for
+ . Username
+ . Password
+ . One-Time Verification Code
+The verification code is usually generated by an authenticator application such as Google Authenticator, Microsoft Authenticator, or similar TOTP-based apps.
+Even if someone steals the password, they still cannot log in without the second factor.
+
+AWS CLI Introduction:
+---------------------
+What is AWS CLI?
+AWS CLI stands for AWS Command Line Interface
+It is a command-line tool provided by AWS that allows you to interact with AWS services using commands instead of the AWS Management Console.
+
+Examples:
+ . Create EC2 instances
+ . Create S3 buckets
+ . List IAM users
+ . Upload files to S3
+ . Describe VPCs
+All from a terminal or command prompt.
+
+Why Use AWS CLI?
+Although the AWS Console is easy for beginners, AWS CLI becomes important because it allows you to:
+ . Automate repetitive tasks.
+ . Execute the same commands consistently.
+ . Manage AWS resources faster.
+ . Integrate with CI/CD tools such as Jenkins, GitHub Actions, GitLab CI/CD, and AWS CodeBuild.
+
+Basic AWS CLI Workflow:
+-----------------------
+Install AWS CLI
+        │
+Configure Credentials
+(aws configure)
+        │
+Run AWS Commands
+        │
+AWS Verifies IAM Permissions
+        │
+Allow or Deny the Request
+
+Example Commands:
+-----------------
+1. aws sts get-caller-identity 	= command to verify the identity
+2. aws s3 ls	 = command to list all the s3 buckets
+3. aws ec2 describe-instances	= command to check the instance information
+4. aws iam list-users	= command to list all the IAM users.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

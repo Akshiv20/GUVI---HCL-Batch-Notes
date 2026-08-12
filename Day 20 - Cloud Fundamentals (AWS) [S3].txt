@@ -1,0 +1,485 @@
+Day 20 - Cloud Fundamentals (AWS) [S3]:
+=======================================
+EC2 stores data for computing (running applications), whereas S3 stores files (objects).
+
+Think of AWS like this:
+ . EC2 → Runs your application.
+ . RDS → Stores structured database records.
+ . S3 → Stores files such as images, videos, documents, backups, log files, software packages, etc.
+
+What is Amazon S3?:
+-------------------
+Amazon S3 (Simple Storage Service) is AWS's object storage service.
+It is designed to store and retrieve any amount of data from anywhere over the internet.
+Unlike a traditional hard disk, S3 does not organize data into folders on a disk. Instead, it stores everything as objects inside buckets.
+
+Simple Definition
+Amazon S3 is a highly durable, scalable, and secure cloud storage service used to store files of any size.
+
+Why Do We Need S3?:
+-------------------
+Suppose you own an e-commerce website.
+
+Your website contains:
+ . Product images
+ . Product videos
+ . PDF manuals
+ . Bills
+ . Customer-uploaded documents
+ . Application logs
+
+If you store all these inside your EC2 server:
+ . Server storage fills up quickly
+ . Performance decreases
+ . If the EC2 instance crashes, files may be lost (unless additional storage strategies are used)
+ . Scaling becomes difficult
+
+Instead,
+Store all files inside S3 and let EC2 only process requests.
+This separates computing from storage, making the architecture more scalable and easier to manage.
+
+Real-Time Examples
+------------------
+Example 1: Amazon Shopping
+When you open a product page:
+ . Product images come from S3.
+ . Product videos come from S3.
+ . Product manuals (PDFs) come from S3.
+The website itself runs on EC2 or containers.
+
+Example 2: Company Backup
+Every night:
+ . Database backup
+ . Server logs
+ . Application logs
+ . Configuration files
+are automatically uploaded into S3.
+
+Advantages of Amazon S3:
+------------------------
+1. Practically Unlimited Storage
+You don't need to buy new hard disks.
+As your storage requirement grows,
+S3 grows automatically.
+
+2. Highly Durable
+AWS stores multiple copies of your data across multiple devices within an AWS Region.
+Even if one storage device fails, your data remains available.
+AWS designs S3 for 99.999999999% (11 nines) durability.
+This means the chance of losing an object is extremely low.
+
+3. Highly Available
+Your files remain accessible even if individual hardware components fail.
+
+4. Secure
+You can control:
+ . Who can upload
+ . Who can download
+ . Who can delete
+ . Who can modify
+using IAM policies, bucket policies, and encryption.
+
+5. Cost Effective
+You pay only for:
+ . Storage used
+ . Data transfer (where applicable)
+ . Requests made to S3
+There is no upfront investment in storage hardware.
+
+How S3 Stores Data:
+-------------------
+S3 stores data using three main concepts:
+
+AWS Account
+      │
+      ▼
+Bucket
+      │
+      ▼
+Objects (Files)
+
+What is a Bucket?
+A bucket is the top-level container that holds your files (objects).
+It is similar to a storage container.
+Every object must be stored inside a bucket.
+Without a bucket, you cannot store any object.
+
+Bucket Characteristics
+Each bucket:
+ . Has a globally unique name.
+ . Exists within a specific AWS Region.
+ . Can store millions or even billions of objects.
+ . Can have permissions and policies.
+ . Can enable features like versioning, lifecycle rules, logging, and encryption.
+
+What is an Object?
+An object is the actual file stored inside a bucket.
+
+Examples:
+ . Image (.jpg)
+ . Video (.mp4)
+ . PDF
+ . ZIP file
+ . Excel file
+ . Text file
+ . JSON
+ . Log file
+Everything stored in S3 is an object.
+
+Object Components:
+------------------
+Each object contains:
+
+1. Data
+The actual file.
+Example:
+holiday-photo.jpg
+
+2. Key
+The unique name (path) used to identify the object within a bucket.
+Example:
+images/profile/user1.jpg
+The entire string is the object's key.
+
+3. Metadata
+Information about the object.
+Examples:
+ . File size
+ . Upload date
+ . File type
+ . Last modified date
+ . Custom metadata
+
+Bucket vs Object:
+-----------------
+| Bucket                   | Object                           |
+| ------------------------ | -------------------------------- |
+| Container                | Actual file                      |
+| Holds objects            | Stores data                      |
+| Created first            | Uploaded after bucket creation   |
+| Like a storage container | Like a document, image, or video |
+
+What are S3 Storage Classes?:
+-----------------------------
+Not all files are accessed equally.
+Some files are used every day.
+Some files are used once a year.
+Some files are never accessed after backup.
+Using the same storage type for all data would be expensive.
+AWS provides different storage classes optimized for different access patterns and costs.
+
+Why Multiple Storage Classes?
+Imagine a company stores:
+ . Daily reports
+ . Old employee records
+ . Five-year-old backups
+ . Archived tax documents
+Keeping everything in the fastest storage is unnecessary and costly.
+AWS lets you choose storage classes based on how often data is accessed, balancing performance and cost.
+
+1. S3 Standard
+The default storage class.
+Suitable for frequently accessed data.
+
+Examples:
+ . Website images
+ . Mobile app files
+ . Videos
+ . Documents
+ . APIs serving files
+
+Characteristics
+ . Frequently accessed
+ . High availability
+ . High durability
+ . Low latency
+ . Higher storage cost compared to colder storage classes
+
+Real-Time Example
+Amazon product images that customers view every day.
+
+2. S3 Standard-IA (Infrequent Access)
+IA = Infrequent Access
+Data is stored at a lower storage cost because it is accessed less often.
+
+Examples:
+ . Monthly reports
+ . Old project files
+ . Completed customer records
+
+Characteristics
+ . Lower storage cost than Standard
+ . Retrieval incurs an additional cost
+ . Suitable when data is rarely accessed but must be available immediately
+
+Real-Time Example
+HR documents from employees who left the company two years ago.
+
+3. S3 One Zone-IA
+Similar to Standard-IA, but stores data in a single Availability Zone.
+
+Characteristics
+ . Lower storage cost
+ . Immediate access
+ . Less resilient to Availability Zone failures compared to multi-AZ storage
+
+Example
+Re-creatable files such as temporary reports or secondary copies.
+
+4. S3 Glacier Instant Retrieval
+For archive data that is rarely accessed but should be retrievable quickly.
+
+Examples
+ . Medical records
+ . Old contracts
+ . Historical reports
+
+5. S3 Glacier Flexible Retrieval
+Designed for long-term archives.
+Retrieval is slower than Standard storage and can range from minutes to hours depending on the retrieval option.
+
+Examples
+ . Seven-year audit records
+ . Archived application logs
+
+6. S3 Glacier Deep Archive
+The lowest-cost storage class for data that is almost never accessed.
+
+Examples
+ . Ten-year-old legal documents
+ . Long-term compliance records
+Retrieval can take many hours, making it suitable only for rarely needed data.
+
+Storage Class Comparison:
+-------------------------
+| Storage Class              | Access Frequency | Retrieval Speed  | Relative Storage Cost | Example            |
+| -------------------------- | ---------------- | ---------------- | --------------------- | ------------------ |
+| Standard                   | Frequent         | Immediate        | Highest               | Website images     |
+| Standard-IA                | Occasional       | Immediate        | Lower                 | HR records         |
+| One Zone-IA                | Occasional       | Immediate        | Lower                 | Re-creatable files |
+| Glacier Instant Retrieval  | Rare             | Immediate        | Low                   | Medical records    |
+| Glacier Flexible Retrieval | Very Rare        | Minutes to Hours | Very Low              | Audit archives     |
+| Glacier Deep Archive       | Almost Never     | Hours            | Lowest                | Legal archives     |
+
+What is Versioning?
+-------------------
+Versioning keeps multiple versions of the same object instead of overwriting or permanently deleting it.
+
+Without versioning:
+Resume.pdf
+
+Upload a new file with the same name:
+Resume.pdf
+
+The old version is replaced.
+It cannot be recovered through S3.
+
+With Versioning Enabled
+Upload:
+Resume.pdf
+
+Later upload another file with the same key:
+Resume.pdf
+
+S3 stores:
+Version 1
+Version 2
+Version 3
+
+All versions are preserved.
+You can restore or retrieve an earlier version if needed.
+
+Why is Versioning Useful?
+-------------------------
+ > Accidental Overwrite
+A developer uploads the wrong configuration file.
+Instead of losing the original, they can restore the previous version.
+
+ > Accidental Deletion
+Someone deletes an important document.
+With versioning enabled, the object can usually be recovered by restoring the previous version.
+
+Real-Time Example
+A software company stores application configuration files in S3.
+An engineer accidentally uploads an incorrect version.
+Instead of recreating the file, they simply restore the earlier version and the application works again.
+
+Benefits of Versioning
+ . Protects against accidental deletion
+ . Protects against accidental overwrite
+ . Maintains file history
+ . Helps recover previous versions
+ . Useful for compliance and auditing
+
+What are Lifecycle Policies?:
+-----------------------------
+As data ages, it often becomes less valuable or less frequently accessed.
+Keeping all data in the most expensive storage class increases costs.
+A Lifecycle Policy automatically manages objects based on rules you define.
+
+Simple Definition
+A lifecycle policy is an automated rule that tells S3 what to do with objects after a certain amount of time.
+Possible actions include:
+ . Move objects to a cheaper storage class
+ . Delete objects after a specified period
+
+Real-Time Example:
+------------------
+A company's application generates log files every day.
+
+Days 1–30
+Logs are accessed frequently for troubleshooting.
+Storage Class:
+S3 Standard
+
+After 30 Days
+Logs are rarely used.
+Automatically move them to:
+S3 Standard-IA
+
+After 180 Days
+Logs are seldom needed.
+Move them to:
+S3 Glacier Flexible Retrieval
+
+After 7 Years
+Delete them automatically.
+No manual work is required.
+
+Benefits of Lifecycle Policies:
+-------------------------------
+ . Reduces storage costs automatically
+ . Eliminates manual cleanup
+ . Helps enforce data retention rules
+ . Moves data to the most cost-effective storage class
+ . Keeps buckets organized over time
+
+Versioning vs Lifecycle Policies:
+---------------------------------
+| Versioning                                 | Lifecycle Policy                       |
+| ------------------------------------------ | -------------------------------------- |
+| Protects object history                    | Manages object age                     |
+| Stores multiple versions                   | Moves or deletes objects automatically |
+| Helps recover overwritten or deleted files | Reduces storage costs                  |
+| Focuses on data protection                 | Focuses on storage optimization        |
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

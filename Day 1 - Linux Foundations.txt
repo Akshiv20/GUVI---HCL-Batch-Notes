@@ -1,0 +1,654 @@
+Day 1: Linux Foundations:
+=========================
+1. What is a Computer?
+Before OS, students should understand a computer.
+A computer is an electronic machine that receives input, processes the data, stores information, and produces output.
+
+Simple Flow:
+Input - CPU Processing - Memory - Output.
+
+Example
+Keyboard → CPU → RAM → Monitor
+
+Components of Computer:
+ . CPU
+ . RAM
+ . Hard Disk / SSD
+ . Motherboard
+ . Network Card
+ . GPU
+ . Power Supply
+ . Input Devices
+ . Output Devices
+
+Hardware vs Software:
+---------------------
+Hardware
+Physical components.
+
+Examples
+ . CPU
+ . RAM
+ . SSD
+ . Keyboard
+ . Mouse
+
+Software
+Instructions that tell hardware what to do.
+
+Examples
+ . Windows
+ . Linux
+ . Chrome
+ . MS Word
+ . VS Code
+ . Docker
+
+Simple Analogy:
+Hardware is like the human body.
+Software is like the brain instructions.
+Without software, hardware doesn't know what to do.
+
+2. What is an Operating System?
+Definition
+An Operating System (OS) is system software that acts as a bridge between users, applications, and computer hardware. It manages all hardware resources and provides an environment where applications can run efficiently.
+
+Simple Explanation:
+Whenever you open Chrome...
+Chrome
+↓
+Operating System
+↓
+CPU
+RAM
+Disk
+Network
+
+Chrome never directly talks to hardware.
+Everything goes through the Operating System.
+
+Why Do We Need an Operating System?
+-----------------------------------
+Imagine there is no OS.
+Application wants RAM.
+CPU wants instructions.
+Keyboard sends input.
+Disk stores files.
+
+Who coordinates everything?
+Nobody.
+
+The Operating System coordinates all hardware resources.
+
+Without an OS,
+ . No application can run.
+ . No file can be opened.
+ . No memory allocation.
+ . No keyboard interaction.
+ . No networking.
+
+Functions of an Operating System:
+---------------------------------
+1. Process Management
+What is a Process?
+A running instance of a program.
+
+Example:
+Chrome.exe - Running - Process
+
+OS responsibilities
+ . Create process
+ . Execute process
+ . Stop process
+ . Schedule CPU
+ . Kill process
+
+2. Memory Management
+RAM is limited.
+
+OS decides
+ . Which application gets RAM
+ . How much RAM
+ . When RAM is released
+ . Prevent memory conflicts
+
+OS manages all allocations.
+
+3. File Management
+OS manages
+ . Folders
+ . Files
+ . Permissions
+ . Copy
+ . Move
+
+Example
+ . Documents
+ . Photos
+ . Downloads
+ . Desktop
+
+Everything is handled by OS.
+
+4. Device Management
+Devices include
+ . Keyboard
+ . Mouse
+ . Printer
+ . Monitor
+ . USB
+ . Camera
+ . Microphone
+OS communicates using device drivers.
+
+What is Device Driver?
+A driver is software that allows the Operating System to communicate with a hardware device.
+
+5. CPU Management
+Many applications run together.
+OS decides
+ . Who gets CPU first
+ . How long they run
+ . Who waits
+This is called CPU Scheduling
+
+6. Security
+OS provides
+ . Login
+ . Password
+ . Permissions
+ . Encryption
+ . Authentication
+ . Firewall integration
+
+7. Networking
+OS provides
+ . TCP/IP
+ . Wi-Fi
+ . Ethernet
+ . DNS
+ . DHCP
+ . Routing
+Without networking services, internet won't work.
+
+8. User Management
+OS allows multiple users.
+Example:
+ . Administrator
+ . Developer
+ . Guest
+Each user has different permissions.
+
+Types of Operating Systems:
+---------------------------
+ > Batch OS
+Jobs processed in batches.
+Old mainframe systems.
+
+ > Multi-user OS
+Many users use the same system.
+
+Example
+Linux Server.
+
+ > Multitasking OS
+Run multiple applications simultaneously.
+
+Example
+ . Chrome
+ . Spotify
+ . VS Code
+ . Teams
+
+All together.
+
+ > Multiprocessing OS
+Uses multiple CPUs or multiple CPU cores.
+
+Example
+Modern Intel and AMD processors.
+
+ > Real-Time OS (RTOS)
+Used where timing is critical.
+
+Examples
+ . Medical devices
+ . Robots
+ . Airplanes
+ . Cars
+ . Industrial automation
+
+ > Distributed OS
+Multiple computers behave like one system.
+Used in clusters and distributed computing.
+
+ > Mobile OS
+Examples
+ . Android
+ . iOS
+
+Operating System Architecture:
+------------------------------
+Basic view:
+Applications - System Libraries - System Calls - Kernel - Hardware.
+
+ > What is Kernel
+One of the most important concepts.
+
+Definition
+The Kernel is the core component of an Operating System that directly manages hardware resources and provides services to applications.
+
+Responsibilities
+ . CPU Management
+ . RAM Management
+ . Device Management
+ . Networking
+ . Storage
+ . Security
+ . Scheduling
+Kernel is always running.
+
+ > Boot Process
+When computer starts
+Power ON - BIOS/UEFI - Bootloader . Kernel - Operating System - Login Screen
+
+ > BIOS
+Basic Input Output System.
+Old firmware.
+
+Responsibilities
+ . Hardware check
+ . Boot device selection
+ . Load bootloader
+
+ > UEFI
+Modern replacement for BIOS.
+
+Advantages
+ . Faster boot
+ . Better security
+ . Large disk support
+ . Secure Boot
+
+ > Bootloader
+Small program that loads the Operating System.
+Linux example: GRUB
+Windows: Windows Boot Manager
+
+ > File System
+A file system defines how data is organized and stored on a storage device.
+
+Examples
+ . Windows
+NTFS
+FAT32
+exFAT
+
+ . Linux
+ext4
+XFS
+Btrfs
+ZFS (available on Linux)
+
+ > Program vs Process
+Program - Stored on disk (Chrome.exe)
+Process - Running in RAM (Chrome.exe running) PID 5231
+
+ > Memory Management Components
+ . RAM
+ . Virtual Memory
+ . Swap Space
+ . Cache Memory
+ . Buffer
+ . Paging
+ . Segmentation
+
+ > Storage Management Components
+OS manages
+ . SSD
+ . Hard Disk
+ . Partitions
+ . Mount Points
+ . Formatting
+ . Free Space
+
+ > User Management
+Linux has
+ . Root 
+ . Normal Users
+ . Groups
+ . Permissions
+
+Windows has
+ . Administrator
+ . Standard User
+
+ > Operating System Security
+Concepts
+ . Authentication
+ . Authorization
+ . Access Control
+ . Permissions
+ . Encryption
+ . Secure Boot
+ . Firewall
+ . Antivirus (common on desktop systems)
+
+Linux History:
+--------------
+In 1991, Linus Torvalds developed the Linux Kernel while studying at university.
+Later, developers worldwide contributed.
+
+Today Linux powers
+ . AWS
+ . Azure
+ . GCP
+ . Android
+ . Kubernetes
+ . Most supercomputers
+ . Most web servers
+
+ > What is Linux?
+Linux is not a complete operating system by itself.
+Technically,
+Linux is the kernel.
+A complete Linux Operating System combines
+
+Linux Kernel - GNU Tools - Shell - Libraries - Applications
+
+GNU Project:
+------------
+Started by Richard Stallman to create a free Unix-like operating system. GNU provides many of the command-line tools and utilities commonly used with the Linux kernel.
+
+ > Open Source Concept
+Open Source means the source code is publicly available.
+
+Anyone can
+ . View it
+ . Learn from it
+ . Modify it
+ . Improve it
+ . Redistribute it (subject to the license)
+
+Benefits
+ . Transparency
+ . Faster innovation
+ . Community contributions
+ . Reduced vendor lock-in
+ . Better security through peer review
+
+Examples
+ . Linux
+ . Kubernetes
+ . Docker Engine
+ . PostgreSQL
+ . Python
+ . Terraform/OpenTofu (OpenTofu is community-driven)
+
+ > Linux Distribution
+A Linux Distribution (Distro) packages the Linux kernel with utilities, package managers, desktop environments (optional), and applications.
+
+Popular examples
+ . Ubuntu
+ . Debian
+ . Fedora
+ . Red Hat Enterprise Linux
+ . Rocky Linux
+ . AlmaLinux
+ . Arch Linux
+
+What is an Architecture?
+	Architecture is the way different components of a system are organized and work together to achieve a specific purpose.
+Similarly,
+ . A Desktop Operating System is designed for a single user.
+ . A Server Operating System is designed to serve many users or applications simultaneously.
+So their architecture is different.
+
+User Interaction:
+-----------------
+Desktop - Human interacts directly:
+Human - Mouse - Keyboard - Desktop OS
+
+Server - Humans rarely interact directly
+Users - Internet - Application - Server OS.
+
+Server vs Desktop Linux:
+------------------------
+| Desktop       | Server               |
+| ------------- | -------------------- |
+| GUI available | Mostly CLI           |
+| Personal use  | Business use         |
+| Multimedia    | Web servers          |
+| Office work   | Databases            |
+| Gaming        | Cloud infrastructure |
+
+Server/Desktop Architecture:
+----------------------------
+Desktop systems prioritize user interaction, graphics, and convenience, while servers prioritize reliability, performance, security, and continuous availability.
+
+Typical Desktop:
+User - GUI - Operating System - Hardware
+
+Typical Server:
+Users/Applications - Network Services - Operating System - Hardware.
+
+Linux Architecture:
+Applications - Shell - Kernel - Hardware
+
+Expand it further:
+Applications - Shell - System Libraries - System Calls - Kernel - Device Drivers - Hardware.
+
+ > What is a Shell?
+A shell is a command interpreter that accepts user commands and communicates with the kernel.
+
+Popular shells
+ . Bash
+ . Zsh
+ . Fish
+ . Korn Shell (ksh)
+
+ > Terminal
+The terminal is the application used to interact with the shell.
+
+Example
+ . Windows Terminal
+ . GNOME Terminal
+ . Konsole
+ . macOS Terminal
+
+CLI vs GUI:
+-----------
+| CLI                               | GUI                               |
+| --------------------------------- | --------------------------------- |
+| Keyboard-driven                   | Mouse-driven                      |
+| Faster for automation             | Easier for beginners              |
+| Uses less memory                  | Uses more memory                  |
+| Scriptable                        | Limited automation                |
+| Preferred by DevOps/System Admins | Preferred for general desktop use |
+
+
+Linux File System Overview:
+---------------------------
+/
+
+├── bin
+├── boot
+├── dev
+├── etc
+├── home
+├── lib
+├── media
+├── mnt
+├── opt
+├── proc
+├── root
+├── run
+├── sbin
+├── srv
+├── sys
+├── tmp
+├── usr
+└── var
+
+Root User:
+----------
+The root user is the superuser with unrestricted access to the system.
+
+Key concepts
+ . Root can perform any administrative task.
+ . Use elevated privileges only when necessary.
+ . Accidental root commands can impact the entire system.
+
+File Permissions (Basics):
+--------------------------
+Every file has permissions that determine who can read, write, or execute it.
+
+Three permission groups
+ . Owner
+ . Group
+ . Others
+
+Three permission types
+ . Read (r)
+ . Write (w)
+ . Execute (x)
+
+Why Linux Dominates Cloud:
+--------------------------
+Nearly all major cloud providers rely heavily on Linux because it offers:
+ . High stability
+ . Excellent performance
+ . Strong security
+ . Extensive automation support
+ . Efficient resource usage
+ . Easy scripting
+ . Container-native design
+ . Massive open-source ecosystem
+This is why most Docker containers, Kubernetes clusters, CI/CD runners, and cloud virtual machines use Linux.
+
+Every modern DevOps tool—Docker, Kubernetes, Jenkins, Terraform, Ansible, GitLab CI/CD, GitHub Actions, Prometheus, Grafana, cloud virtual machines, and most databases—ultimately runs on top of an operating system, and in production environments that operating system is overwhelmingly Linux. Understanding OS fundamentals is not optional; it is the foundation upon which the rest of the DevOps and Cloud ecosystem is built.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

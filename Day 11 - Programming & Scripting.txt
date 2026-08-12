@@ -1,0 +1,915 @@
+Day 11 - Programming & Scripting 
+================================
+By now, we understood how
+ . Variables
+ . User Input
+ . Conditional Statements
+ . Loops
+works
+
+so we are going to learn how to organize scripts, reuse code, pass information to scripts, understand success/failure, and finally automate real work.
+
+Functions in Shell Scripts:
+---------------------------
+A Function is a reusable block of code.
+Instead of writing the same commands multiple times, we place them inside a function and call the function whenever needed.
+A function is a named block of commands that can be executed whenever required.
+
+ > Why do we use Functions?
+---------------------------
+Functions help us:
+ . Reduce duplicate code
+ . Make scripts easier to read
+ . Make scripts easier to maintain
+ . Reuse the same logic multiple times
+ . Divide a large script into smaller sections
+
+functions and loops can make something happen multiple times, but they solve completely different problems.
+A simple way to remember it is:
+ . Function = Reuse code
+ . Loop = Repeat execution
+Those are not the same thing.
+
+ > First Understand the Problem Each One Solves
+Problem 1 - I don't want to write the same code again and again.
+Solution?
+Functions
+
+Problem 2 - I want to execute something many times.
+Solution?
+Loops
+
+Real Example
+
+Suppose your company wants a Daily Server Health Report.
+
+Every report should display
+
+Current Date
+Current User
+Hostname
+Memory Usage
+Disk Usage
+
+Option 1 (Without Function):
+
+#!/bin/bash
+
+echo "===== Server 1 ====="
+
+date
+whoami
+hostname
+free -h
+df -h
+
+echo
+
+echo "===== Server 2 ====="
+
+date
+whoami
+hostname
+free -h
+df -h
+
+echo
+
+echo "===== Server 3 ====="
+
+date
+whoami
+hostname
+free -h
+df -h
+
+Look carefully.
+How many times did we write
+Three times.
+
+If tomorrow the manager says:
+"Please also display CPU usage."
+
+Now you must modify
+
+Server 1
+↓
+Server 2
+↓
+Server 3
+
+You may even forget one place.
+
+Using Function:
+---------------
+#!/bin/bash
+health_report() {
+date
+whoami
+hostname
+free -h
+df -h
+}
+
+echo "===== Server 1 ====="
+health_report
+
+echo
+
+echo "===== Server 2 ====="
+health_report
+
+echo
+
+echo "===== Server 3 ====="
+health_report
+
+Now the report exists only once.
+If tomorrow the manager says
+"Add CPU usage."
+You only modify
+
+health_report() {
+date
+whoami
+hostname
+free -h
+df -h
+lscpu
+}
+
+Done.
+Every place automatically gets updated.
+This is the biggest advantage of functions.
+
+ >>> Now Where Does Loop Come?
+Suppose instead of three servers,
+you have 100 servers.
+
+Without loop
+
+health_report
+health_report
+health_report
+...
+100 times
+
+Not practical.
+Now use a loop.
+
+for server in Server1 Server2 Server3
+do
+    echo "===== $server ====="
+    health_report
+done
+
+Here, the loop is not replacing the function
+The loop is repeatedly calling the function, They work together.
+
+ > A Better Real-Time DevOps Example:
+-------------------------------------
+Imagine you are deploying an application.
+
+Every deployment follows these steps:
+
+Step 1 Pull latest code
+Step 2 Build application
+Step 3 Run tests
+Step 4 Restart application
+Step 5 Verify application
+
+You need to deploy
+ . Development
+ . Testing
+ . Staging
+
+Without Function:
+-----------------
+Pull Code
+Build
+Test
+Restart
+Verify
+
+Pull Code
+Build
+Test
+Restart
+Verify
+
+Pull Code
+Build
+Test
+Restart
+Verify
+
+Lots of duplication.
+
+With Function:
+--------------
+deploy(){
+echo "Pulling Code"
+echo "Building"
+echo "Testing"
+echo "Restarting"
+echo "Verifying"
+}
+
+echo "Deploy Development"
+deploy
+
+echo
+echo "Deploy Testing"
+deploy
+
+echo
+echo "Deploy Staging"
+deploy
+
+Much cleaner.
+
+Now suppose tomorrow your company says
+"Run Security Scan before Restart."
+Only change the function.
+
+deploy(){
+echo "Pull Code"
+echo "Build"
+echo "Testing"
+echo "Security Scan"
+echo "Restart"
+echo "Verify"
+}
+
+Each deployment automatically gets the new step.
+
+Hands-on:
+---------
+Function + Loop together (Very common)
+
+#!/bin/bash
+health_report(){
+echo "Date"
+date
+echo "Disk"
+df -h
+echo "Memory"
+free -h
+}
+
+for server in Dev QA Production
+do
+
+echo "=========="
+echo "$server"
+health_report
+done
+
+Here,
+ . Function defines what a health report is.
+ . Loop decides how many times to generate it.
+
+1. Create a file (vi sample.sh), add the above script
+2. Provide the executable permission (chmod +x sample.sh)
+3. now execute it (./sample.sh)
+now, we can see this function has been repeated 3 times as per our environment request with the complete data.
+
+A function defines a task once. A loop decides how many times that task should run.
+
+Reusable block of Scripting:
+----------------------------
+Reusable means: Write once and use many times.
+
+Scenario: Checking Server Health
+Suppose every server health check consists of these commands.
+
+date
+hostname
+df -h
+free -h
+
+These four commands together are called a Health Check.
+Now let's solve different problems.
+
+Case 1 - No Function, No Loop
+You have three servers.
+So you write
+
+echo "Development"
+
+date
+hostname
+df -h
+free -h
+
+echo
+
+echo "Testing"
+
+date
+hostname
+df -h
+free -h
+
+echo
+
+echo "Production"
+
+date
+hostname
+df -h
+free -h
+
+Question:
+How many times did you write
+Answer
+3 Times
+Problem?
+Lots of duplicate code.
+
+Solution - Function
+Now create one function.
+
+health_check(){
+date
+hostname
+df -h
+free -h
+}
+
+Now your script becomes
+
+echo "Development"
+health_check
+echo
+
+echo "Testing"
+health_check
+echo
+
+echo "Production"
+health_check
+
+Notice what happened.
+You wrote
+
+date
+hostname
+df -h
+free -h
+
+only once.
+That is called Reusable Code.
+
+ > Why is this better?
+----------------------
+Suppose tomorrow your manager says
+"Also display CPU information."
+
+Without function
+You change
+Server 1
+↓
+Server 2
+↓
+Server 3
+Three places.
+With function
+Just change
+
+health_check(){
+date
+hostname
+df -h
+free -h
+lscpu
+}
+
+Done.
+Every place automatically gets updated.
+This is why functions exist.
+
+ > Now Let's Introduce Loop
+Suppose instead of
+ . Development
+ . Testing
+ . Production
+
+your company has 100 servers
+
+Are you going to write
+
+health_check
+health_check
+health_check
+...
+100 Times
+
+No, now use a loop.
+
+for server in Dev Test Prod
+do
+echo "$server"
+health_check
+done
+
+Now the function executes three times automatically.
+
+Very Important
+ . The loop is not replacing the function.
+ . The loop is repeatedly calling the function.
+
+ > Think of Them as Two Different Jobs
+1. The function answers
+What work should be done?
+2. The loop answers
+How many times should that work be done?
+
+| Question 					| Answer |
+|----------					|--------|
+| **What work should be done?** 		| **Function** |
+| **How many times should the work be done?** 	| **Loop** |
+| **Why use a function?** 			| To avoid duplicate code and make changes in one place. |
+| **Why use a loop?** 				| To avoid manually repeating the same execution. |
+
+Passing Arguments to Scripts:
+-----------------------------
+Until now, every value was either
+hardcoded
+or
+entered by the user.
+There is another method.
+We can send values while executing the script.
+
+What are Arguments?
+Arguments are values passed to the script during execution.
+
+Positional Parameters:
+| Parameter | Meaning             |
+| --------- | ------------------- |
+| `$0`      | Script name         |
+| `$1`      | First argument      |
+| `$2`      | Second argument     |
+| `$3`      | Third argument      |
+| `$#`      | Number of arguments |
+| `$@`      | All arguments       |
+
+Hands-on:
+---------
+1. Create a file (vi student.sh), 
+
+#!/bin/bash
+echo $1
+echo $2
+
+provide permission to the file (chmod +x student.sh)
+2. now execute this with the values (./student.sh Akshiv DevOps)
+3. Here 
+Akshiv
+DevOps
+are called Arguments.
+
+Understanding:
+Rahul
+↓
+$1
+DevOps
+↓
+$2
+
+Example Using Labels:
+---------------------
+#!/bin/bash
+echo "Name : $1"
+echo "Course : $2"
+
+now, edit the file (vi student.sh) - paste the same, execute and check for the output.
+
+To know the script name, 
+we need to give 
+echo $0
+Output:
+./student.sh
+
+to know the Number of Arguments:
+echo $#
+Example:
+./demo.sh one two three
+Output: 3
+
+to Display all Arguments:
+echo $@
+Output:
+one two three
+
+Hands-On:
+---------
+1. Create a file to check all the info (vi argument.sh), paste the below code
+#!/bin/bash
+echo "Script Name : $0"
+echo "Student Name : $1"
+echo "Course : $2"
+echo "City : $3"
+echo "Arguments Count : $#"
+
+2. make sure to provide permission for the same file (chmod +x argument.sh)
+3. now execute the same file (./argument.sh Akshiv DevOps Chennai)
+
+Output:
+Script Name : ./argument.sh
+Student Name : Akshiv
+Course : DevOps
+City : Chennai
+Arguments Count : 3
+
+Exit Status and Return Codes:
+-----------------------------
+This is one of the most important Bash concepts in DevOps.
+
+What is Exit Status?
+Every Linux command returns a number after execution.
+That number tells us whether the command succeeded or failed.
+
+This number is called the
+Exit Status
+or
+Return Code
+
+Success
+Exit Code = 0
+Means
+Command executed successfully.
+
+Failure
+Exit Code ≠ 0
+Means
+Something went wrong.
+
+Flow:
+-----
+Run Command
+↓
+Linux Executes
+↓
+Returns Exit Code
+↓
+0
+Success
+↓
+Non-Zero
+Failure
+
+Example:
+--------
+mkdir demo
+
+Check
+echo $?
+
+Output
+0
+Meaning
+Success.
+
+Now execute...
+cd unknown
+
+Output
+No such file or directory
+
+Now check
+echo $?
+Output
+1
+or another non-zero value, depending on the command.
+
+Meaning
+Failure.
+
+What is $?
+$?
+contains the exit status of the last executed command.
+
+Example
+pwd
+echo $?
+Output
+0
+
+Real-Time Example:
+------------------
+ping -c 1 google.com
+If successful
+echo $?
+Output
+0
+
+Using Exit Status in if:
+#!/bin/bash
+
+mkdir project
+
+if [ $? -eq 0 ]
+then
+    echo "Folder Created Successfully"
+else
+   echo "Folder Creation Failed"
+fi
+
+This is commonly used in automation scripts.
+
+Automation Using Shell Scripts:
+-------------------------------
+What is Automation?
+Automation means making the computer perform tasks automatically without manually typing every command.
+
+Without Automation:
+Login
+↓
+Create Folder
+↓
+Copy Files
+↓
+Take Backup
+↓
+Check Disk
+↓
+Logout
+Every command is executed manually.
+
+Without automaton:
+Run One Script
+↓
+Everything Executes Automatically
+
+Real-Time Example 1
+-------------------
+ > Daily Backup
+
+Script performs
+
+Create backup folder
+Copy files
+Compress backup
+Print completion message
+
+#!/bin/bash
+mkdir backup
+cp *.txt backup
+echo "Backup Completed"
+
+Real-Time Example 2
+--------------------
+System Health Report
+
+#!/bin/bash
+
+echo "Current User"
+whoami
+echo
+
+echo "Date"
+date
+echo
+
+echo "Memory"
+free -h
+echo
+
+echo "Disk"
+df -h
+
+Real-Time Example 3
+-------------------
+Application Startup
+
+#!/bin/bash
+echo "Starting Application"
+cd /home/devops/project
+echo "Application Started"
+
+Hands-on 5 – Mini Automation Project:
+-------------------------------------
+1. Create a file (vi daily_report.sh)
+
+#!/bin/bash
+
+echo "===== DAILY SYSTEM REPORT ====="
+echo
+
+echo "Current User"
+whoami
+
+echo
+echo "Current Directory"
+
+pwd
+echo
+
+echo "Current Date"
+date
+
+echo
+echo "Disk Usage"
+
+df -h
+echo
+
+echo "Memory Usage"
+free -h
+
+echo
+echo "Report Generated Successfully"
+
+Run, 
+chmod +x daily_report.sh
+./daily_report.sh
+
+Mini Activity (Classroom – 20 Minutes)
+--------------------------------------
+Activity Name: Build Your First Automation Script
+
+Objective
+Each participant creates one Bash script that combines everything learned in Days 1–3.
+
+The script should:
+ . Ask for the user's name.
+ . Display a welcome message.
+ . Use a function to print system information.
+ . Use an if statement to check whether a folder named backup exists.
+ . If it does not exist, create it.
+ . Display the exit status of the folder creation.
+ . Use a for loop to print numbers 1 to 5.
+ . Print "Script Completed" at the end.
+
+Participants can work individually or in pairs.
+
+Homework (Day 3):
+-----------------
+Homework 6 – Employee Information
+
+Pass these values as command-line arguments:
+ . Employee Name
+ . Department
+ . Location
+
+Display all three values along with:
+ . Script Name ($0)
+ . Number of Arguments ($#)
+
+Homework 7 – Function-Based Calculator
+Create four functions:
+ . add
+ . subtract
+ . multiply
+ . divide
+Use fixed numbers (or read input if comfortable) and call each function.
+
+Homework 8 – System Health Script
+Create a script that:
+ . Displays the current date.
+ . Displays the hostname.
+ . Displays the logged-in user.
+ . Displays disk usage (df -h).
+ . Displays memory usage (free -h).
+ . Prints Health Check Completed.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

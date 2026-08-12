@@ -1,0 +1,566 @@
+Day 18 - Cloud Fundamentals (AWS) [EC2 Instance Management]:
+============================================================
+What is EC2?
+EC2 (Elastic Compute Cloud) is AWS's virtual server service.
+
+Instead of purchasing a physical server, installing an operating system, configuring hardware, and maintaining it, AWS provides a virtual machine that can be created in minutes.
+Think of EC2 as a computer running inside an AWS data center.
+
+It has:
+ . CPU
+ . RAM
+ . Storage
+ . Operating System
+ . Network Interface
+ . Public/Private IP addresses
+Everything a normal computer has.
+
+The only difference is:
+You access it remotely.
+
+Why is it called Elastic Compute Cloud?:
+----------------------------------------
+Let's understand each word.
+
+ > Elastic
+Resources can increase or decrease whenever required.
+
+Example:
+Initially:
+2 CPU
+4 GB RAM
+
+Later application becomes busy.
+You stop the instance and change it to:
+8 CPU
+32 GB RAM
+Or automatically create more instances.
+This flexibility is called Elasticity.
+
+ > Compute
+Compute simply means processing power.
+Whenever your application runs, CPU performs calculations; RAM stores running processes; The operating system schedules work.
+All this processing is called Compute.
+
+ > Cloud
+The server is not inside your office.
+It runs inside AWS infrastructure.
+
+AWS manages:
+ . Physical hardware
+ . Power
+ . Cooling
+ . Networking
+ . Hardware failures
+You only manage the virtual server.
+
+Why Organizations Use EC2:
+--------------------------
+Without cloud:
+Company purchases
+ . Server
+ . Rack
+ . UPS
+ . Network switches
+ . Cooling
+ . Physical security
+Installation may take weeks.
+
+With EC2:
+Create a server within minutes.
+Pay only while it is running.
+Delete when no longer needed.
+
+EC2 Components:
+---------------
+An EC2 instance is created using several AWS resources.
+
+                EC2 Instance
+                     │
+     ┌───────────────┼──────────────┐
+     │                    │                  │
+    AMI             Instance Type          Storage
+     │                    │                  │
+  Key Pair         Security Group         Elastic IP
+
+1. Instance Types:
+------------------
+An instance type defines the hardware configuration of the virtual machine.
+
+It determines:
+ . CPU
+ . RAM
+ . Network performance
+ . Storage performance
+ . GPU availability
+
+Changing the instance type changes the server's capabilities.
+
+Why Different Instance Types Exist:
+-----------------------------------
+Not every workload needs the same resources.
+
+A web server may require:
+ . Low CPU
+ . Moderate RAM
+
+A database server may require:
+ . Large RAM
+ . Fast storage
+
+An AI model may require:
+ . GPU
+
+Instead of one server size,
+AWS provides many instance families.
+
+Understanding the Naming Convention:
+------------------------------------
+Example:
+t3.micro
+Break it down.
+
+t
+Instance Family
+
+3
+Generation
+
+micro
+Instance Size
+
+Common Instance Families:
+-------------------------
+ > T Family
+General purpose
+Burstable CPU
+
+Examples
+t2.micro
+t3.micro
+t3.small
+
+Suitable for
+ . Small websites
+ . Learning
+ . Testing
+ . Development
+
+ > M Family
+Balanced CPU and RAM
+
+Examples
+m5.large
+m6.large
+m7.large
+
+Suitable for
+ . Business applications
+ . Web servers
+ . Backend APIs
+
+ > C Family
+CPU optimized
+
+Suitable for
+ . Scientific computing
+ . Video encoding
+ . High CPU applications
+
+Example
+c6.large
+
+ > R Family
+Memory optimized
+
+Suitable for
+ . Databases
+ . Large caching
+ . Analytics
+
+Example
+r6.large
+
+ > G and P Families
+GPU optimized
+
+Suitable for
+ . Machine Learning
+ . AI
+ . Video Rendering
+
+Instance Sizes:
+---------------
+Within every family, AWS provides different sizes.
+
+Example
+t3.nano
+↓
+Very small
+
+t3.micro
+↓
+Slightly larger
+
+t3.small
+↓
+More RAM
+
+t3.medium
+↓
+Even more CPU
+
+t3.large
+↓
+Larger resources
+
+Choosing an Instance Type:
+--------------------------
+| Requirement          | Instance Family |
+| -------------------- | --------------- |
+| Learning             | T               |
+| Small Application    | T               |
+| Business Application | M               |
+| CPU Intensive        | C               |
+| Database             | R               |
+| AI                   | G/P             |
+The goal is to match the workload with the hardware profile rather than always choosing the largest instance.
+
+EC2 Pricing Models:
+-------------------
+AWS offers different payment options depending on how long and how consistently you need the instance.
+
+1. On-Demand Pricing
+Pay only for the time the instance runs.
+
+Example:
+Start an instance at 10:00 AM.
+Stop it at 6:00 PM.
+You pay only for those running hours (or seconds, depending on the instance type and operating system).
+
+Best for:
+ . Learning
+ . Testing
+ . Short-term projects
+ . Unpredictable workloads
+
+2. Reserved Instances
+You commit to using a particular instance configuration for 1 or 3 years.
+AWS provides a significant discount compared to On-Demand pricing.
+
+Best for:
+ . Long-running production servers
+ . Stable workloads that run continuously
+
+3. Savings Plans
+Instead of committing to a specific instance type, you commit to a certain amount of compute usage (for example, a dollar amount per hour).
+AWS automatically applies discounts across eligible compute services.
+
+Best for:
+ . Organizations with predictable compute usage but changing instance types
+
+4. Spot Instances
+AWS sells unused EC2 capacity at a much lower price.
+The trade-off is that AWS can reclaim the instance with short notice if the capacity is needed elsewhere.
+
+Best for:
+ . Batch processing
+ . Data analysis
+ . Testing
+
+Not suitable for:
+Critical production servers that cannot be interrupted
+
+Amazon Machine Image (AMI):
+---------------------------
+An AMI (Amazon Machine Image) is a template used to launch EC2 instances.
+It already contains everything required to boot a server.
+
+An AMI can include:
+ . Operating system (Linux or Windows)
+ . System packages
+ . Pre-installed software
+ . Configuration settings
+ . Boot information
+Without an AMI, AWS would not know what operating system or software to install when creating an instance.
+
+Common AMIs
+ . Amazon Linux
+ . Ubuntu
+ . Red Hat Enterprise Linux
+ . SUSE Linux
+ . Windows Server
+Organizations can also create custom AMIs that already contain their own applications and configurations.
+
+Why Create a Custom AMI?
+Imagine you have:
+Ubuntu
+NGINX
+Docker
+Monitoring agent
+Company security policies
+already configured on one EC2 instance.
+Instead of repeating those installations on every new server, you create a custom AMI from that instance. Future instances launched from that AMI start with the same software and configuration, saving time and ensuring consistency.
+
+Key Pairs:
+----------
+Most Linux EC2 instances do not allow password-based login by default.
+Instead, AWS uses SSH key-based authentication.
+When creating an EC2 instance, AWS generates or imports a Key Pair consisting of:
+ . Public Key – stored by AWS on the EC2 instance.
+ . Private Key (.pem file) – downloaded by you and kept securely.
+
+During an SSH connection:
+ . Your SSH client proves it has the private key.
+ . The EC2 instance verifies it against the stored public key.
+ . If they match, access is granted.
+If the private key is lost and no alternative access method exists (such as AWS Systems Manager Session Manager), logging into the instance becomes difficult.
+
+Security Groups:
+----------------
+A Security Group acts as a virtual firewall for an EC2 instance.
+It controls which network traffic is allowed into and out of the instance.
+Security Groups operate at the instance level.
+
+Inbound Rules
+Inbound rules control traffic entering the EC2 instance.
+| Port | Protocol | Purpose                |
+| ---- | -------- | ---------------------- |
+| 22   | SSH      | Remote administration  |
+| 80   | HTTP     | Websites               |
+| 443  | HTTPS    | Secure websites        |
+| 3389 | RDP      | Windows Remote Desktop |
+If port 22 is not allowed, SSH connections will fail even if the server is running.
+
+Outbound Rules:
+---------------
+Outbound rules control traffic leaving the EC2 instance.
+
+Examples:
+ . Downloading software updates
+ . Calling external APIs
+ . Accessing Amazon S3
+ . Connecting to a database
+By default, AWS allows all outbound traffic unless you modify the rules.
+
+Elastic IP (EIP):
+-----------------
+Normally, when you stop and start an EC2 instance, its public IP address may change.
+If users access your server using that public IP, they would need to know the new address after every restart.
+An Elastic IP is a static public IPv4 address that you allocate to your AWS account and associate with an EC2 instance.
+
+Because it remains the same until you release it, it is useful for:
+ . Public-facing servers
+ . Applications that require a fixed public endpoint
+
+Keep in mind:
+ . AWS charges for Elastic IPs that are allocated but not actively associated with a running resource.
+ . Modern architectures often place a Load Balancer in front of EC2 instances instead of exposing Elastic IPs directly.
+
+EC2 Storage Options:
+--------------------
+Storage determines where the operating system, applications, and data are kept.
+
+AWS provides multiple storage options depending on the requirement.
+1. Amazon EBS (Elastic Block Store)
+EBS is block storage attached to an EC2 instance.
+
+Characteristics:
+ . Persistent storage (data remains even if the instance is stopped).
+ . Can be detached from one instance and attached to another (within the same Availability Zone).
+ . Used for operating system disks, application files, and databases.
+This is the most common storage option for EC2.
+
+2. Instance Store
+Some EC2 instance types provide local disks that are physically attached to the host machine.
+
+Characteristics:
+ . Very high performance.
+ . Data is lost if the instance is stopped, terminated, or the underlying host fails.
+ . Suitable only for temporary data such as caches or scratch space.
+
+3. Amazon EFS (Elastic File System)
+EFS is a managed network file system.
+Multiple EC2 instances can mount the same EFS file system simultaneously.
+
+Typical use cases:
+ . Shared application content
+ . Shared configuration files
+ . Home directories for multiple servers
+
+4. Amazon S3
+Although S3 is not attached as a disk, EC2 instances frequently use it to store:
+ . Backups
+ . Application logs
+ . Images
+ . Videos
+ . Software packages
+S3 is object storage, not block storage.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
