@@ -1,0 +1,348 @@
+Day 23 - Cloud Fundamentals (AWS) [DNS and CDN]:
+================================================
+1. DNS Fundamentals:
+--------------------
+What is DNS?
+DNS stands for Domain Name System.
+Computers communicate using IP addresses, but humans prefer names such as:
+www.amazon.com
+
+instead of:
+3.162.XX.XX
+
+DNS converts a domain name into an IP address or another destination that the client can connect to.
+
+Simple technical flow
+---------------------
+Suppose a user enters:
+www.example.com
+
+The browser needs to determine:
+www.example.com → ? → IP address
+
+DNS helps find the answer.
+
+The simplified process is:
+User
+  ↓
+Browser
+  ↓
+DNS Resolver
+  ↓
+DNS Servers
+  ↓
+IP Address / Destination
+  ↓
+Web Server
+
+Important DNS terminology:
+| Term             | Simple meaning                                            |
+| ---------------- | --------------------------------------------------------- |
+| **Domain Name**  | Human-readable name such as `example.com`                 |
+| **IP Address**   | Network address of a machine/service                      |
+| **DNS Resolver** | Server that looks up DNS information for the client       |
+| **DNS Record**   | Entry that tells DNS where/how a domain should be handled |
+| **Name Server**  | DNS server responsible for answering DNS queries          |
+
+Real-time example
+You type:
+www.google.com
+Your computer doesn't directly know Google's server IP.
+
+It asks a DNS resolver:
+What is the destination for www.google.com?
+The resolver obtains the DNS information and returns an appropriate address.
+The browser can then connect to the destination.
+
+2. Route 53 Basics:
+-------------------
+Amazon Web Services provides a managed DNS service called Amazon Route 53.
+
+Route 53 is primarily used for:
+ . DNS management
+ . Domain registration
+ . Health checks
+ . Routing users to applications
+ . Integrating DNS with AWS services
+
+Why Route 53?
+ . Without a managed DNS service, you would need to operate DNS infrastructure yourself.
+ . Route 53 provides managed DNS infrastructure where AWS handles the underlying DNS service.
+
+3. Hosted Zones and Records:
+----------------------------
+This is one of the most important Route 53 concepts.
+
+What is a Hosted Zone?
+A Hosted Zone is a container where DNS records for a domain are stored and managed.
+
+ > Types of Hosted Zones:
+-------------------------
+ . Public Hosted Zone
+Used for domains that must be accessible through the public internet.
+
+Example:
+example.com
+
+ . Private Hosted Zone
+Used for DNS names inside an AWS VPC/private network.
+
+For example:
+database.internal
+
+A company might use private DNS names for internal applications.
+
+Example:
+Application Server
+       ↓
+database.internal
+       ↓
+Private Database IP
+
+4. DNS Records:
+---------------
+A DNS record contains information about what should happen when someone requests a particular DNS name.
+
+Some important records are:
+ . A Record
+Maps a domain name to an IPv4 address.
+www.example.com → 192.168.10.20
+
+ . AAAA Record
+Maps a domain name to an IPv6 address.
+www.example.com → IPv6 address
+
+ . CNAME Record
+Maps one domain name to another domain name.
+
+Example:
+www.example.com
+        ↓
+app.example.com
+
+ . MX Record
+Used for email routing.
+
+Example:
+
+example.com
+     ↓
+Mail Server
+
+It tells email systems which mail servers handle email for the domain.
+
+5. Introduction to CloudFront:
+------------------------------
+Amazon CloudFront is AWS's Content Delivery Network (CDN) service.
+
+The key problem it solves is:
+How can we deliver website content to users quickly, regardless of where the user is located?
+
+What is a CDN?
+--------------
+CDN = Content Delivery Network
+A CDN is a globally distributed network of servers that helps deliver content to users from a location geographically closer to them.
+
+Origin:
+-------
+You will frequently hear the term Origin when discussing CloudFront.
+An origin is the original location from which CloudFront obtains content.
+
+Examples:
+ . S3 bucket
+ . EC2 application
+ . Application Load Balancer
+ . Another HTTP server
+
+Example:
+CloudFront
+    ↓
+Origin
+    ↓
+S3 Bucket
+The S3 bucket is the origin.
+
+Edge Location:
+--------------
+An Edge Location is a location where CloudFront can cache and serve content.
+Instead of the user travelling across the internet to the origin server every time, CloudFront can serve cached content from an edge location.
+
+Example:
+User in Chennai
+       ↓
+CloudFront Edge Location
+       ↓
+Content
+If the content is already cached there, CloudFront may not need to contact the origin.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
