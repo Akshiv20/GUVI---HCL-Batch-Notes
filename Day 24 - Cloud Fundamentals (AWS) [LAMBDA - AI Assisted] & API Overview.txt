@@ -1,0 +1,334 @@
+Day 24 - Cloud Fundamentals (AWS) [LAMBDA - AI Assisted] & API Overview:
+========================================================================
+Serverless means in simple You write the application code; the cloud provider manages the servers.
+
+Serverless does NOT mean there are no servers.
+Servers absolutely exist.
+
+It means:
+The developer/customer does not directly manage the servers.
+
+AWS manages the infrastructure behind the service.
+
+AWS Lambda is AWS's serverless compute service.
+It allows you to run code without managing servers.
+You create a Lambda function containing your application logic.
+
+Example:
+Lambda Function
+
+Input
+  ↓
+Validate user
+  ↓
+Process request
+  ↓
+Store result
+  ↓
+Return response
+
+Lambda supports several programming languages, such as:
+ . Python
+ . Java
+ . JavaScript/Node.js
+ . C#
+ . Go
+ . Ruby
+It can also run custom runtimes and container-based Lambda functions.
+
+What is a Lambda Function?
+A Lambda function is basically:
+A small piece of code that AWS executes when something happens.
+
+For example:
+Something happens
+       ↓
+Lambda gets triggered
+       ↓
+Lambda executes code
+       ↓
+Lambda produces result
+
+The "something happens" is called an event.
+
+Lambda Trigger and Events:
+This is one of the most important concepts.
+
+Event
+An event is information describing something that happened.
+Lambda can respond to these events.
+
+Trigger
+A trigger is the AWS service or mechanism that causes the Lambda function to execute.
+
+simple relationship:
+Event happens
+     ↓
+Trigger
+     ↓
+Lambda function
+     ↓
+Code executes
+
+API Gateway Overview:
+---------------------
+Amazon API Gateway is a service used to create and expose APIs.
+Think of API Gateway as a front door for your backend application.
+
+Example:
+Internet
+   ↓
+API Gateway
+   ↓
+Lambda
+   ↓
+Database
+The client doesn't directly call Lambda.
+
+What is an API?
+API = Application Programming Interface
+An API provides a way for one application to communicate with another application or service.
+
+For example:
+GET /products
+POST /orders
+GET /customers/123
+DELETE /orders/500
+
+Common HTTP methods
+| Method | Purpose       | Example        |
+| ------ | ------------- | -------------- |
+| GET    | Retrieve data | Get products   |
+| POST   | Create data   | Create order   |
+| PUT    | Update data   | Update profile |
+| DELETE | Delete data   | Delete order   |
+
+Lambda and AI — What Does "AI-Assisted" Mean?
+---------------------------------------------
+Serverless + AI
+Lambda can act as the backend logic for AI-powered applications.
+
+Example:
+User
+ ↓
+API Gateway
+ ↓
+Lambda
+ ↓
+AI Model/AI Service
+ ↓
+Lambda
+ ↓
+API Gateway
+ ↓
+User
+
+A Lambda function could:
+ . Receive a user's question
+ . Validate the request
+ . Send the prompt to an AI service/model
+ . Receive the AI response
+ . Format the response
+ . Return it to the application
+
+Example: AI customer-support application
+Customer
+   ↓
+Chat Interface
+   ↓
+API Gateway
+   ↓
+Lambda
+   ↓
+AI Model
+   ↓
+Lambda
+   ↓
+Response
+The Lambda function acts as the glue between the application and AI service.
+
+How AI Can Assist Developers with Lambda:
+-----------------------------------------
+AI can also help developers build and maintain Lambda applications.
+
+For example, an AI coding assistant can help generate:
+ . Lambda function code
+ . Event-processing logic
+ . API Gateway configuration
+ . Error-handling code
+ . Unit tests
+ . Documentation
+ . Troubleshooting suggestions
+
+Example
+Developer asks an AI coding assistant:
+"Create a Python Lambda function that receives an S3 event and logs the uploaded filename."
+AI can generate an initial implementation.
+
+But there is an important DevSecOps principle:
+AI-generated code still needs human review.
+
+AI can produce:
+ . Incorrect code
+ . Over-permissive IAM policies
+ . Security vulnerabilities
+ . Inefficient implementations
+ . Incorrect AWS API usage
+
+So the workflow should be:
+Developer
+   ↓
+AI assistance
+   ↓
+Generated code
+   ↓
+Human review
+   ↓
+Security testing
+   ↓
+Testing
+   ↓
+Deployment
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

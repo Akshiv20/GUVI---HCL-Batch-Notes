@@ -1,0 +1,523 @@
+Day 25 - Cloud Fundamentals (AWS) [Cost Optimization and Best Practices]:
+=========================================================================
+Use the right AWS resource, at the right size, for the right amount of time—and continuously check what you're actually paying for.
+cost optimization doesn't mean choosing the cheapest option everywhere. A cheaper resource that causes poor performance, downtime, or security problems isn't necessarily a good design.
+
+AWS Pricing Models:
+-------------------
+AWS uses different pricing approaches depending on the service and workload.
+The main pricing concepts students should understand are On-Demand, commitment-based pricing, and Spot pricing.
+
+ > Pay-as-you-go / On-Demand
+You pay based on your actual usage without making a long-term commitment.
+
+For example, suppose you run an EC2 instance for 5 hours:
+EC2
+ ↓
+5 hours of usage
+ ↓
+You pay for those 5 hours
+
+ > Reserved / Commitment-Based Pricing
+AWS offers discounted pricing when you make certain commitments, depending on the service.
+For example, EC2 Reserved Instances provide a pricing commitment for a specified instance configuration and term.
+
+Suppose a company knows:
+"This production workload will run continuously for the next 1–3 years."
+
+A commitment-based pricing option may reduce the cost compared with running the workload entirely On-Demand.
+
+Simple comparison
+On-Demand
+No long-term commitment
+More flexibility
+Usually higher unit cost
+
+Reserved / Commitment
+Longer commitment
+Less flexibility
+Potentially lower cost
+
+The key idea is:
+If you know you'll consistently need the capacity, investigate commitment-based discounts.
+
+ > Spot Instances
+Spot Instances let you use spare AWS EC2 capacity at potentially significant discounts compared with On-Demand pricing.
+
+The trade-off is important:
+Spot capacity can be interrupted when AWS needs the capacity back.
+So Spot isn't appropriate for every workload.
+
+Cost Optimization Strategies:
+-----------------------------
+Cost optimization isn't a one-time activity. It's an ongoing process.
+
+A useful model is:
+Right-size
+   ↓
+Remove unused resources
+   ↓
+Choose appropriate pricing model
+   ↓
+Automate shutdown/scaling
+   ↓
+Monitor costs
+   ↓
+Optimize continuously
+
+ > Right-Sizing Resources:
+Right-sizing means choosing a resource size that matches the actual workload.
+
+Suppose you have:
+EC2 instance:
+16 vCPU
+64 GB RAM
+
+But monitoring shows the application normally uses:
+2 vCPU
+8 GB RAM
+
+You may be paying for significantly more capacity than you need.
+You could evaluate a smaller instance.
+
+> Delete Unused Resources
+This is one of the simplest ways to reduce unnecessary AWS spending.
+
+Look for resources such as:
+ . Unused EC2 instances
+ . Unused EBS volumes
+ . Old snapshots
+ . Unused Elastic IPs
+ . Unused load balancers
+
+ > Automate Development Environment Shutdown
+Imagine developers normally work:
+9 AM → 7 PM
+
+but their development EC2 instances remain running:
+24 hours × 7 days
+
+You can automate the environment to stop outside working hours:
+9:00 AM → Start
+7:00 PM → Stop
+
+This can be useful for:
+ . Training environments
+ . Development environments
+ . Test environments
+ . Temporary labs
+
+Stopping an EC2 instance can stop its compute charges, but associated resources such as EBS storage can continue to incur charges.
+
+So:
+"I stopped my EC2 instance" does not mean "my AWS environment costs nothing."
+
+ > Use Auto Scaling
+Suppose an application normally needs:
+2 EC2 instances
+
+but during peak traffic it needs:
+10 EC2 instances
+
+Instead of permanently running 10:
+10 instances × 24 hours
+you can use Auto Scaling.
+
+Normal traffic
+     ↓
+2 instances
+
+High traffic
+     ↓
+10 instances
+
+Traffic decreases
+     ↓
+2 instances
+
+This avoids paying for maximum capacity when the workload doesn't require it.
+
+ > Choose the Right Storage Class
+AWS storage services provide different pricing options based on how frequently data is accessed.
+
+For example, an organization might store:
+Current invoices
+Old invoices
+Archived invoices
+
+Current invoices may be accessed frequently.
+Archived invoices might be accessed only occasionally.
+Putting everything into the same storage class may therefore be inefficient.
+
+Simple concept:
+Frequently accessed
+        ↓
+Appropriate frequent-access storage
+
+Rarely accessed
+        ↓
+Appropriate infrequent-access/archive storage
+
+The goal is to match the storage class to the data access pattern.
+
+ > AWS Free Tier
+AWS provides Free Tier benefits, but students need to understand one critical point:
+Free Tier does not mean everything in AWS is free.
+
+Free Tier benefits depend on factors such as:
+ . Service
+ . Account eligibility
+ . Usage quantity
+ . Offer type
+ . Time period
+AWS has changed its Free Tier structure over time
+Free Tier means free within specific limits, not unlimited free AWS usage.
+
+AWS Budgets:
+------------
+AWS Budgets lets you define spending or usage thresholds and receive alerts when costs or usage approach those limits.
+
+For example:
+Monthly budget = $20
+
+You could configure alerts such as:
+80% → Alert
+100% → Alert
+
+Conceptually:
+AWS usage
+   ↓
+AWS Billing
+   ↓
+AWS Budget
+   ↓
+Threshold reached
+   ↓
+Notification
+
+When estimated spending reaches around $8, AWS Budget can alert them.
+They can then investigate before the spending grows further.
+
+Important
+A budget alert is not automatically a spending stop mechanism.
+
+An alert means:
+"You're approaching your budget."
+
+It doesn't necessarily shut down the resources automatically.
+
+Reserved Instances vs Spot Instances:
+-------------------------------------
+| Feature      | Reserved Instances                                             | Spot Instances                            |
+| ------------ | -------------------------------------------------------------- | ----------------------------------------- |
+| Main idea    | Commit to usage for discounted pricing                         | Use spare AWS capacity at a discount      |
+| Commitment   | Yes                                                            | No long-term commitment in the same sense |
+| Interruption | Generally not interrupted because of Spot capacity reclamation | Can be interrupted                        |
+| Discount     | Potentially lower than On-Demand                               | Potentially very large                    |
+| Best for     | Predictable workloads                                          | Flexible/interruption-tolerant workloads  |
+| Example      | Production application running continuously                    | Batch processing                          |
+
+Reserved = "I know I'll need it."
+Spot = "I can use it if available."
+
+Resource Tagging:
+-----------------
+Tags are key-value labels attached to AWS resources.
+
+For example:
+Environment = Production
+Application = PaymentApp
+Team = Finance
+Owner = DevOps
+Project = ProjectA
+CostCenter = CC1001
+
+Tags help answer:
+Who owns this resource, and why does it exist?
+
+ >>> Why Tagging Matters for Cost Management
+Imagine a company has:
+100 EC2 instances
+20 RDS databases
+50 S3 buckets
+
+The finance team asks:
+"How much are we spending on the Finance application?"
+Without proper tagging, answering that question can become difficult.
+
+With an appropriate tagging strategy:
+Project = FinanceApp
+the organization can organize and analyze costs using supported AWS billing and cost-allocation capabilities.
+
+Example
+EC2-01
+Project = Banking
+Environment = Production
+
+EC2-02
+Project = HR
+Environment = Development
+
+Now teams have much better visibility into ownership and spending.
+
+Cost Allocation:
+----------------
+Cost allocation means assigning cloud spending to the appropriate:
+Teams
+Projects
+Departments
+Applications
+Environments
+Business units
+
+For example:
+AWS Total Bill
+      |
+      +---- Finance Team
+      |
+      +---- HR Team
+      |
+      +---- Development Team
+      |
+      +---- Marketing Team
+
+This becomes particularly important in large organizations.
+
+Example
+Suppose the AWS bill is:
+$10,000/month
+
+Management wants to understand:
+Finance     → $3,000
+HR          → $1,500
+DevOps      → $2,000
+Marketing   → $3,500
+
+A good tagging strategy and AWS cost-management capabilities can help establish this visibility.
+
+AWS Cost Explorer:
+------------------
+AWS Cost Explorer is a tool for analyzing AWS costs and usage.
+
+It helps answer questions like:
+ . How much am I spending?
+ . Which AWS service costs the most?
+ . Which region costs the most?
+ . How did this month's spending change?
+ . Which usage category increased?
+ . How much am I spending on EC2?
+ . How much am I spending on S3?
+
+Think of it as:
+A dashboard for understanding where your AWS money is going.
+
+Cost Explorer vs AWS Budgets:
+-----------------------------
+Students often mix these two up.
+
+Cost Explorer
+Answers:
+"Where is my money going?"
+It's primarily used for analysis and investigation.
+
+AWS Budgets
+Answers:
+"Am I approaching my spending limit?"
+It's primarily used for budget monitoring and alerts.
+
+Easy way to remember:
+Cost Explorer
+      ↓
+Analyze spending
+
+AWS Budgets
+      ↓
+Watch spending limits
+Using both together gives you better cost visibility.
+
+AWS Common Cost Mistakes:
+-------------------------
+Mistake 1 — "Free Tier means everything is free."
+Mistake 2 — Leaving EC2 running
+Mistake 3 — Ignoring EBS volumes
+Mistake 4 — Using Spot for everything
+Mistake 5 — Oversizing resources
+Mistake 6 — No tagging strategy
+Mistake 7 — Looking at the bill only at the end of the month
+
+Simple Cost Optimization Framework:
+-----------------------------------
+                 AWS COST OPTIMIZATION
+                         |
+       +-----------------+-----------------+
+       |                 |                 |
+    CONTROL           OPTIMIZE          MONITOR
+       |                 |                 |
+    Budgets          Right-size       Cost Explorer
+    Alerts           Auto Scaling     Budgets
+    Tags             Spot             Billing
+                     Storage
+                     Commitments
+
+Know what you have → Know what it costs → Remove waste → Optimize what remains → Keep monitoring.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

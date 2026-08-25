@@ -1,0 +1,635 @@
+Day 27 - Introduction to DevOps:
+================================
+Developer writes code → Git stores and tracks it → CI fetches the code → Build creates an artifact → Test validates it → Deploy releases it → Monitoring tells us whether the release is healthy.
+
+Introduction to DevOps Strategies & Tools:
+------------------------------------------
+1. What is DevOps?
+DevOps = Development + Operations
+But DevOps is not simply a tool and it is not just "developers and operations people working together."
+
+DevOps is a combination of:
+ . Culture — teams collaborate instead of working in isolated silos.
+ . Practices — automation, CI/CD, Infrastructure as Code, monitoring, etc.
+ . Tools — Git, Jenkins, GitHub Actions, Docker, Kubernetes, Terraform, AWS, Azure, etc.
+ . Feedback — continuously checking whether the application works correctly.
+
+Traditional approach
+Imagine an e-commerce company.
+
+A developer writes an application.
+
+Developer
+    |
+    | "Code is ready"
+    v
+Testing Team
+    |
+    | "Testing completed"
+    v
+Operations Team
+    |
+    | Deploy manually
+    v
+Production
+
+The problem is that every team works somewhat independently.
+
+A typical conversation might be:
+Developer: "It works on my machine."
+Tester: "It doesn't work in my environment."
+Operations: "The application needs a different configuration."
+
+This creates delays and blame.
+
+DevOps Approach
+With DevOps, the process becomes more continuous:
+
+              DEVOPS LOOP
+                  |
+                  v
+        +-------------------+
+        |    Write Code     |
+        +---------+---------+
+                  |
+                  v
+        +-------------------+
+        |       Git         |
+        +---------+---------+
+                  |
+                  v
+        +-------------------+
+        |       Fetch       |
+        +---------+---------+
+                  |
+                  v
+        +-------------------+
+        |       Build       |
+        +---------+---------+
+                  |
+                  v
+        +-------------------+
+        |       Test        |
+        +---------+---------+
+                  |
+                  v
+        +-------------------+
+        |      Deploy       |
+        +---------+---------+
+                  |
+                  v
+        +-------------------+
+        | Monitor & Feedback|
+        +---------+---------+
+                  |
+                  +-----------> Improve
+
+The important word is continuous.
+
+Instead of deploying once every few months, organizations may deploy:
+ . daily
+ . several times a day
+ . whenever a change successfully passes the required checks
+
+Why DevOps?
+-----------
+Imagine Amazon's shopping application.
+
+Developers might continuously modify:
+ . Product search
+ . Payment
+ . Shopping cart
+ . Login
+ . Recommendation engine
+ . Order tracking
+
+If every change requires manual testing, manual packaging and manual deployment, releases become slow and risky.
+
+Without DevOps
+Code
+ ↓
+Manual Build
+ ↓
+Manual Testing
+ ↓
+Manual Approval
+ ↓
+Manual Deployment
+ ↓
+Production
+
+Potential problems:
+ . Human mistakes
+ . Slow releases
+ . Difficult rollback
+ . Environment differences
+ . Poor communication
+
+DevOps tries to solve this.
+
+With DevOps
+Developer
+    |
+    v
+    Git
+    |
+    v
+CI/CD Pipeline
+    |
+    +----> Build
+    |
+    +----> Test
+    |
+    +----> Security Scan
+    |
+    +----> Deploy
+    |
+    v
+Production
+
+Much more of the repetitive work becomes automated.
+
+Important DevOps Terminology:
+-----------------------------
+| Term            | Simple Meaning                                 |
+| --------------- | ---------------------------------------------- |
+| **CI**          | Automatically build and test code changes      |
+| **CD**          | Automatically deliver/deploy validated changes |
+| **Pipeline**    | Automated sequence of DevOps activities        |
+| **Build**       | Convert source code into a deployable package  |
+| **Artifact**    | Output produced by a build                     |
+| **Deployment**  | Putting an application into an environment     |
+| **Environment** | Place where application runs                   |
+| **Production**  | Environment used by real users                 |
+| **Automation**  | Letting tools perform repetitive tasks         |
+| **Monitoring**  | Observing application/infrastructure health    |
+| **Feedback**    | Information used to improve the system         |
+
+DevOps Tools:
+-------------
+Different tools solve different problems.
+
+                 DEVOPS TOOLCHAIN
+
+ Source Control
+      |
+      v
++-------------+
+| Git/GitHub  |
++------+------+
+       |
+       v
+ CI/CD
+ +----------------------+
+ | Jenkins              |
+ | GitHub Actions       |
+ | GitLab CI/CD         |
+ | AWS CodePipeline     |
+ +----------+-----------+
+           |
+           v
+ Build
+ +----------------------+
+ | Maven / Gradle       |
+ | npm                  |
+ | Docker               |
+ +----------+-----------+
+           |
+           v
+ Testing / Security
+ +----------------------+
+ | JUnit                |
+ | SonarQube            |
+ | Trivy                |
+ | OWASP ZAP            |
+ +----------+-----------+
+           |
+           v
+ Deployment
+ +----------------------+
+ | Kubernetes           |
+ | AWS                  |
+ | Azure                |
+ | Terraform            |
+ +----------+-----------+
+           |
+           v
+ Monitoring
+ +----------------------+
+ | CloudWatch           |
+ | Prometheus           |
+ | Grafana              |
+ +----------------------+
+
+Fetch, Build, Test and Deploy Strategies:
+-----------------------------------------
+ > Fetch
+Fetch = Get the latest source code from the version-control system.
+For example, developers store code in GitHub.
+
+Developer
+    |
+    | git push
+    v
+GitHub Repository
+    |
+    | fetch / clone
+    v
+CI Server
+
+ > Build
+After fetching source code, we need to build the application.
+But what does build mean?
+
+Java:
+.java source code
+       |
+       v
+     Maven
+       |
+       v
+.jar file
+
+React
+React source code
+       |
+       v
+     npm
+       |
+       v
+build/dist files
+
+Docker
+Application Code
+       |
+       v
+Dockerfile
+       |
+       v
+Docker Image
+
+The output is called an artifact.
+
+ > Test
+After building, we need to verify that the application works.
+
+There are different types of testing.
+                    TESTING
+                       |
+        +--------------+--------------+
+        |              |              |
+       Unit       Integration      System
+       Test          Test           Test
+
+ . Unit Test
+Tests a small piece of code.
+
+Example:
+calculateTotal()
+
+Test:
+₹100 + ₹50 = ₹150
+
+ . Integration Test
+Checks whether components work together.
+
+Example:
+Application
+     |
+     v
+Database
+Does the application correctly communicate with the database?
+
+ . System/End-to-End Test
+Tests the complete user flow.
+
+Example:
+Login
+  ↓
+Search Product
+  ↓
+Add to Cart
+  ↓
+Payment
+  ↓
+Order Confirmation
+
+ > Security Testing in DevOps
+Modern DevOps pipelines often include security checks.
+
+For example:
+Fetch
+  ↓
+Build
+  ↓
+Unit Test
+  ↓
+SAST
+  ↓
+Dependency Scan
+  ↓
+Container Scan
+  ↓
+Deploy
+
+Possible tools:
+ . SonarQube → code quality / SAST-related analysis
+ . Trivy → container/IaC/filesystem vulnerability scanning
+ . Snyk → dependency/security scanning
+ . OWASP ZAP → web application security testing
+
+This leads to the term:
+DevSecOps = Development + Security + Operations
+Security is integrated into the development and deployment process instead of being performed only at the end.
+
+ > Deployment Strategies
+Deployment means:
+Making a particular application version available in an environment.
+
+ . Recreate Deployment
+Old version is stopped.
+New version is started.
+
+v1.0
+ |
+ | STOP
+ v
+Nothing
+ |
+ | START
+ v
+v2.0
+
+Problem
+There may be downtime.
+
+ . Rolling Deployment
+Instead of replacing everything at once, update instances gradually.
+
+Suppose you have four servers:
+Before:
+Server 1 → v1
+Server 2 → v1
+Server 3 → v1
+Server 4 → v1
+
+Deploy v2 gradually:
+Server 1 → v2
+Server 2 → v1
+Server 3 → v1
+Server 4 → v1
+       ↓
+Server 1 → v2
+Server 2 → v2
+Server 3 → v1
+Server 4 → v1
+       ↓
+All servers → v2
+
+Advantage
+Less downtime.
+
+Commonly associated technology
+Kubernetes performs rolling updates.
+
+ . Blue-Green Deployment
+Here we maintain two environments.
+
+             Load Balancer
+                  |
+           +------+------+
+           |             |
+        Blue           Green
+         v1              v2
+
+Users are initially connected to Blue.
+After testing Green
+Traffic is switched from Blue → Green.
+
+Major advantage
+Rollback can be fast.
+
+If v2 is broken:
+Green → problematic
+Blue  → known good
+Switch traffic back to Blue.
+
+ . Canary Deployment
+Canary deployment sends the new version to a small percentage of users first.
+
+Example:
+100,000 users
+      |
+      +---- 95% → v1
+      |
+      +---- 5%  → v2
+
+If v2 works:
+5%
+ ↓
+20%
+ ↓
+50%
+ ↓
+100%
+
+If v2 fails:
+5%
+ ↓
+Rollback
+
+Fetch → Build → Test → Deploy: Complete Example:
+------------------------------------------------
+Developer
+    |
+    | git push
+    v
+GitHub
+    |
+    | Fetch
+    v
+CI/CD Pipeline
+    |
+    | Build
+    v
+Application Package
+    |
+    | Unit Tests
+    v
+Integration Tests
+    |
+    | Security Scan
+    v
+Docker Image
+    |
+    | Deploy
+    v
+Kubernetes
+    |
+    v
+Production
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
