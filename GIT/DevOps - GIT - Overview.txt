@@ -1,0 +1,103 @@
+DevOps - GIT - Overview:
+
+AWS = Technology
+DevOps = Methodology
+
+DevOps Overview:
+
+Why Do we need Cloud?
+What are the Benefits?
+
+when we are using on-premises setup, mostly this will be manually done. But, when we are using cloud our vendor [AWS/Azure/GCP] itself providing with the entire architecture, where customization will be done easily and it's very easy for us to make it run automatic.
+If it is going to be on-premises; both the Infrastructure + Application will be created and maintained by IT companies; but once cloud came into picture, Intrastucture effort was taken by the vendor and Application effort was dont by IT companies, hence this becomes very efficient; that is the advantage of cloud.
+
+Real-time, clients/customers going to reach the vendors [nothing other than AWS, Azure, GCP, etc.,] with their requirements, and they are going to create the Infrastructure.
+
+By default, 4 env is mandatory:
+1. Developement
+2. Testing
+3. Prodcution/Live
+4. DR (Disaster Recovery)
+
+During Interviews, prepare yourself with 30% of cloud knowledge and 70% of DevOps, as we are mainly going to work on with that.
+
+DevOps Team includes everything like cloud, development, testing, deployment, monitoring, scripts etc.,
+
+DevOps Project Management Team:
+Developers (Development team) == now, the code needs to be pushed to some tools (git comes here, this process is called src code check-in) == then the code needs to be build (jenkins usually do this job) [jenkins is the best tool for integrating purpose, we can integrate jenkins with all the other tools using plugins, this holds more than 2500plugin; it helps for the entire automation] {there will be a particular sequence which we need to follow on our project like, we need to commit the code, then build, test, deploy finally application monitor}.
+
+As a DevOps Engg, we are going to concentrate on the entire infrastructure except Development process.
+
+SDLC = Software Development Lifecycle
+There are 3 different types are models available:
+1. Waterfall
+	- Linear Sequentials == once the entire code got completed only it will move to the next phase like testing or deploy, as client requirements may changes, it is impossible to check on time. Hence, this delays our project to get delivered on-time.
+
+2. Agile - conflicts between dev and deploy == as we can do the deployment only on the last stage there maybe chances for the issues, configurations may get mismatched; no continous deployment == compared to waterfall Agile is a better one.
+
+3. DevOps - Once design done, immediately we are proceed with the code - test - deploy simultaneously; so that we will be able to work on with the bugs/issues sidde by side, hence this helps us to deliver the project on time. 90% of the tools are open-source, already the tools has been designed and configured with the necessary packages to build futher. 
+
+Use Case: Dark Launching [single user based test & deploy]
+
+Facebook is a global applications (which means they are going to run servers all aroung the world) - when they planned for a huge changes on the application, they took one single server and tried all the changes with test & deploy, once everything started working fine, then they proceed the changes with the other balance servers, this is called single user based test & deploy.
+
+Advantage:
+via this we can be able to run the other servers, at the same time test the new code on a single server and upgrade accordingly, this helps us to avoid downtime related to bugs.
+
+Overall stages of DevOps:
+1. Continuous Development
+2. Continuous Source Code Management
+3. Continuous Testing
+4. Continuous Integration
+5. Continuous Deployment
+6. Continuous Monitoring
+{Inside companies, we do have a lot of other stages involved within teams}
+
+GIT:
+
+Before Source-control management, we used to maintain our src code in our local; the main disadvantage is it is not secured, receovery also not possible because of this kind of methods.
+In-order to remove this issue we got something called VCM (version-control management).
+Git, acts like a remote repository, where we can push and pull our codes, and this can be maintained by multiple developers at the same time, (Distributed repository). Real-time, there will be a lot of developers going to work under a single project, it will be hard to maintain, update or run, when everything kept locally but using Git we can save in a common place and this can be distributed whenever required. [other benefit: all the histories will be updated, so that we will be able to see every changes time based, commit based also]
+What is advantage of versioning?
+  If incase, the latest source code facing an issue, we will be able to rollback to the previous version easily by this technology, by doing like this we can make our application run all the time.
+
+Types of VCS (Version control system)
+1. Local
+      There will be multiple developers and they are going to write the code and maintaining everything under their local system [this is very similar to Traditional method]
+2. Centralized
+      All the developers are going to maintain their code on a common single server, this method made easy for sharing but again security-wise there is going to be an issue, if the server goes down then we would have lost all the data's
+3. Distributed
+      Here we have an advantage of making a local repository before the remote repository, so the benefit is even one goes down, we will be able to make a copy from the others. So that each developer will be having their own local repository. 
+
+Architecture:
+1. Developer going to write their code on local (more number of developers)
+2. move the code from local server to local repo - winscp - source code upload
+3. the upload needs to be done on a specific working directory path [by default every developer will be provided with one specific working directory]
+4. we need to do versioining for the code, this will be done by creating ec2 server - installing, configuring "git" inside it.
+5. finally it will get checked-in inside the remote-repository
+6. from there jenkins is going to pick up the code and trigger it for integration [this will be done by webhooks]
+
+working directory (specific to the developer) - staging area (temporary/buffering space) - local repo [1st time we will get an master repo; this one a common repo for everyone - we need to create our own repo into (that is called featured repo)] - finally it will get pushed to the remote repository.
+
+stages:
+1. developer - local server
+2. local server - ec2 - working directory
+3. git installed on ec2 - staging location [virtual space]
+4. staging area commit - local repo
+local repo == master & feature branch == master branch will be only one for one project == feature branch can be created according to the number of developers
+5. local repo push - remote repo
+
+Task:
+1. Create a github account
+2. Different between git and gitlab
+                             bitbucket
+			     JIRA?
+3. Difference between github and gitlab
+
+
+    			     
+
+
+
+
+

@@ -1,0 +1,171 @@
+git init: Initializes a new Git repository in the current directory.
+
+git clone <repository_url>: Copies an existing Git repository from a remote server to your local machine.
+
+git add <file(s)>: Adds file changes to the staging area, preparing them to be committed.
+
+git commit -m "Commit message": Commits staged changes to the local repository with a descriptive message.
+
+git status: Shows the current status of the working directory and staging area.
+
+git log: Displays a history of commits in the current branch.
+
+git branch: Lists all local branches in the repository.
+
+git checkout <branch_name>: Switches to the specified branch.
+
+git merge <branch_name>: Merges changes from the specified branch into the current branch.
+
+git pull: Fetches changes from the remote repository and merges them into the current branch.
+
+git push: Uploads local commits to the remote repository.
+
+git remote -v: Lists the remote repositories associated with the local repository.
+
+git diff: Shows the difference between the working directory and the staging area.
+
+git diff --staged: Shows the difference between the staging area and the last commit.
+
+git reset <file>: Unstages the specified file, removing it from the staging area.
+
+git reset --hard: Resets the working directory and staging area to match the last commit, discarding all changes.
+
+git checkout -- <file>: Discards changes made to the specified file in the working directory.
+
+git branch <branch_name>: Creates a new branch with the given name.
+
+git branch -d <branch_name>: Deletes the specified branch.
+
+git remote add <remote_name> <repository_url>: Adds a new remote repository.
+
+git remote rm <remote_name>: Removes the specified remote repository.
+
+git fetch <remote_name>: Fetches changes from the remote repository without merging them into the local branch.
+
+git merge --abort: Aborts a merge operation in progress and restores the pre-merge state.
+
+git stash: Temporarily stores changes that are not ready to be committed, allowing you to work on something else.
+
+git stash pop: Applies the most recently stashed changes and removes them from the stash.
+
+git tag <tag_name>: Creates a lightweight tag at the current commit.
+
+git tag -a <tag_name> -m "Tag message": Creates an annotated tag with a message.
+
+git push --tags: Pushes tags to the remote repository.
+
+git config: Allows you to view and set Git configuration options, such as user name and email.
+
+git config --global: Sets configuration options globally for your user account.
+
+git show <commit_id>: Displays information about a specific commit, including changes made.
+
+git blame <file>: Shows who last modified each line of a file and when.
+
+git remote show <remote_name>: Provides detailed information about a specific remote repository.
+
+git rebase <base_branch>: Integrates changes from one branch onto another by reapplying each commit on the base branch.
+
+git rebase --interactive <base_branch>: Allows for interactive rebasing, where you can reorder, edit, or squash commits.
+
+git cherry-pick <commit_id>: Applies the changes introduced by a specific commit onto the current branch.
+
+git reflog: Displays a log of reference updates, helping to recover lost commits or branches.
+
+git clean -n: Shows which untracked files would be removed from the working directory.
+
+git clean -f: Removes untracked files from the working directory.
+
+git bisect: Helps find the commit that introduced a bug by performing a binary search through the commit history.
+
+git submodule: Manages Git submodules, allowing you to include other Git repositories as subdirectories within your own repository.
+
+git log --oneline: Displays a concise log of commits, showing only the abbreviated commit hash and commit message.
+
+git log --graph: Visualizes the commit history as a graph, showing branches and merges.
+
+git revert <commit_id>: Creates a new commit that undoes the changes introduced by the specified commit.
+
+git fetch --prune: Fetches changes from the remote repository and removes any remote branches that no longer exist on the remote.
+
+git remote update: Fetches updates from all remote repositories.
+
+git submodule update --init --recursive: Initializes and updates submodules in the repository.
+
+git log --author=<author_name>: Shows commit history filtered by the specified author.
+
+git log --grep=<search_term>: Filters commit history by a specific search term in the commit messages.
+
+git log --since=<date>: Shows commits since the specified date.
+
+git log --until=<date>: Shows commits until the specified date.
+
+git stash list: Lists all stashed changes.
+
+git stash drop <stash_id>: Deletes a specific stash from the stash list.
+
+git stash apply <stash_id>: Applies changes from a specific stash without removing it from the stash list.
+
+git stash clear: Removes all stashed changes from the stash list.
+
+git tag -d <tag_name>: Deletes a tag from the repository.
+
+git push <remote_name> --tags: Pushes only tags to the remote repository.
+
+git pull --rebase: Fetches changes from the remote repository and rebases the current branch onto the upstream branch.
+
+git filter-branch: Allows rewriting the commit history by applying custom filters to each commit.
+
+git rebase -i --root: Performs an interactive rebase starting from the initial commit, allowing you to rewrite the entire commit history.
+
+git bisect start: Initiates the binary search tool for identifying the commit that introduced a bug.
+
+git bisect good <commit_id>: Marks a specific commit as good during the binary search process.
+
+git bisect bad <commit_id>: Marks a specific commit as bad during the binary search process.
+
+git rerere: Enables Git's "reuse recorded resolution" feature, which remembers how previous conflicts were resolved and automatically applies them to similar conflicts in the future.
+
+git worktree: Allows working with multiple working directories (worktrees) from a single repository, useful for working on different branches simultaneously.
+
+git reflog expire --expire=now --all: Expires all reflog entries immediately, freeing up space in the repository.
+
+git clean -fdx: Removes untracked files, including directories, from the working directory, along with ignored files.
+
+git cherry-pick --no-commit <commit_id>: Applies the changes from a specific commit onto the current branch without creating a new commit, allowing for further modifications before committing.
+
+git blame -L <start_line>,<end_line> <file>: Blames only the specified range of lines in a file, useful for identifying changes within a specific section.
+
+git diff --submodule: Shows changes within submodules in addition to changes in the main repository.
+
+git reflog show <ref_name>: Displays the reflog for the specified reference, providing a detailed history of changes.
+
+git grep <pattern>: Searches for the specified pattern in the contents of the files in the repository.
+
+git update-index --assume-unchanged <file>: Tells Git to ignore changes to the specified file, useful for files that you don't want to commit changes to but are frequently modified locally.
+
+git bisect visualize: Opens a graphical interface to visualize the progress of the git bisect command, helping to identify the commit that introduced a bug more efficiently.
+
+git worktree add <path> <branch>: Creates a new worktree at the specified path, allowing you to work on a separate branch without affecting the main working directory.
+
+git submodule foreach <command>: Executes a specified command in each submodule, enabling batch operations across multiple submodules.
+
+git cherry-pick --edit <commit_id>: Applies changes from a specific commit onto the current branch while opening the commit message in the editor, allowing for modification before committing.
+
+git rebase --onto <new_base> <old_base> <branch>: Replays commits from a branch onto a new base, useful for restructuring commit history or moving changes between branches.
+
+git filter-repo: A more modern and flexible alternative to git filter-branch for rewriting commit history, providing better performance and safety guarantees.
+
+git notes: Allows attaching notes to commits, providing additional context or metadata without altering the commit history.
+
+git rerere forget <path>: Forgets previous resolutions recorded by Git's "reuse recorded resolution" feature for a specific file, useful for resolving conflicts differently in the future.
+
+git rebase --onto <new_base> <old_base>^ <branch>: Similar to the previous command but allows specifying a range of commits by using the parent of the old base commit, providing more flexibility in choosing the range of commits to rebase.
+
+git sparse-checkout: Allows configuring a sparse checkout, where only specific files or directories are checked out in the working directory, useful for working with large repositories more efficiently.
+
+git worktree lock <path>: Locks a worktree to prevent accidental changes, ensuring that it remains in a consistent state.
+
+git notes show <commit_id>: Displays notes attached to a specific commit, providing additional context or information.
+
+git reflog expire --expire-unreachable=now --all: Expires all unreachable objects immediately, freeing up space in the repository and improving performance.
