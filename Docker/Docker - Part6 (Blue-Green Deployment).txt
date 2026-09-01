@@ -1,0 +1,307 @@
+Docker Blue-Green Deployment:
+=============================
+Blue-Green Deployment means:
+ > You never modify the running production environment.
+ > You create a second, identical production environment and switch users to it.
+
+Two environments exist at the same time:
+| Environment | State                                   |
+| ----------- | --------------------------------------- |
+| Blue        | Current live production (serving users) |
+| Green       | New version (not yet serving users)     |
+
+Then one single operation happens:
+
+Traffic switch
+
+ . No reinstall.
+ . No in-place upgrade.
+ . No downtime maintenance window.
+
+The running application itself is untouched — only routing changes.
+
+Why We Need Blue-Green:
+-----------------------
+Traditional deployment (what beginners imagine):
+
+Stop app → update code → start app
+
+This is extremely dangerous in production systems.
+
+Here is what actually happens in real projects during deployment:
+1. application fails to start:
+2. configuration mismatch
+3. database migration error
+4. dependency version conflict
+5. port binding issue
+6. memory spike
+7. long startup time
+8. partial rollout
+9. corrupted cache
+10. users connected mid-deployment
+
+Result:
+Users experience downtime or data corruption.
+Blue-Green exists to remove deployment risk from production.
+
+What Blue-Green Changes Fundamentally
+-------------------------------------
+Instead of updating production
+You prepare a new production.
+
+Old mindset: Production is where we deploy
+Blue-Green mindset: Production is where we route traffic
+
+Benefits:
+---------
+1. Instant Rollback
+
+Without Blue-Green:
+-------------------
+Rollback = redeploy old version
+→ takes minutes or hours
+→ users suffer
+
+With Blue-Green:
+----------------
+Rollback = change routing
+→ takes seconds
+→ users never notice
+
+This is the real value.
+
+2. Zero Downtime Releases
+
+Users stay connected while new version goes live.
+Payment gateways, trading platforms — downtime is unacceptable.
+
+Where companies hate:
+“System will be down from 2AM to 4AM”
+Blue-Green eliminates scheduled downtime.
+
+3. Production Testing Before Users
+
+You can access Green internally and verify:
+ . login
+ . API calls
+ . DB queries
+ . performance
+Before customers ever hit it.
+
+This is effectively staging with real production infrastructure.
+
+Demo Architecture:
+------------------
+We will run 3 containers:
+
+User Browser
+      ↓
+Nginx (traffic switch)
+     ↓         ↓
+ Blue App    Green App
+
+Blue = Version 1
+Green = Version 2
+
+Steps:
+------
+1. Create an EC2 machine, and make sure Docker has been installed on the same [for this refer to the other documentation]
+
+2. Change as a root user (sudo su -)
+
+3. Create a folder
+
+bluegreen-demo
+cd bluegreen-demo
+
+4. Next let us create the blue environment
+
+mkdir blue
+vi blue/index.html
+
+paste this code inside the editor
+
+<h1>Application Version 1 - BLUE</h1>
+<h3>This is the LIVE Production App</h3>
+
+5. Create our green environment
+
+mkdir green
+vi green/index.html
+
+paste this code inside the editor
+
+<h1>Application Version 2 - GREEN</h1>
+<h3>This is the NEW Release</h3>
+
+6. Let us create a Dockerfile (vi Dockerfile)
+
+FROM nginx:alpine
+COPY index.html /usr/share/nginx/html/index.html
+
+Explanation:
+| Line              | Meaning                      |
+| ----------------- | ---------------------------- |
+| FROM nginx:alpine | We use nginx as web server   |
+| COPY index.html   | Our web page becomes the app |
+
+7. Using this Dockerfile, let us create 2 different images for (blue & green) environment; as we are going to use nginx as the middleware here,
+
+Build Blue images:
+cp Dockerfile blue/
+cd blue
+docker build -t app-blue .
+cd ..
+
+Build Green images:
+cp Dockerfile green/
+cd green
+docker build -t app-green .
+cd ..
+
+Once after this we got 
+app-blue  → current production
+app-green → new release
+
+8. Let us create a network, as containers must talk with names and not with the IPs,
+
+docker network create bg-network
+
+9. Now, let us start the Blue environment (Current Production)
+
+docker run -d --name blue --network bg-network app-blue
+
+Now production exists — but nobody can access it yet, because a Docker container lives inside an isolated network namespace; Your laptop and the container are on two different private networks.
+Inside the container nginx is listening on: port 80
+But that port is only open inside the container network, not on your computer.
+
+So from your browser: http://localhost:80
+
+Your OS is looking for a web server on your host machine — not inside the container.
+Nothing is mapped → nothing responds.
+
+A container becomes accessible only if you publish/map a port: docker run -p 8080:80 nginx
+Meaning: Host:8080 → Container:80
+
+Now browser can reach it.
+
+10. Start the Traffic Router (Nginx Proxy)
+let us create a config file: (vi nginx.conf)
+
+events {}
+
+http {
+    server {
+        listen 80;
+
+        location / {
+            proxy_pass http://blue;
+        }
+    }
+}
+
+11. Now let us run the container
+
+docker run -d --name router -p 8080:80 --network bg-network -v $(pwd)/nginx.conf:/etc/nginx/nginx.conf nginx
+
+12. Now Open the browser and check for the output: (1.1.1.1:8080)
+
+You will see:
+Application Version 1 - BLUE
+this is now “production”.
+
+13. Let us Deploy Green (New Version)
+
+docker run -d --name green --network bg-network app-green
+
+Production users still see BLUE.
+Why?
+Because we didn’t switch traffic yet.
+
+14. Now, we will switch traffic 
+Edit nginx config: (vi nginx.conf)
+
+Change only this line
+proxy_pass http://green;
+
+You just redirected the entire production traffic.
+
+15. Now reload router: docker exec router nginx -s reload
+refresh the browser
+You now see:
+Application Version 2 - GREEN
+You just did a zero-downtime production deployment.
+
+16. *** IMPORTANT***
+There are certain times you'll not see the output in the browser, still it will show the same Blue env, this happens
+
+Nginx accepted the reload signal — NOT that it loaded your new configuration.
+as nginx container is NOT actually reading the updated nginx.conf file.
+
+In order to confirm the same, we need to check the file by calling this command:
+docker exec -it router cat /etc/nginx/nginx.conf
+
+Look the proxy pass: 
+proxy_pass http://blue;
+
+This means your reload did nothing useful;
+
+So, let us reload this properly by calling the command: 
+docker restart router
+
+Now refresh browser.
+You should see GREEN immediately.
+
+How this works:
+Restart forces nginx to reread configuration at process start instead of reusing old file descriptor.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
