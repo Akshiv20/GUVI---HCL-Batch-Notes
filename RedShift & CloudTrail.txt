@@ -1,0 +1,81 @@
+RedShift = Unstructured Database
+This is considered to be a Data warehouse, which means it acts like (godown) where we can store multiple Databases.
+By using Database we can be able to execute multiple queries, same like RDS and we can report this to our other teams according to the necessary situations.
+
+Redshift is considered to be Amazon product, but in market we do have a lot of other products like HADOOP, Informatica etc.,
+
+The purpose of this unstructured database is to connect with structured and semi-structured and collect data's from them
+
+The simple difference between database and database warehouse is, 
+DB = this used to run the business
+DB warehouse = this used to analyse the business
+
+Where exactly we are using Redshift? At what purpose?
+	we are using Redshift mainly for analyzing purpose, In real-time, there will be a lot of data's getting stored all over the places, it is not manually easy to analyze that, hence we are writing some kind of algorithms through there we are collecting our data's into database and this redshift works accordingly.
+
+Advantages:
+Only using Redshift, we can build multi query operations, in normal databases we can run only single query at a time.
+This will automatically compress the data by using encoded schema's
+
+The best example: https://www.covid19india.org/ (currently not active)
+In this website, we can see the entire data from all over the district, this data will be collected and stored separately and together setted up in a warehouse, and all these data outputs will be shown by using the analytics tools like Redshift, Hadoop or others.
+
+How RedShift works?
+Client Application (Top-tier) - where our analytical and data-mining reports will be running -- this will get connected to the leader node (this node will be created automatically) via JDBC and ODBC (JDBC = JAVA Database Connector; ODBC = Other Database Connector) -- the main work of leader node is to collect data's from the various databases and this will run the queries inside the separate compute nodes (this one acts like slave for the leader) [why it is running all the queries separately? Because, if everything going to run inside the same node, this may takes a lot of times, hence by separating the tasks the job will done easily and faster] -- inside compute node we got something called (node slices) this means even the queries will split once again inside the compute node parallelly run the queries column-wise for more faster option -- once the queries done the leader node will collect the data and send it to the CLient Application as an output.
+The main job of Leader Node is not running the queries this will collect the data's and re-route it to the separate compute node for the job done.
+This setup will be called as Cluster. Even we can maintain multiple-clusters also according to the quatity of the data available.
+
+We are going to run 2 different types of queries
+1. Amazon in-built one = Query editor
+2. SQL Workbench = 3rd party tool [only for the 3rd party tool, we need JDBC and ODBC; but for in-built we don't require this one, because it is automatically connected]
+
+when we are setting up the Redshift cluster, we need to chose which type of nodes we need to set-up, wee got 2 different types of storage
+1. Dense Storage (RA) - When there are huge number of content and the processing time can be little bit slow, then we can use this one, mostly for huge amount of data, this is the recommended one. {ex: Millions & Billions of Data's}
+2. Dense Compute (DC2) - Data's are not really huge but I need the processing that needs to be more faster then we are going to use this one. {Thousands' or Lakhs'}
+We are going to choose this under the following criteria:
+1. Data Quantity
+2. Complexity of Queries
+3. Downstream Systems.
+
+In other words, we will call this tools as ETL (extract, transform & load)
+This is one of the highly chargable service.
+
+1. Create an IAM role, as we are going to bring communication between Redshift and S3 - go to IAM - create role - select Redshift - Redshift customizable - under permission give s3 full access - create.
+2. Open Redshift - create cluster - provide name - select the node type to minimum (ra3.xlplus) - nodes (2) - provide password (Admin123) - associate with our IAM role - create cluster
+[*** default port number: 5439, make sure when we are creating the security group add this port for connection, or open all the ports]
+[*** when you are going to choose free-tier, you will not be provided with any kinds of additional options, we need to use only the sample contents]
+3. Now, we need to create a bucket with public access (as we are going to fetch our data's from S3) - and upload the 2files (allusers_pipe & venue_pipe) with public access.
+4. When you are opening the cluster, we can see both the URL's like (JDBC & ODBC) automatically - make sure there should be 3 nodes (1leader & 2compute) , IAM role got associated.
+5. Click on the Query data - select Query in query editor (this is an in-built feature) - click on connect to database - provide the database (dev) - user (awsuser) - once connected, run the query (u have this content on another document - redshift commands doc) - once it got executed we can see the output on the left-hand side as (users) - now, remove this and run the 2nd query for tables, as we can see both this available under the resources.
+6. We need to change the command (make sure to change the S3 bucket name, IAM Role ARN and Bucket location where it actually created) - copy paste the command the commands one by one separately on queries and run it.
+7. For viewing this, provide this command (select * from users;) & (select * from venue;) - so that you will be able to see the results.
+
+Now, we are going to use separate compute:
+1. Create a windows machine - make sure to open the (5439) port number.
+2. connect to the machine - then download sqlbench from this link (https://www.sql-workbench.eu/downloads.html) - select (Generic package for all systems including all optional libraries) - save.
+3. Then, we need to download the JDBC for connection (https://docs.aws.amazon.com/redshift/latest/mgmt/jdbc20-download-driver.html) - download and save.
+4. Go to downloads - extract workbench - sqlworkbench64 - we will get msg that there is no java, this automatically gives options to download JRE - select it and download
+5. Meantime extract redshift
+6. Provide this informations on sqlworkbench - give the name as (Test Profile) - select amazon redshift on drivers - it will tell that the driver is not presented - give ok to select it manually and add the (redshift-jdbc42-2.1.0.3.jar) on the library [you can find this inside the downloads - redshift extracted folder] - for the url, you can copy paste from our Redshift cluster JDBC URL (jdbc:redshift://redshift-cluster-1.cr9bkxmtgq86.us-east-2.redshift.amazonaws.com:5439/dev) - provide the username and password - which we setted up for this one - and give test connection - once the database got connected, then click ok.
+7. Now give this command on (select * from users;) click the execute symbol, now we will be able to see the output here.
+
+[Make sure to delete you cluster on Redshift, ec2 instance, s3 bucket & IAM role]
+
+====================================================================================================
+
+CloudTrail:
+    Log collector service, The purpose of this service is for auditing purpose. These logs will be stored inside an S3 bucket, can be used according to the requirements.
+
+Main Purpose:
+1. Auditing purpose
+2. Unauthorized access
+3. Deliberate misuse & Process misuse etc.,
+4. identify if any risk involved.
+
+Cloudwatch acts for Monitoring
+CloudTrail for Log Collecting
+
+1. Go to Cloudtrail - create a trail (this automatically starts a trail by collecting logs and automatically creates S3 bucket for saving all the logs)
+2. Try to create one new instance - then check the bucket after sometime
+[*** By default, cloudtrail will be collecting logs and save the record for past 90days under event history - by enabling the cloudtrail we can store the data's speifically under S3 bucket, because during real-time we cannot ask our auditor to check by console, instead we will be sending this zipped file that got saved inside the S3] 
+

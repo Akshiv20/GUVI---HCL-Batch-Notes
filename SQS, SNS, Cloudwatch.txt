@@ -1,0 +1,204 @@
+What is Monitoring and Logging?
+Monitoring and Logging are two sides of visibility in cloud infrastructure.
+ . Monitoring means observing your systems in real-time — tracking performance, resource usage, and availability.
+Think of it like checking a patient’s vitals — CPU, memory, network traffic, etc.
+ . Logging means recording what actually happened inside your systems.
+This includes application logs, system logs, API calls, and error reports — like a diary that helps you retrace steps when something breaks.
+
+Together, they help you detect, troubleshoot, and optimize your systems.
+
+In AWS:
+ . Monitoring → mostly handled by Amazon CloudWatch.
+ . Logging → handled by CloudWatch Logs, AWS CloudTrail, and other service-specific log systems.
+
+What is Amazon CloudWatch?
+Amazon CloudWatch is AWS’s monitoring and observability service.
+It collects and tracks metrics, gathers and stores logs, and lets you set alarms and dashboards to visualize and respond to system changes.
+	It is a Monitoring tool, highly used in support/delivery team. This helps to monitors the Infra's and helps to triggers alert, this helps to troubleshoot and fix the issue. It is a chargable service.
+
+Every 5 mins monitoring - Basic 
+Every 1 mins montoring - Advanced/Deatiled
+
+It’s like a central control room where you:
+ . View how your AWS resources and applications are performing
+ . React automatically when something crosses a threshold (like CPU usage > 80%)
+ . Analyze trends over time
+
+CloudWatch can monitor:
+ . AWS services (EC2, Lambda, RDS, etc.)
+ . Custom metrics from your applications
+ . On-premises or hybrid environments
+
+CloudWatch Metrics:
+-------------------
+A Metric is a time-ordered set of data points that show how some resource behaves.
+
+Example:
+ . CPUUtilization for an EC2 instance
+ . Latency for an API Gateway
+ . NetworkIn or NetworkOut for data transfer
+
+Metrics are stored in namespaces (like folders), and each data point has:
+ . Timestamp
+ . Value
+ . Unit (like Percent, Seconds, Bytes)
+
+You can create custom metrics too — for example, “Number of active users”.
+
+Use case:
+Track CPU utilization every 5 minutes and trigger an alarm if it exceeds 80% for 15 minutes straight.
+
+CloudWatch Alarms:
+------------------
+An Alarm watches a specific metric (or a mathematical expression of metrics).
+
+When a metric crosses a threshold for a specified time period, the alarm changes its state:
+ . OK – normal condition
+ . ALARM – threshold breached
+ . INSUFFICIENT_DATA – not enough data yet
+
+You can attach actions to alarms:
+ . Send notifications (via SNS)
+ . Auto-scale EC2 instances up/down
+ . Trigger Lambda functions for automated recovery
+
+Example:
+If CPUUtilization > 80% for 5 minutes → send an alert through SNS or trigger a scale-up event.
+
+CloudWatch Logs:
+----------------
+CloudWatch Logs stores, monitors, and analyzes log files from AWS services and applications.
+
+You can:
+ . Collect logs from EC2 (via the CloudWatch agent)
+ . Stream logs from Lambda or ECS
+ . Search, filter, and visualize logs
+ . Create metric filters (convert log data into metrics)
+
+Example:
+If your app log contains “ERROR”, you can create a filter that counts how many times “ERROR” appears per minute — then build an alarm on top of that.
+
+Logs are organized in:
+ . Log Groups – containers for similar logs
+ . Log Streams – sequences of log events from one source (like one EC2 instance)
+
+CloudWatch Dashboards:
+----------------------
+A Dashboard is a customizable visual interface to display multiple CloudWatch metrics and alarms in one view.
+
+You can mix:
+ . Graphs for CPU, memory, network, etc.
+ . Alarms showing current states
+ . Text widgets with annotations
+
+Use case:
+An operations team might create a dashboard to monitor production EC2 instances, RDS performance, and Lambda error counts — all in one screen.
+
+Dashboards help spot patterns quickly and make better decisions during incidents.
+
+SQS, SNS - Application Engineering
+
+AWS Simple Notification Service:
+--------------------------------
+	Amazon Simple Notification Service (Amazon SNS) is a fully managed messaging service for both application-to-application (A2A) and application-to-person (A2P) communication.
+SNS is a fully managed pub/sub (publish-subscribe) messaging service.
+
+It’s mainly used for notifications.
+When an event occurs (like a CloudWatch Alarm triggers), SNS sends messages to subscribers — email, SMS, HTTP endpoints, Lambda functions, etc.
+
+Example:
+CloudWatch Alarm → SNS → Email to admin@company.com
+
+Key parts:
+ . Topic: A logical access point to send messages.
+ . Publisher: Sends message to topic.
+ . Subscriber: Receives messages from topic.
+
+SNS ensures instant delivery and scales automatically.
+
+AWS Simple Queue Service:
+-------------------------
+	Amazon Simple Queue Service (SQS) is a fully managed message queuing service, where you can send, store, and receive messages between software components at any volume, without losing messages or requiring other services to be available.
+
+what is message? Meaningful Information
+Parts of message? Subject, Body, metadata, Timestamp
+
+What is Queue?
+    It is a buffer/temporary location where the message stays until receiver picks up.
+
+Email Examples
+Types of Queues:
+Local:  Inbox
+Remote:  Sent
+Dead letter queue: outbox - undelivered message
+Alias: customised folder / duplicate.
+
+What is communication?
+   Transferring the message/information from one end (sender) to another end (receiver)
+
+Two ways of communication:
+synchronized mode:     Both sender and receiver should be active (call)
+asynchronized mode:   sender always active but it won't bother about receiver activeness (whatsapp group message) - in real-time we will use this mode of communication.
+	Within this we are having 2 different types
+		1 to 1 communication: SQS - Simple Queueing Service
+		1 to many	    : SNS - Simple Notification service
+
+2 types of Queue:
+Standard   	: Non-Sequential manner of communication 
+FIFO	: Sequential manner of communication (First in - First out)
+
+SQS is a fully managed message queuing service.
+It decouples components of distributed systems — allowing them to communicate asynchronously.
+Instead of directly calling another service, one app places a message in a queue, and another retrieves it later.
+
+Benefits:
+ . No data loss (messages persist until processed)
+ . Smooths out traffic spikes
+ . Reduces tight coupling between services
+
+Example:
+A web app uploads a user’s file → message sent to SQS → background worker reads queue → processes file.
+
+Types:
+ . Standard Queue: Unlimited throughput, best-effort ordering.
+ . FIFO Queue: Preserves message order, avoids duplication.
+
+AWS Simple Email Service (SES)
+------------------------------
+SES is AWS’s email-sending service for transactional and marketing emails.
+
+It’s used to send:
+ . System alerts
+ . Customer notifications
+ . Password resets
+ . Bulk marketing emails
+
+You can integrate it with applications or use it with SNS/SQS for automated email workflows.
+
+Example:
+CloudWatch Alarm → SNS → Lambda → SES → sends formatted alert email.
+
+Steps:
+------
+1. Create Simple SQS - provide the needed details - try sending test message and confirm the same
+2. Create simple SNS topic 
+3. Add Subscriber - Email (verify it)
+4. Create an IAM role as we are going to bring communication between 2 different services.
+5. Create SQS - Attach the Role (ARN) under access policy.
+6.  Add as a 2nd Subscriber - SQS - attach the SNS subscriber for 2 way communication
+7. Try sending message - confirm whether both the subscribers received it or not.
+8. Create a free-tier Linux machine and open the server.
+9. Open cloudwatch - Metrics - put the Instance ID - select the metrics - check the CPU utilization - click graphed metrics - create alarm (for sending notification) - under conditions select greater/equal to - keep the threshold limit as 0%, as we have an empty server - under notification select existing SNS topic - Provide an alarm name (description if needed).
+10. Once it reached the time - from Insufficient data, it moves automatically into In alarm - check SQS and Email - for Notification.
+
+Task:
+-----
+1. Add SMS as 3rd subscriber, and try sending Notification
+2. Multiple metrics under cloudwatch, and getting Notification via SNS
+3. Try Cloudwatch with Autoscaling and ELB
+
+
+
+
+
+
