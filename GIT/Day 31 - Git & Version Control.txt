@@ -1,0 +1,473 @@
+Day 31 - Git & Version Control:
+===============================
+Remote Repository Concepts:
+---------------------------
+A remote repository is a Git repository stored on a server rather than on your local computer.
+The local repository and remote repository are separate.
+
+Local repository
+Exists on your computer:
+C:\Projects\shopping-app\.git
+It contains your local Git history.
+
+Remote repository
+Exists on a Git hosting platform:
+
+GitHub
+   |
+   └── shopping-app
+The remote repository provides a central collaboration point for the development team.
+
+GitHub Repository Workflow:
+---------------------------
+A common professional GitHub workflow looks like this:
+
+Create / Clone Repository
+          ↓
+Create Feature Branch
+          ↓
+Write Code
+          ↓
+Commit Changes
+          ↓
+Push Branch
+          ↓
+Create Pull Request
+          ↓
+Code Review
+          ↓
+Automated Tests
+          ↓
+Approval
+          ↓
+Merge
+          ↓
+Main Branch
+
+Clone Repository:
+-----------------
+Clone means:
+Download a remote Git repository to your local computer, including its Git history.
+
+GitHub
+  |
+  └── shopping-app
+
+A new developer joins the team.
+They need a local copy.
+
+Conceptually:
+GitHub Repository
+       |
+       | Clone
+       ↓
+Developer Laptop
+       |
+       └── shopping-app
+
+The developer now has:
+ . Project files
+ . Git history
+ . Branch information
+ . Connection to the remote repository
+
+Pull Request Workflow:
+----------------------
+A Pull Request (PR) is a request to merge changes from one branch into another.
+
+feature/login
+      |
+      | Pull Request
+      ↓
+main
+
+The developer is essentially saying:
+"I finished my changes. Please review them and consider merging them into main."
+Pull Request
+A collaboration/review mechanism provided by platforms such as GitHub.
+
+ > Real-Time Pull Request Example
+Suppose a developer is assigned:
+Implement password reset.
+
+They create:
+feature/password-reset
+
+They make commits:
+Add password reset API
+Add email verification
+Add reset-password UI
+
+They push the branch:
+feature/password-reset
+        ↓
+GitHub
+
+Then they create:
+Pull Request:
+feature/password-reset → main
+
+Now the team can review the proposed change.
+
+ > Pull Request Workflow:
+Developer
+   ↓
+Create Feature Branch
+   ↓
+Write Code
+   ↓
+Commit
+   ↓
+Push
+   ↓
+Create Pull Request
+   ↓
+Code Review
+   ↓
+Automated CI Tests
+   ↓
+Changes Requested?
+   /        \
+ Yes         No
+  ↓           ↓
+Fix Code    Approval
+  ↓           ↓
+Push Again   Merge
+              ↓
+             main
+
+This provides a controlled path for changes to enter the main codebase.
+
+Code Review Process:
+--------------------
+Code review means another developer examines the proposed changes before they are merged.
+
+Reviewers might check:
+ . Is the code correct?
+ . Is the logic understandable?
+ . Are there security problems?
+ . Are there unnecessary changes?
+ . Does it follow coding standards?
+ . Are tests included?
+ . Could the change break existing functionality?
+ . Are secrets accidentally committed?
+
+ > Real-Time Code Review Example:
+Suppose a developer submits:
+feature/payment
+
+The reviewer sees:
+payment.js
+database.js
+config.js
+
+The reviewer notices:
+API key = "abc123..."
+inside the code.
+
+The reviewer comments:
+"Do not hard-code credentials. Move this value to a secure secret-management mechanism."
+
+The developer fixes the code and pushes another commit.
+The PR automatically updates.
+This is one of the practical security benefits of code review.
+
+ >> Review Outcomes
+A reviewer might:
+
+ . Approve
+"The changes look good."
+The PR can proceed toward merging.
+
+ . Request Changes
+"Please fix this issue before merging."
+The developer modifies the code.
+
+ . Comment
+The reviewer may simply ask a question or suggest an improvement without blocking the PR.
+
+What is Git Rebase?:
+--------------------
+Rebase is a Git operation that moves/replays your commits on top of another base commit.
+
+Rebase vs Merge:
+----------------
+ . Merge
+Merge combines two lines of development.
+The history preserves the branching structure.
+Sometimes a separate merge commit is created.
+
+ . Rebase
+Rebase moves your feature commits on top of the latest base:
+It creates a more linear-looking history.
+
+When Would Teams Use Rebase?
+A developer might rebase their feature branch onto the latest main before creating or updating a PR.
+
+Secure Git Authentication:
+--------------------------
+Git needs to know:
+Who are you?
+
+and:
+Are you authorized to access this repository?
+
+Authentication is the process of proving your identity.
+
+For remote repositories, common approaches include:
+ . HTTPS authentication
+ . SSH authentication
+ . Personal Access Tokens
+ . Organization-managed identity/SSO
+ . Credential managers
+
+The exact mechanism depends on the Git hosting platform and organizational security policy.
+
+Why Authentication Matters:
+---------------------------
+You don't want an unauthorized person to:
+ . Clone it
+ . Push malicious code
+ . Modify production configuration
+ . Steal source code
+
+Therefore, Git hosting platforms require authentication and authorization.
+
+Authentication vs Authorization:
+--------------------------------
+These two terms should not be mixed up.
+
+Authentication
+Who are you?
+
+Example:
+I am Akshiv.
+
+Authorization
+What are you allowed to do?
+
+Example:
+Akshiv can read the repository
+but cannot directly push to main.
+
+So:
+Authentication
+       ↓
+Who are you?
+       ↓
+Authorization
+       ↓
+What can you do?
+
+SSH Key-Based Authentication:
+-----------------------------
+SSH stands for:
+Secure Shell
+
+SSH can be used to securely authenticate with a Git server.
+Instead of repeatedly providing a password, the developer uses a cryptographic key pair.
+
+There are two keys:
+Private Key
++
+Public Key
+
+Public Key vs Private Key:
+--------------------------
+Public Key
+Can be shared with the Git hosting platform.
+
+Private Key
+Must remain on the developer's computer.
+
+Never share the private key.
+
+Think of it like this:
+Public Key  → Lock
+Private Key → Key that opens the lock
+
+The public key can be given to the server.
+The private key stays with you.
+
+Why SSH Is Useful:
+------------------
+SSH authentication provides several benefits:
+ . Strong cryptographic authentication
+ . No need to send a password for every Git operation
+ . Convenient for frequent Git operations
+ . Suitable for developer machines and automation scenarios
+ . Private key remains under the user's control
+It is widely used in professional DevOps environments.
+
+SSH Security Rules:
+-------------------
+Rule 1 — Never share your private key
+Rule 2 — Protect the private key
+ . The private key should have appropriate filesystem permissions and should not be stored in a public repository.
+Rule 3 — Never commit SSH private keys
+Rule 4 — Use a passphrase where appropriate
+ . A passphrase adds another layer of protection to the private key.
+Rule 5 — Rotate/revoke compromised keys
+ . If a private key is suspected to be compromised, the corresponding public key should be removed/revoked and a new key pair generated.
+
+Important Terminologies:
+------------------------
+| Term                  | Simple Meaning                                        |
+| --------------------- | ----------------------------------------------------- |
+| **Remote Repository** | Git repository hosted on a server                     |
+| **GitHub Repository** | Git repository hosted on GitHub                       |
+| **Clone**             | Copy a remote Git repository to your computer         |
+| **Push**              | Send local commits to remote                          |
+| **Pull**              | Retrieve remote changes into your local branch        |
+| **Pull Request**      | Request to review and merge changes                   |
+| **Code Review**       | Human review of proposed code changes                 |
+| **Rebase**            | Replay commits on top of another base                 |
+| **Merge**             | Combine changes from branches                         |
+| **Authentication**    | Proving who you are                                   |
+| **Authorization**     | Determining what you're allowed to do                 |
+| **SSH**               | Secure protocol used for authentication/communication |
+| **Public Key**        | Key shared with the Git server                        |
+| **Private Key**       | Secret key kept securely by the user                  |
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

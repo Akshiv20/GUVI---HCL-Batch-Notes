@@ -1,0 +1,414 @@
+Day 29 - Git & Version Control:
+===============================
+Git Repository Structure:
+-------------------------
+A Git repository, or simply Git repo, is a project folder that Git is tracking.
+For example, imagine a food-delivery application:
+food-delivery-app/
+│
+├── frontend/
+│   ├── index.html
+│   ├── app.js
+│   └── style.css
+│
+├── backend/
+│   ├── server.js
+│   └── routes.js
+│
+├── README.md
+├── package.json
+└── .gitignore
+
+After Git is initialized, Git creates a hidden directory:
+
+food-delivery-app/
+│
+├── frontend/
+├── backend/
+├── README.md
+├── package.json
+├── .gitignore
+│
+└── .git/
+
+What is .git?
+.git is the internal database of Git.
+
+It contains information about:
+ . Commits
+ . Branches
+ . Tags
+ . Repository history
+ . Configuration
+ . References to different versions
+You normally should not manually modify the .git directory.
+
+Tracking and Managing Changes:
+------------------------------
+One of Git's most important jobs is tracking changes.
+
+Suppose a developer initially creates:
+index.html
+
+The developer then changes:
+Login
+
+to:
+Login to Your Account
+
+Git can identify that change.
+Git works mainly through three areas:
+
+Working Directory
+       ↓
+Staging Area
+       ↓
+Repository
+
+These three areas are extremely important.
+
+Commit Lifecycle:
+-----------------
+A commit is a saved snapshot of your project at a particular point in time.
+
+The typical lifecycle is:
+Modify Files
+     ↓
+Check Changes
+     ↓
+Stage Changes
+     ↓
+Create Commit
+     ↓
+Commit Stored in Repository
+
+ > What does a commit contain?
+A commit has information such as:
+ . Which files changed
+ . What version they represent
+ . Author information
+ . Timestamp
+ . Commit message
+ . Reference to previous commit
+
+ > Why are commit messages important?
+Bad commit:
+changes
+Not useful.
+
+Better:
+Fix payment validation for expired cards
+Now another developer can understand what that commit represents.
+
+Good commit principle
+A commit should ideally represent one logical change.
+
+Local Repository vs Remote Repository:
+--------------------------------------
+There are usually two repositories involved:
+
+Developer Computer
+      |
+      | Local Repository
+      |
+      ↓
+Remote Repository
+      |
+      | GitHub / GitLab / Bitbucket
+
+ > Local Repository
+The local repository exists on the developer's computer.
+
+The developer can:
+ . Create commits
+ . View history
+ . Create branches
+ . Compare changes
+ . Work offline
+
+ > Remote Repository
+A remote repository is hosted somewhere accessible to the team.
+
+Common platforms include:
+ . GitHub
+ . GitLab
+ . Bitbucket
+ . Azure Repos
+The remote repository acts as a shared collaboration point.
+
+Push and Pull:
+--------------
+Two important operations are:
+
+Push
+Push = send your local commits to the remote repository.
+
+Local Repository
+      |
+      | push
+      ↓
+Remote Repository
+
+Example:
+A developer creates:
+Commit: Add customer registration
+
+They push it to GitHub.
+Now the team can access that commit.
+
+Pull
+Pull = retrieve changes from the remote repository into your local working environment.
+
+Remote Repository
+       |
+       | pull
+       ↓
+Local Repository
+
+Example:
+Developer B starts work in the morning.
+
+Developer A already pushed:
+Add customer registration
+
+Developer B pulls the latest changes.
+Now Developer B has the updated code.
+
+Understanding Git History:
+--------------------------
+Git doesn't just store the current version.
+It stores the history of changes.
+
+A developer can inspect this history to understand:
+ . What changed?
+ . Who changed it?
+ . When was it changed?
+ . Why was it changed?
+ . Which commit introduced the problem?
+
+.gitignore:
+-----------
+.gitignore is a file that tells Git:
+"Do not track these files or directories."
+
+This is extremely important.
+Not every file inside a project should go into Git.
+
+ > Why ignore files?
+Consider a Node.js application.
+
+After installing dependencies, you may get:
+node_modules/
+
+This directory can contain thousands of files.
+You generally don't want to commit all of them into Git.
+
+Instead:
+.gitignore
+
+can contain:
+node_modules/
+
+Git will then ignore that directory.
+
+Common files that should be ignored:
+------------------------------------
+1. Dependencies
+node_modules/
+
+2. Environment variables
+.env
+
+A .env file might contain:
+DB_PASSWORD=MyPassword
+AWS_ACCESS_KEY=xxxx
+
+You should not commit credentials or secrets.
+
+3. Build output
+For example:
+dist/
+build/
+
+These directories may contain generated application files.
+
+4. Operating-system files
+For example:
+.DS_Store
+Thumbs.db
+
+These aren't normally useful to the development team.
+
+ >>> Example .gitignore
+node_modules/
+.env
+dist/
+build/
+.DS_Store
+
+This means Git should ignore those files/directories.
+
+ >>> Important .gitignore Misunderstanding
+There is a common beginner mistake:
+"If I add a file to .gitignore, Git will remove it from the repository."
+No.
+.gitignore primarily prevents untracked files from being added.
+
+Complete Git Workflow:
+----------------------
+Developer writes/modifies code
+             ↓
+       Working Directory
+             ↓
+      Select changes
+             ↓
+        Staging Area
+             ↓
+           Commit
+             ↓
+      Local Repository
+             ↓
+           Push
+             ↓
+     Remote Repository
+          (GitHub)
+             ↓
+     Other developers
+             ↓
+           Pull
+             ↓
+      Local Repository
+
+Important Git Terminologies:
+----------------------------
+| Concept               | Simple Meaning                                     |
+| --------------------- | -------------------------------------------------- |
+| **Repository**        | Place where Git stores project/version information |
+| **Working Directory** | Files you are currently working on                 |
+| **Staging Area**      | Changes selected for the next commit               |
+| **Commit**            | Saved snapshot/version of the project              |
+| **Local Repository**  | Git repository on your computer                    |
+| **Remote Repository** | Shared repository hosted on GitHub/GitLab/etc.     |
+| **Push**              | Send local commits to remote                       |
+| **Pull**              | Bring remote changes to local environment          |
+| **Git History**       | Record of previous commits and changes             |
+| **`.gitignore`**      | Tells Git what not to track                        |
+| **`.git`**            | Hidden directory containing Git's repository data  |
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

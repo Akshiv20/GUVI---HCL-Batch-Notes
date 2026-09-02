@@ -1,0 +1,438 @@
+Day 30 - Git & Version Control:
+===============================
+Branching and Merging Operations in Git:
+----------------------------------------
+The main purpose of Git branching is to allow developers to work on different features or fixes without disturbing the stable code.
+
+A simple way to explain it to beginners:
+A branch is a separate line of development.
+
+Developers can work independently and later combine their work using a merge.
+
+What is a Git Branch?
+---------------------
+Imagine the application currently has stable code:
+main
+ |
+ A
+ |
+ B
+ |
+ C
+
+main represents the stable version of the application.
+
+Now three developers need to work on different things:
+ . Developer 1 → Login feature
+ . Developer 2 → Payment feature
+ . Developer 3 → Product search
+Instead of everyone modifying main directly, Git allows them to create separate branches.
+Each branch can contain its own changes.
+
+Why Do We Need Branches?:
+-------------------------
+Without branches, imagine five developers directly modifying the same production code:
+Developer A ──┐
+Developer B ──┤
+Developer C ──┼──> main
+Developer D ──┤
+Developer E ──┘
+
+This creates problems:
+ . Developers can overwrite each other's work.
+ . Incomplete features may enter the stable code.
+ . Testing becomes difficult.
+ . Bugs can affect everyone.
+ . Code reviews become harder.
+
+With branches:
+
+                    feature/login
+                   /
+main ──── A ─── B
+                   \
+                    feature/payment
+
+Each developer can work independently.
+
+Git Branching Strategy:
+-----------------------
+A branching strategy is a set of rules that defines:
+ . Which branches the team uses
+ . Where developers create branches
+ . Where features are merged
+ . Which branches represent production or testing
+ . How releases are managed
+
+Different organizations use different branching strategies.
+
+Common Branch Types:
+--------------------
+A simple development setup might contain:
+ > main
+Contains stable, production-ready code.
+
+ > Feature Branch
+Used to develop a new feature.
+
+Examples:
+feature/login
+feature/payment
+feature/search
+
+ > Bug-Fix Branch
+Used to fix a specific problem.
+
+Example:
+bugfix/payment-timeout
+
+> Release Branch
+Used in some organizations to prepare a release.
+
+Example:
+release/v2.0
+
+Not every organization needs release branches.
+
+Feature Branch Workflow:
+------------------------
+Suppose the company has an e-commerce application.
+
+The current stable application is:
+main
+
+The product team asks:
+"Add a product search feature."
+
+Instead of modifying main directly, the developer creates:
+feature/product-search
+
+The workflow becomes:
+
+              feature/product-search
+             /
+main ────────A────B────C
+
+The developer makes several commits:
+ . A → Initial search page
+ . B → Add search API
+ . C → Add search validation
+
+Meanwhile, main remains stable.
+
+ > What Happens After the Feature Is Complete?
+Once the feature is developed and tested:
+
+feature/product-search
+          |
+          ↓
+      Code Review
+          |
+          ↓
+       Testing
+          |
+          ↓
+        Merge
+          |
+          ↓
+        main
+
+The feature branch is eventually merged into main.
+
+What is Merge?:
+---------------
+Merge means combining changes from one branch into another branch.
+
+What is a Merge Conflict?:
+--------------------------
+A merge conflict occurs when Git cannot automatically determine which change should be kept.
+
+ > Real-Time Merge Conflict Example
+Suppose login.js contains:
+Welcome to our application
+
+Developer A changes it to:
+Welcome to our shopping application
+
+Developer B changes the same line to:
+Welcome to our online store
+
+Now Git has two different changes:
+Developer A:
+Welcome to our shopping application
+
+Developer B:
+Welcome to our online store
+
+Git cannot logically decide which sentence the company wants.
+
+Therefore:
+Merge Conflict
+
+ > What Does Git Do During a Conflict?
+Git essentially tells the developer:
+"I found two conflicting changes. You decide what the final version should be."
+
+A simplified conflict looks like:
+<<<<<<< HEAD
+Welcome to our shopping application
+=======
+Welcome to our online store
+>>>>>>> feature/login
+
+The developer must decide.
+
+For example, they might choose:
+Welcome to our online shopping application
+
+Then the conflict is resolved.
+
+ > Important Point: Merge Conflict Does NOT Mean Git Is Broken
+Beginners often think:
+"Git failed."
+Not exactly.
+
+Git can automatically merge changes when the changes don't conflict.
+But when Git cannot determine the intended result, it stops and asks a human to make the decision.
+
+So:
+No conflict
+    ↓
+Git automatically combines changes
+
+Whereas:
+Conflicting changes
+    ↓
+Git cannot determine the correct version
+    ↓
+Developer resolves conflict
+
+ > How Teams Usually Handle Merge Conflicts:
+A typical process is:
+
+Developer creates feature branch
+          ↓
+Developer writes code
+          ↓
+Developer commits changes
+          ↓
+Developer pushes branch
+          ↓
+Pull Request / Merge Request
+          ↓
+Code Review
+          ↓
+Conflict detected?
+       /       \
+     No         Yes
+     |           |
+     ↓           ↓
+  Merge      Resolve conflict
+                 ↓
+              Test again
+                 ↓
+                Merge
+
+Pull Request and Branching:
+---------------------------
+feature/login
+      |
+      ↓
+Push to GitHub
+      |
+      ↓
+Pull Request
+      |
+      ↓
+Code Review
+      |
+      ↓
+Automated Tests
+      |
+      ↓
+Approval
+      |
+      ↓
+Merge into main
+
+A Pull Request (PR) is a request saying:
+"I have completed my changes. Please review and merge them into the target branch."
+GitHub, GitLab and Azure DevOps commonly use this approach.
+
+Important Terminologies:
+------------------------
+| Term                        | Simple Meaning                                       |
+| --------------------------- | ---------------------------------------------------- |
+| **Branch**                  | Separate line of development                         |
+| **Main**                    | Usually the primary stable branch                    |
+| **Feature Branch**          | Branch used to develop a feature                     |
+| **Branching Strategy**      | Rules for how branches are organized                 |
+| **Feature Branch Workflow** | Create a separate branch for each feature            |
+| **Merge**                   | Combine changes from one branch into another         |
+| **Merge Conflict**          | Git cannot automatically combine conflicting changes |
+| **Conflict Resolution**     | Human decides what the final code should be          |
+| **Pull Request**            | Request to review and merge code                     |
+| **Code Review**             | Developers examine code before merging               |
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
