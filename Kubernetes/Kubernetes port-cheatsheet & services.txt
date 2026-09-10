@@ -1,0 +1,147 @@
+Ports Cheat-Sheet (common & reliable):
+======================================
+	Ports can vary by distro/controller; these are the widely used defaults.
+
+Control plane & node:
+ . kube-apiserver: 6443/TCP
+ . kubelet: 10250/TCP (API), 10255/TCP (read-only, often disabled)
+ . kube-scheduler: 10259/TCP
+ . kube-controller-manager: 10257/TCP
+ . etcd: 2379–2380/TCP
+
+Core services & ranges:
+ . NodePort range: 30000–32767/TCP
+ . CoreDNS: 53/TCP,UDP
+ . Metrics-server: 4443/TCP (webhook/secure)
+ . Ingress NGINX (inside cluster): often 80/443 on the controller Pod; externally you’ll use:
+	> LoadBalancer Service: cloud LB public port(s) (commonly 80/443)
+	> NodePort: chosen NodePorts (if not using LB)
+
+1. What is a Kubernetes Service?
+
+Imagine Swiggy or Zomato — there are thousands of restaurants (just like there can be hundreds of pods in Kubernetes), and each restaurant’s location (pod IP) changes often.
+If you as a customer had to directly remember each restaurant’s changing address, you’d give up quickly.
+
+This is where the Service comes in.
+In Kubernetes:
+ > Pods are temporary — they can die, restart, and get new IPs.
+ > Services are permanent — they have a fixed “contact number” or “front desk” that always forwards your request to the right pod(s).
+
+So, a Service is like Swiggy’s main system that knows:
+ . Which restaurants (pods) are available
+ . Where they are located right now
+ . How to forward the customer’s order (request) to the right restaurant (pod)
+
+2. Types of Kubernetes Services and How They Work in the Background
+A. ClusterIP (Default)
+📍 Analogy: This is like the internal restaurant kitchen network inside Swiggy — the chefs talk to delivery staff inside the same restaurant, but customers can’t directly access it.
+
+Real background in Kubernetes:
+ . Creates a virtual IP address (stable) that is only reachable inside the cluster.
+ . Other pods inside the cluster can call this Service to communicate.
+ . Example: Your backend API talking to the database — no public access needed.
+
+Flow in real-time:
+1. A pod wants to talk to another pod (like the backend API calling the DB).
+2. Instead of searching for the DB pod’s current IP, it calls the ClusterIP.
+3. Kubernetes Service forwards the request to one of the DB pods using kube-proxy.
+4. All this happens only inside the cluster — no outside user can connect.
+
+B. NodePort
+📍 Analogy: This is like Swiggy giving a special phone number for customers to directly call a restaurant, but only through certain fixed entry points (nodes).
+
+Real background in Kubernetes:
+ . Exposes the Service on a specific port on every node in the cluster.
+ . You can access it via <NodeIP>:<NodePort> from outside the cluster.
+ . Usually for testing or small setups (not for large-scale public access).
+
+Flow in real-time:
+1. Kubernetes opens the same port (like 32000) on all worker nodes.
+2. You connect to that port from outside, it forwards to the right pod.
+3. It’s like calling any branch of Swiggy’s office and still getting connected to your restaurant.
+
+C. LoadBalancer
+📍 Analogy: This is Swiggy/Zomato’s public call center number — no matter which city you’re in, you dial the same number, and they automatically send your order to the nearest restaurant.
+
+Real background in Kubernetes:
+ . Integrates with cloud provider load balancers (AWS ELB, Azure LB, GCP LB).
+ . Gives you a public IP so users on the internet can access your app.
+ . Balances traffic across multiple pods and nodes.
+
+Flow in real-time:
+1. You request the application using the public IP/DNS given by the cloud LB.
+2. The load balancer routes your request to a healthy node.
+3. Kubernetes Service inside the node sends it to the right pod.
+4. If one pod dies, requests are automatically sent to others.
+
+D. Ingress (Special case, not exactly a Service but works with them)
+📍 Analogy: Instead of just one public number, imagine Swiggy having one number for all restaurants, but you press 1 for pizza, 2 for biryani, 3 for desserts. The system routes you to the right place.
+
+Real background in Kubernetes:
+ . Works with an Ingress Controller (like Nginx, Traefik).
+ . Allows HTTP/HTTPS routing based on domain name or path.
+ . Lets multiple apps share the same public IP but be reached differently.
+ . Example: pizza.swiggy.com → Pizza service; biryani.swiggy.com → Biryani service.
+
+Flow in real-time:
+1. The Ingress Controller receives the HTTP request.
+2. Checks the domain/path.
+3. Sends it to the correct Kubernetes Service, which then goes to the right pod.
+
+Simple Story: How Your Click Reaches the Right Pod
+==================================================
+
+Think of it like sending a letter to the right house in a big city.
+
+1. Browser asks for the address
+ > You type a website name.
+ > The internet’s “phonebook” (DNS) finds the exact street address (IP).
+
+2. Traffic policeman at the city gate
+ > The address points to a big gate (Load Balancer).
+ > The gate decides which entrance road the request should take into the city.
+
+3. Gate sends to the right neighborhood
+ > An Ingress Controller or Service acts like a postal sorting office — it looks at the label (rules) and sends your letter to the correct neighborhood (application).
+
+4. Neighborhood delivery truck
+ > A helper called kube-proxy picks a house (Pod) in that neighborhood.
+ > It keeps a list of all active houses and chooses one fairly.
+
+5. Letter reaches the house
+ > The road system (CNI network) makes sure your letter reaches the exact house’s front door (Pod IP).
+ > The person inside (your app) opens the letter and replies.
+
+Step Diagram
+-------------
+
+[ Your Browser ]
+      |
+ (1) DNS → Finds IP
+      |
+ (2) Load Balancer → Decides entry
+      |
+ (3) Ingress/Service → Picks right app
+      |
+ (4) kube-proxy → Picks a Pod
+      |
+ (5) CNI Network → Delivers to Pod
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

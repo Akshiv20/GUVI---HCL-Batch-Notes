@@ -1,0 +1,605 @@
+Day 36 - Kubernetes:
+====================
+Kubernetes Cluster Setup:
+-------------------------
+There are different ways to create Kubernetes clusters.
+
+ > Local development
+Common options include:
+ . Minikube
+ . Kind
+ . Docker Desktop Kubernetes
+
+ > Cloud environments
+Examples:
+ . Amazon EKS
+ . Azure AKS
+ . Google GKE
+
+ > Production/self-managed
+Organizations can also deploy Kubernetes themselves using tools such as:
+ . kubeadm
+ . Cluster API
+ . Other Kubernetes deployment platforms
+For training purposes, Minikube is useful because it provides a relatively simple local Kubernetes environment.
+
+What is Minikube?:
+------------------
+Minikube is a tool that runs a Kubernetes cluster locally.
+
+It is primarily used for:
+ . Learning Kubernetes
+ . Development
+ . Testing
+ . Experimentation
+
+Instead of requiring several physical/cloud machines, you can run a Kubernetes environment on your computer.
+
+Minikube Architecture — Single Node:
+------------------------------------
+A basic Minikube setup can run Kubernetes in a single-node cluster.
+
+Conceptually:
+Your Computer
+│
+└── Minikube
+     │
+     └── Kubernetes Node
+          │
+          ├── Control Plane Components
+          ├── kubelet
+          ├── container runtime
+          ├── kube-proxy
+          └── Pods
+This is different from a typical production architecture.
+
+Production:
+Control Plane
+     |
+     +---- Worker 1
+     +---- Worker 2
+     +---- Worker 3
+
+Basic Minikube
+Single Node
+     |
+     +---- Control Plane
+     +---- Workloads
+Therefore, Minikube is excellent for learning but should not be treated as a production architecture.
+
+kubectl:
+--------
+kubectl is the command-line client used to communicate with a Kubernetes cluster.
+
+Pronounced approximately:
+kube-control
+
+or commonly just:
+kubectl
+
+It sends requests to the Kubernetes API Server.
+
+User
+  |
+kubectl
+  |
+  ↓
+API Server
+  |
+Kubernetes Cluster
+
+Basic kubectl Command Concepts:
+-------------------------------
+You don't need to memorize commands yet. Understand the command structure.
+
+A typical command looks like:
+kubectl <verb> <resource>
+
+Examples:
+kubectl get pods
+Means:
+Show Pods.
+
+kubectl get nodes
+Means:
+Show nodes.
+
+kubectl get services
+Means:
+Show Services.
+
+Common kubectl verbs
+| Command    | Purpose                              |
+| ---------- | ------------------------------------ |
+| `get`      | Retrieve resources                   |
+| `describe` | Show detailed resource information   |
+| `create`   | Create a resource                    |
+| `apply`    | Apply desired configuration          |
+| `delete`   | Delete resources                     |
+| `logs`     | View container logs                  |
+| `exec`     | Execute a command inside a container |
+| `scale`    | Change number of replicas            |
+
+Examples
+kubectl get pods
+kubectl describe pod backend
+kubectl get nodes
+kubectl get deployments
+
+The important concept is:
+kubectl is a client; the API Server is the Kubernetes control endpoint it communicates with.
+
+Kubernetes Resources:
+---------------------
+Kubernetes manages different types of resources, also called objects in many contexts.
+
+Examples:
+Pod
+Deployment
+Service
+ConfigMap
+Secret
+Namespace
+Job
+CronJob
+Ingress
+Each resource represents something Kubernetes needs to manage.
+
+For example:
+Deployment
+    ↓
+Manages Pods
+
+Service
+    ↓
+Provides stable network access
+
+ConfigMap
+    ↓
+Stores configuration
+
+Secret
+    ↓
+Stores sensitive configuration data
+
+YAML Manifest Files:
+--------------------
+Kubernetes configurations are commonly written using YAML.
+
+YAML stands for:
+YAML Ain't Markup Language
+
+A YAML file describes the desired configuration of a Kubernetes resource.
+
+Example:
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: backend
+
+spec:
+  replicas: 3
+
+This basically says:
+API version → apps/v1
+Resource → Deployment
+Name → backend
+Desired replicas → 3
+
+Important YAML Kubernetes Fields:
+---------------------------------
+Most Kubernetes manifests contain these major fields:
+apiVersion
+kind
+metadata
+spec
+
+ . apiVersion
+Specifies the Kubernetes API version used by the resource.
+
+Example:
+apiVersion: apps/v1
+
+ . kind
+Defines the resource type.
+
+Example:
+kind: Deployment
+
+ . metadata
+Contains identifying information.
+
+Example:
+metadata:
+  name: backend
+
+ . spec
+Defines the desired configuration.
+
+Example:
+spec:
+  replicas: 3
+
+So conceptually:
+apiVersion → Which API version?
+kind       → What resource?
+metadata   → What is its identity?
+spec       → What do I want?
+
+Kubernetes Namespaces:
+----------------------
+A Namespace is a logical folder inside a Kubernetes cluster.
+It allows you to organize and separate resources.
+
+Imagine one cluster hosting several teams:
+Kubernetes Cluster
+│
+├── development
+│    ├── frontend
+│    └── backend
+│
+├── testing
+│    ├── frontend
+│    └── backend
+│
+└── production
+     ├── frontend
+     └── backend
+
+These can be separated using namespaces.
+
+Why use Namespaces?:
+--------------------
+Namespaces are useful for:
+
+1. Organization
+Separate resources by environment or team.
+
+dev
+test
+prod
+
+2. Access control
+Different users can receive different permissions in different namespaces.
+
+3. Resource management
+You can apply resource limits and quotas.
+
+Declarative vs Imperative Deployment:
+-------------------------------------
+This is one of the most important Kubernetes concepts.
+
+There are two major approaches to managing Kubernetes resources:
+Imperative
+Declarative
+
+ > Imperative Approach:
+In an imperative approach, you tell Kubernetes what action to perform.
+
+Example concept:
+Create a Deployment
+Create 3 replicas
+Expose the application
+
+The focus is:
+Do this action.
+
+You explicitly tell Kubernetes what operations to perform.
+
+For example, conceptually:
+kubectl create ...
+
+ > Declarative Approach:
+In a declarative approach, you describe the desired final state.
+
+For example:
+spec:
+  replicas: 3
+
+You are saying:
+"I want three replicas."
+
+You aren't telling Kubernetes every individual step required to reach three replicas.
+Kubernetes determines what actions are necessary.
+
+Important Kubernetes Terminology:
+---------------------------------
+| Term                   | Simple technical meaning                             |
+| ---------------------- | ---------------------------------------------------- |
+| **Cluster**            | Collection of machines running Kubernetes            |
+| **Control Plane**      | Components responsible for managing the cluster      |
+| **Worker Node**        | Machine that runs application workloads              |
+| **Node**               | A machine participating in the Kubernetes cluster    |
+| **Pod**                | Smallest deployable unit in Kubernetes               |
+| **Container**          | Application process packaged with dependencies       |
+| **kube-apiserver**     | Central Kubernetes API endpoint                      |
+| **kube-scheduler**     | Selects nodes for newly created Pods                 |
+| **Controller Manager** | Runs controllers that maintain desired state         |
+| **etcd**               | Distributed key-value store containing cluster state |
+| **kubelet**            | Agent running on each node that manages Pods         |
+| **kube-proxy**         | Handles network-related functionality on nodes       |
+| **Container Runtime**  | Software that runs containers                        |
+| **kubectl**            | CLI used to interact with Kubernetes                 |
+| **Manifest**           | YAML/JSON definition of a Kubernetes resource        |
+| **Resource/Object**    | Entity managed by Kubernetes                         |
+| **Namespace**          | Logical isolation/organization boundary              |
+| **Desired State**      | Configuration you want Kubernetes to maintain        |
+| **Current State**      | Actual state of the cluster                          |
+| **Declarative**        | Define the desired final state                       |
+| **Imperative**         | Explicitly instruct an action                        |
+| **Scaling**            | Increasing or decreasing workload capacity           |
+| **Self-healing**       | Automatically recovering failed workloads            |
+| **Scheduling**         | Selecting a node where a Pod should run              |
+
+Putting Everything Together:
+----------------------------
+Consider a real application:
+Online Banking Application
+
+You want:
+Frontend = 3 replicas
+Backend  = 5 replicas
+
+You define this using Kubernetes manifests.
+
+The overall flow becomes:
+Developer
+    |
+    | kubectl
+    ↓
+API Server
+    |
+    ├──────────────→ etcd
+    |                  |
+    |             Cluster State
+    |
+    ↓
+Controller Manager
+    |
+    | Desired State
+    |
+    ↓
+Scheduler
+    |
+    | Select worker nodes
+    |
+    ↓
++-----------------------------+
+|       Worker Nodes          |
+|                             |
+| Node 1 → Backend Pods       |
+| Node 2 → Backend Pods       |
+| Node 3 → Frontend Pods      |
++-----------------------------+
+    |
+    ↓
+kubelet
+    |
+    ↓
+Container Runtime
+    |
+    ↓
+Containers
+
+If one backend Pod crashes:
+Backend Pods
+Before:
+5
+
+       ↓
+One Pod crashes
+
+Current:
+4
+
+       ↓
+Controller detects mismatch
+
+Desired:
+5
+Current:
+4
+
+       ↓
+Replacement Pod created
+
+Final:
+5
+
+That is Kubernetes self-healing through reconciliation.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

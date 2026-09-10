@@ -1,0 +1,828 @@
+Day 39 - Kubernetes:
+====================
+Why Do We Need Configuration Management?
+----------------------------------------
+Imagine you have an application:
+Online Shopping Application
+
+The application needs some configuration:
+Application name
+Database host
+Database port
+Application environment
+Log level
+API URL
+
+You could put these values directly inside the application code:
+database-host = mysql.example.com
+database-port = 3306
+environment = production
+But this creates a problem.
+
+Your application may run in:
+Development
+Testing
+Staging
+Production
+Each environment may have different values.
+
+For example:
+Development
+DB_HOST = dev-db
+Production
+DB_HOST = prod-db
+
+You don't want to change your application code every time the environment changes.
+That's why Kubernetes provides ConfigMaps and Secrets.
+
+ConfigMap:
+----------
+A ConfigMap stores non-sensitive configuration data.
+
+Simple definition:
+ConfigMap = a place to store application configuration that is not secret.
+
+Examples:
+Application environment = production
+Log level = INFO
+Backend URL = http://backend-service
+Database port = 3306
+
+These aren't normally considered secrets.
+
+ConfigMap Example: (configmap.yaml)
+------------------
+apiVersion: v1
+kind: ConfigMap
+
+metadata:
+  name: app-config
+
+data:
+  APP_ENV: "production"
+  LOG_LEVEL: "info"
+  BACKEND_URL: "http://backend-service"
+
+ . kind
+kind: ConfigMap
+
+means:
+"I am creating a ConfigMap."
+
+ . Name
+name: app-config
+
+The ConfigMap is called:
+app-config
+
+ . data
+data:
+contains the configuration values.
+
+For example:
+APP_ENV
+LOG_LEVEL
+BACKEND_URL
+
+So we have:
+ConfigMap: app-config
+
+APP_ENV       = production
+LOG_LEVEL     = info
+BACKEND_URL   = http://backend-service
+
+ > ConfigMap Does Not Automatically Go Inside the Pod:
+------------------------------------------------------
+Creating:
+ConfigMap
+doesn't automatically give the Pod those values.
+
+You need to tell the Pod:
+"Take these values from this ConfigMap." using environment variables.
+
+ > Inject ConfigMap Values into a Pod: (pod.yaml)
+--------------------------------------
+apiVersion: v1
+kind: Pod
+
+metadata:
+  name: web-pod
+
+spec:
+  containers:
+    - name: web-container
+      image: nginx
+
+      env:
+        - name: APP_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: APP_ENV
+
+        - name: LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: LOG_LEVEL
+
+Flow:
+ConfigMap
+    |
+    | APP_ENV = production
+    | LOG_LEVEL = info
+    ↓
+Pod
+    |
+    ↓
+Container
+    |
+    ↓
+Environment Variables
+
+Inside the container, the application can access:
+APP_ENV
+LOG_LEVEL
+
+Why Use ConfigMap?:
+-------------------
+Without ConfigMap:
+Application
+   ↓
+Configuration hard-coded inside application
+
+With ConfigMap:
+Application
+   ↑
+Configuration
+   ↑
+ConfigMap
+
+Now you can change configuration without rebuilding the application image.
+
+ > For example:
+Same Docker image
+Development → dev configuration
+Testing     → test configuration
+Production  → production configuration
+
+This is one of the main benefits.
+
+Secrets:
+--------
+Now imagine the application needs:
+Database password
+API token
+Authentication credential
+Private key
+
+These are sensitive values.
+We shouldn't put them into a normal ConfigMap.
+
+Instead:
+Secret = Kubernetes object designed to hold sensitive configuration data.
+
+The basic flow is:
+Secret
+   ↓
+Pod
+   ↓
+Environment Variable
+   ↓
+Application
+
+Secret Example: (secret.yaml)
+---------------
+Example:
+
+apiVersion: v1
+kind: Secret
+
+metadata:
+  name: db-secret
+
+type: Opaque
+
+stringData:
+  DB_USERNAME: "admin"
+  DB_PASSWORD: "MyPassword123"
+
+ConfigMap vs Secret:
+--------------------
+| ConfigMap            | Secret                  |
+| -------------------- | ----------------------- |
+| Normal configuration | Sensitive configuration |
+| Log level            | Password                |
+| Application mode     | API token               |
+| Backend URL          | Credentials             |
+| Database port        | Private key             |
+
+ConfigMap
+"What does the application need to know?"
+
+Secret
+"What sensitive information does the application need?"
+
+Kubernetes Secrets provide a structured way to handle sensitive data, but you still need proper cluster security, RBAC, encryption-at-rest configuration, and careful access control.
+
+[Refer to the Kubernetes Word-3 for more references on the above concept]
+
+Inject Secret into a Pod: (pod.yaml)
+-------------------------
+apiVersion: v1
+kind: Pod
+
+metadata:
+  name: database-client
+
+spec:
+  containers:
+    - name: app
+      image: nginx
+
+      env:
+        - name: DB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: DB_USERNAME
+
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: DB_PASSWORD
+
+The flow becomes:
+                ConfigMap
+                    |
+                    ↓
+              Normal Config
+                    |
+                    ↓
+                    Pod
+                    ↑
+                    |
+              Sensitive Config
+                    |
+                    ↑
+                  Secret
+
+Inside the container:
+DB_USERNAME = admin
+DB_PASSWORD = MyPassword123
+
+The application can use those environment variables.
+
+Environment Variables in Pods:
+------------------------------
+An environment variable is simply a named value available to a running application.
+
+For example:
+APP_ENV=production
+LOG_LEVEL=info
+DB_HOST=mysql-service
+DB_PORT=3306
+
+The application can read these values while it is running.
+
+Three Ways to Provide Configuration:
+------------------------------------
+ > Direct value
+env:
+  - name: APP_ENV
+    value: "production"
+
+Flow:
+-----
+YAML
+ ↓
+Pod
+ ↓
+Environment Variable
+
+ > From ConfigMap
+env:
+  - name: APP_ENV
+    valueFrom:
+      configMapKeyRef:
+        name: app-config
+        key: APP_ENV
+
+Flow:
+-----
+ConfigMap
+ ↓
+Pod
+ ↓
+Environment Variable
+
+ > From Secret
+env:
+  - name: DB_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: db-secret
+        key: DB_PASSWORD
+
+Flow:
+-----
+Secret
+ ↓
+Pod
+ ↓
+Environment Variable
+
+[*** For Scaling, go through the autoscaling doc to cover that topic]
+
+Stateful vs Stateless Applications:
+-----------------------------------
+What Is a Stateless Application?
+A stateless application does not depend on data stored inside a particular Pod to continue working.
+
+For example:
+Frontend Web Server
+
+Suppose we have:
+Frontend Pod 1
+Frontend Pod 2
+Frontend Pod 3
+
+Any request can go to any Pod.
+
+User 1 → Pod 1
+User 2 → Pod 2
+User 3 → Pod 3
+
+If Pod 2 disappears:
+Pod 2 ❌
+
+Kubernetes can create another Pod:
+Pod 4
+
+The application can continue.
+That's a typical stateless architecture.
+
+Stateless Example:
+                    Service
+                       |
+          ┌─────────┼─────────┐
+          ↓            ↓            ↓
+       Pod 1         Pod 2         Pod 3
+          |            |            |
+          └─────────┼─────────┘
+                       |
+                  External DB
+
+The Pods don't need to permanently store important data themselves.
+
+What Is a Stateful Application?
+A stateful application needs persistent data or a stable identity.
+
+Typical examples:
+MySQL
+PostgreSQL
+MongoDB
+Kafka
+
+For example:
+MySQL Pod
+   ↓
+Customer database
+
+Stateful Application Flow
+             Stateful Application
+                     |
+                     ↓
+                    Pod
+                     |
+                     ↓
+                    PVC
+                     |
+                     ↓
+                    PV
+                     |
+                     ↓
+             Persistent Storage
+
+This connects directly with the previous Kubernetes topic.
+
+A very simple rule:
+Frontend/API → usually stateless
+Database → usually stateful
+
+Easy Hands-On Practice:
+-----------------------
+1. Create ConfigMap
+
+apiVersion: v1
+kind: ConfigMap
+
+metadata:
+  name: app-config
+
+data:
+  APP_ENV: "training"
+  LOG_LEVEL: "info"
+
+Apply:
+kubectl apply -f configmap.yaml
+
+Check:
+kubectl get configmap
+
+You should see:
+NAME         DATA
+app-config   2
+
+2. Create Secret
+
+apiVersion: v1
+kind: Secret
+
+metadata:
+  name: app-secret
+
+type: Opaque
+
+stringData:
+  APP_USERNAME: "admin"
+  APP_PASSWORD: "training123"
+
+Apply:
+kubectl apply -f secret.yaml
+
+Check:
+kubectl get secrets
+
+3. Create Deployment
+Now connect the ConfigMap and Secret to the Pod.
+
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: demo-app
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: demo
+
+  template:
+    metadata:
+      labels:
+        app: demo
+
+    spec:
+      containers:
+        - name: nginx
+          image: nginx
+
+          env:
+            - name: APP_ENV
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: APP_ENV
+
+            - name: LOG_LEVEL
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: LOG_LEVEL
+
+            - name: APP_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: APP_USERNAME
+
+            - name: APP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: APP_PASSWORD
+
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+
+Apply it:
+kubectl apply -f deployment.yaml
+
+Check:
+kubectl get pods
+
+You should have:
+demo-app-xxxxx   Running
+demo-app-yyyyy   Running
+
+4. Verify Environment Variables
+Choose one Pod:
+kubectl get pods
+
+Then:
+kubectl exec -it <pod-name> -- env
+
+Look for:
+APP_ENV=training
+LOG_LEVEL=info
+APP_USERNAME=admin
+APP_PASSWORD=training123
+
+This demonstrates:
+ConfigMap
+    ↓
+Environment Variables
+    ↓
+Pod
+
+Secret
+    ↓
+Environment Variables
+    ↓
+Pod
+
+5. Configure HPA
+
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+
+metadata:
+  name: demo-hpa
+
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: demo-app
+
+  minReplicas: 2
+  maxReplicas: 5
+
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 60
+
+Apply:
+kubectl apply -f hpa.yaml
+
+Check:
+kubectl get hpa
+
+You might see something similar to:
+NAME       TARGETS   MINPODS   MAXPODS   REPLICAS
+demo-hpa   5%/60%    2         5         2
+
+The exact values will vary.
+
+6. Check Resource Usage
+
+First:
+kubectl top pods
+
+You might see:
+NAME             CPU   MEMORY
+demo-app-abc     5m    20Mi
+demo-app-def     4m    19Mi
+
+This tells you the current resource usage.
+
+Then:
+kubectl get hpa
+
+You can see what the HPA is currently calculating.
+
+[***Important
+
+If:
+kubectl top pods
+doesn't work, your cluster probably doesn't have Metrics Server available/configured.
+
+For Minikube, this commonly means enabling the Metrics Server addon:
+minikube addons enable metrics-server
+
+Then give it a little time and retry:
+kubectl top pods
+]
+
+Terminologies:
+--------------
+| Term                     | Simple meaning                                                                   |
+| ------------------------ | -------------------------------------------------------------------------------- |
+| **ConfigMap**            | Stores normal application configuration                                          |
+| **Secret**               | Stores sensitive configuration                                                   |
+| **Environment Variable** | A named value available to the application inside the container                  |
+| **Resource Request**     | Resource amount Kubernetes uses when scheduling the Pod                          |
+| **Resource Limit**       | Maximum resource boundary configured for the container                           |
+| **HPA**                  | Automatically increases/decreases Pod replicas                                   |
+| **Metrics Server**       | Provides CPU/memory metrics used by components such as HPA                       |
+| **Horizontal Scaling**   | Add/remove Pods                                                                  |
+| **Vertical Scaling**     | Give a Pod more/less CPU or memory                                               |
+| **Stateless**            | Application can be replaced without needing its Pod's local state                |
+| **Stateful**             | Application needs persistent data and/or stable identity                         |
+| **Deployment**           | Manages stateless application replicas and updates                               |
+| **StatefulSet**          | Designed for workloads requiring stable identity and persistent storage patterns |
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

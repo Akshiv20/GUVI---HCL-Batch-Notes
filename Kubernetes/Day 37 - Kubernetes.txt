@@ -1,0 +1,2042 @@
+Day 37 - Kubernetes:
+====================
+What Are Pods?:
+---------------
+A Pod is the smallest deployable unit in Kubernetes.
+A Pod runs one or more containers that are managed together.
+
+The most common situation is:
+Pod
+└── Application Container
+
+For example:
+Pod: backend-pod
+└── backend-container
+
+But a Pod can also contain multiple containers:
+Pod
+├── Application Container
+└── Sidecar Container
+
+A Pod is not the same thing as a container.
+
+Container
+    ↓
+Runs an application process
+
+Pod
+    ↓
+Provides the execution environment for one or more containers
+
+A Pod provides things such as:
+ . Shared network namespace
+ . Pod IP address
+ . Shared storage volumes
+ . Container lifecycle management
+
+Real-Time Example — E-Commerce Application:
+-------------------------------------------
+Suppose an e-commerce application has:
+Frontend
+Backend
+Payment
+
+You might initially have:
+Frontend Pod
+└── Frontend Container
+
+Backend Pod
+└── Backend Container
+
+Payment Pod
+└── Payment Container
+
+Each Pod has its own IP address.
+
+For example:
+Frontend Pod → 10.244.1.10
+Backend Pod  → 10.244.1.11
+Payment Pod  → 10.244.1.12
+
+However, these IP addresses are not normally used directly by users because Pods are temporary and their IP addresses can change.
+That's where Services become important later.
+
+Pod Lifecycle:
+--------------
+A Pod does not simply have a permanent running state.
+Kubernetes manages a Pod through different lifecycle phases.
+
+The major Pod phases are:
+ . Pending
+ . Running
+ . Succeeded
+ . Failed
+ . Unknown
+
+ > Pending
+The Pod has been accepted by Kubernetes but isn't running yet.
+
+Possible reasons:
+ . Image is being downloaded
+ . No suitable node is available
+ . Required resources aren't available
+ . Scheduling hasn't completed
+
+Example:
+Pod
+Status: Pending
+
+ > Running
+The Pod has been assigned to a node and at least one container is running or starting.
+
+Pod
+Status: Running
+
+ > Succeeded
+The containers completed successfully and will not be restarted.
+This is common with Jobs.
+
+Example:
+Data Processing Job
+       ↓
+Process 1 million records
+       ↓
+Completed
+       ↓
+Succeeded
+
+ > Failed
+The Pod's containers terminated and at least one container failed.
+
+Example:
+Application starts
+       ↓
+Application crashes
+       ↓
+Container exits
+       ↓
+Pod may ultimately be marked Failed
+
+ > Unknown
+Kubernetes cannot determine the current state of the Pod, often because it cannot communicate properly with the node.
+
+Pod Lifecycle — Practical Flow:
+-------------------------------
+A typical application Pod might go through:
+
+Pod Created
+     ↓
+Pending
+     ↓
+Scheduled to Node
+     ↓
+Container Image Pulled
+     ↓
+Container Started
+     ↓
+Running
+     ↓
+Application Stops
+     ↓
+Succeeded / Failed
+
+Multi-Container Pods:
+---------------------
+A Pod can contain multiple containers.
+
+For example:
+Pod
+├── Application Container
+└── Logging Sidecar
+
+Both containers:
+ . Run in the same Pod
+ . Share the same network namespace
+ . Can communicate through localhost
+ . Can share mounted volumes
+
+Real-time scenario:
+-------------------
+Suppose your application generates log files.
+
+You could have:
+Pod
+├── Web Application
+│     └── Writes logs
+│
+└── Log Collector
+      └── Reads and forwards logs
+
+The second container is often called a sidecar container.
+
+Important rule:
+---------------
+Don't put unrelated applications into the same Pod just because Kubernetes allows multiple containers.
+
+Usually:
+One tightly coupled application
+        ↓
+One Pod
+
+Multiple containers are appropriate when the containers need to work closely together.
+
+ReplicaSets:
+------------
+A ReplicaSet ensures that a specified number of identical Pod replicas are running.
+
+Suppose you want:
+Backend replicas = 3
+
+The ReplicaSet tries to maintain:
+Backend Pod 1
+Backend Pod 2
+Backend Pod 3
+
+If one disappears:
+Before:
+Pod 1
+Pod 2
+Pod 3
+
+Pod 2 crashes
+
+Pod 1
+Pod 3
+
+ReplicaSet detects:
+Desired = 3
+Current = 2
+
+and creates another Pod:
+Pod 1
+Pod 3
+Pod 4
+
+The important idea is:
+ReplicaSet maintains the desired number of Pod replicas.
+
+Deployment in Kubernetes:
+-------------------------
+A Deployment provides a higher-level way to manage application Pods.
+You normally don't create ReplicaSets directly for ordinary application deployments.
+
+Instead:
+Deployment
+    ↓
+ReplicaSet
+    ↓
+Pods
+    ↓
+Containers
+
+For example:
+Deployment
+backend
+replicas: 3
+       ↓
+ReplicaSet
+       ↓
+┌──────┼──────┐
+↓        ↓        ↓
+Pod     Pod      Pod 
+The Deployment manages the ReplicaSet, and the ReplicaSet manages the Pods.
+
+Why Do We Need Deployments?:
+----------------------------
+Deployments provide capabilities such as:
+ . Creating application replicas
+ . Scaling
+ . Rolling updates
+ . Rollbacks
+ . Maintaining desired state
+ . Managing application versions
+
+For example:
+backend:v1
+
+You want to move to:
+backend:v2
+
+Instead of deleting all old Pods and starting new ones at once, Kubernetes can perform a rolling update.
+
+Deployment YAML Example:
+------------------------
+A simplified Deployment manifest:
+
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: backend
+
+spec:
+  replicas: 3
+
+  selector:
+    matchLabels:
+      app: backend
+
+  template:
+    metadata:
+      labels:
+        app: backend
+
+    spec:
+      containers:
+        - name: backend
+          image: nginx:1.27
+          ports:
+            - containerPort: 80
+
+Let's understand the important parts.
+ > kind
+kind: Deployment
+
+This tells Kubernetes:
+Create a Deployment.
+
+ > replicas
+replicas: 3
+
+This means:
+Maintain three Pods.
+
+ > selector
+selector:
+  matchLabels:
+    app: backend
+
+This tells the Deployment which Pods belong to it.
+
+ > template
+Defines how new Pods should be created.
+
+ > containers
+Defines the container that should run inside the Pod.
+
+Rolling Updates:
+----------------
+Suppose you currently have:
+
+Version 1
+Pod 1 → v1
+Pod 2 → v1
+Pod 3 → v1
+
+You release:
+Version 2
+
+A Deployment can gradually replace the old Pods.
+
+Conceptually:
+v1  v1  v1
+ ↓
+v2  v1  v1
+ ↓
+v2  v2  v1
+ ↓
+v2  v2  v2
+
+This is a rolling update.
+The advantage is that the application can remain available while the new version is being deployed.
+
+Rollback:
+---------
+Suppose v2 contains a serious bug.
+You can roll back the Deployment to a previous revision.
+
+Conceptually:
+v1
+ ↓
+v2
+ ↓
+Problem discovered
+ ↓
+Rollback
+ ↓
+v1
+
+Kubernetes Deployment history can be used to return to a previous version.
+
+Useful command:
+kubectl rollout history deployment backend
+
+Rollback:
+kubectl rollout undo deployment backend
+
+The important concept is:
+Rolling update moves forward; rollback moves back to a previous Deployment revision.
+
+Scaling Deployments:
+--------------------
+Suppose your backend currently has:
+3 Pods
+
+Traffic increases.
+
+You may increase it to:
+10 Pods
+
+Conceptually:
+3 replicas
+     ↓
+10 replicas
+
+An imperative command can be:
+kubectl scale deployment backend --replicas=10
+
+Kubernetes then works toward:
+Desired = 10
+Current = 3
+
+and creates additional Pods.
+
+Useful kubectl Commands:
+------------------------
+These commands are useful for understanding and inspecting Pods and Deployments.
+
+Run a simple Pod
+kubectl run nginx --image=nginx
+
+This creates a Pod directly.
+Important: kubectl run is useful for quick testing, but production applications are normally managed using resources such as Deployments and YAML manifests.
+
+List Pods
+kubectl get pods
+
+Example:
+NAME       READY   STATUS    RESTARTS
+nginx      1/1     Running   0
+
+Detailed Pod information
+kubectl describe pod nginx
+
+This provides information such as:
+ . Node
+ . IP address
+ . Container
+ . Events
+ . Volumes
+ . Conditions
+ . Image
+ . Resource information
+
+ > View application logs
+
+kubectl logs nginx
+This retrieves logs from the container.
+
+For a multi-container Pod, you may need to specify the container:
+kubectl logs <pod-name> -c <container-name>
+
+Kubernetes Networking Basics:
+-----------------------------
+Now we reach one of the most important Kubernetes concepts:
+How do Pods communicate with each other and how do users access applications?
+
+A Pod has an IP address because the Pod needs to participate in the Kubernetes network. A Service exists because we need a stable way to reach those Pods.
+These are two different purposes.
+
+Pods normally receive their own IP addresses.
+
+First: Why Does a Pod Need an IP Address?
+-----------------------------------------
+Imagine you have two Pods:
+Frontend Pod
+IP: 10.10.1.5
+Backend Pod
+IP: 10.10.1.6
+
+The frontend needs to communicate with the backend.
+Without networking, they cannot communicate.
+
+So the Pod needs a network identity:
+
+Frontend Pod
+     |
+     | 10.10.1.5
+     |
+     ↓
+Backend Pod
+     |
+     | 10.10.1.6
+
+The Pod IP allows network communication.
+
+For example:
+Frontend → 10.10.1.6 → Backend
+
+So Pod IP is not useless just because we don't normally give it to users.
+It is used for actual network communication inside the cluster.
+
+ > Why Pod IP Alone Is Not Enough:
+----------------------------------
+Here is the important problem.
+A Pod is temporary.
+
+Suppose:
+backend-pod-1
+IP: 10.10.1.6
+
+Your frontend communicates with:
+10.10.1.6
+Everything works.
+
+Now the backend Pod crashes.
+
+Kubernetes creates a replacement:
+backend-pod-2
+IP: 10.10.1.20
+
+Notice what happened:
+Old Pod
+10.10.1.6
+    ↓
+   ❌
+New Pod
+10.10.1.20
+
+The backend application still exists.
+But its IP changed.
+
+If the frontend was configured with:
+10.10.1.6
+
+it is now trying to contact the old Pod.
+That's the problem.
+
+Therefore Kubernetes provides:
+Services - A Service provides a stable network endpoint that provides access to a group of Pods.
+
+Think of it as:
+A fixed address in front of Pods.
+
+ > For example:
+Backend Pods:
+Pod 1 → 10.10.1.10
+Pod 2 → 10.10.1.11
+Pod 3 → 10.10.1.12
+
+We create:
+backend-service
+
+Now the frontend communicates with:
+backend-service
+
+instead of worrying about:
+10.10.1.10
+10.10.1.11
+10.10.1.12
+
+The Service takes care of reaching the appropriate Pod.
+
+             Service
+                |
+       ┌────────┼────────┐
+       ↓           ↓           ↓
+     Pod 1       Pod 2       Pod 3
+
+The Most Important Flow
+
+              FRONTEND
+                  |
+                  |
+                  ↓
+          backend-service
+          "I want backend"
+                  |
+          ┌───────┼───────┐
+          ↓          ↓          ↓
+       Backend    Backend    Backend
+        Pod 1      Pod 2      Pod 3
+
+The frontend does not need to know which backend Pod is currently running.
+
+It simply says:
+"Give me the backend."
+
+The Service handles the rest.
+The Pods can change, but the Service provides a stable endpoint.
+
+ > Where Does the Service Know Which Pods to Send Traffic To?
+-------------------------------------------------------------
+This is where Service Selectors come in.
+Suppose our Pods have this label:
+labels:
+  app: backend
+
+The Service has:
+selector:
+  app: backend
+
+This means:
+"Find all Pods that have app=backend."
+
+So Kubernetes effectively creates this relationship:
+Service
+   |
+   | selector: app=backend
+   |
+   +----------+----------+
+   ↓          ↓          ↓
+ Pod 1      Pod 2      Pod 3
+app=backend app=backend app=backend
+
+This is why labels and selectors are so important.
+
+ > Now Let's Understand the YAML Properly:
+------------------------------------------
+Let's break it into 2 parts:
+
+ . Part A — Pods
+Suppose we have Pods with:
+
+metadata:
+  labels:
+    app: backend
+
+The important thing here is:
+app = backend
+This is simply a label attached to the Pod.
+
+ . Part B — Service
+Now create a Service:
+
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: backend-service
+
+spec:
+  selector:
+    app: backend
+
+  ports:
+    - port: 80
+      targetPort: 8080
+
+ > kind
+kind: Service
+
+Means:
+"I want to create a Kubernetes Service."
+
+ > name
+name: backend-service
+
+Means:
+"Give this Service the name backend-service."
+
+ > selector
+selector:
+  app: backend
+
+Means:
+"Send traffic to Pods having the label app=backend."
+
+ > port
+port: 80
+
+Means:
+"The Service listens on port 80."
+
+ > targetPort
+targetPort: 8080
+
+Means:
+"Forward the traffic to port 8080 on the selected Pod."
+
+Port vs TargetPort — Very Important:
+------------------------------------
+Imagine:
+Service
+Port = 80
+       |
+       ↓
+Pod
+Port = 8080
+
+The user/application talks to:
+Service:80
+
+The Service forwards that traffic to:
+Pod:8080
+
+So:
+port
+   ↓
+Service's port
+
+targetPort
+   ↓
+Application/Pod's port
+
+Think:
+          SERVICE
+        Port 80
+           |
+           | forwards
+           ↓
+          POD
+       TargetPort 8080
+
+Service Types:
+--------------
+"Who needs to access my application?"
+
+There are basically 3 situations:
+
+ > Situation 1 — Only Applications Inside Kubernetes Need Access
+Suppose we have:
+Frontend Pod
+     |
+     ↓
+Backend Service
+     |
+     ↓
+Backend Pods
+
+The backend is an internal application.
+We don't want someone on the Internet directly accessing it.
+
+So we use:
+ClusterIP
+
+Frontend
+   |
+   ↓
+Backend Service
+   |
+   ↓
+Backend Pods
+
+The Service is available inside the Kubernetes cluster.
+This is the default Service type.
+
+Example:
+Example YAML:
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: backend-service
+
+spec:
+  type: ClusterIP
+
+  selector:
+    app: backend
+
+  ports:
+    - port: 80
+      targetPort: 80
+
+ . Real-world example:
+----------------------
+Think about an office.
+
+Employees inside the office can call:
+Internal extension: 101
+But people outside the company cannot directly call that internal extension.
+
+Similarly:
+ClusterIP
+     ↓
+Internal access
+
+ > Situation 2 — I Want Someone Outside the Cluster to Access It
+Now imagine you're developing an application and want to access it from your laptop/browser.
+
+You have:
+
+Browser
+   |
+   ↓
+???
+   |
+   ↓
+Kubernetes Service
+   |
+   ↓
+Pod
+
+The Service needs some way to be reached from outside.
+
+For simple development/testing, Kubernetes provides:
+NodePort
+NodePort means:
+Open a specific port on the Kubernetes node and forward traffic to the Service.
+
+Your Browser
+     |
+     ↓
+Node IP : 30080
+     |
+     ↓
+Service
+     |
+     ↓
+Pod
+
+For example:
+192.168.1.50:30080
+
+The important part is:
+30080
+That is the NodePort.
+
+Why Is It Called NodePort?
+--------------------------
+Because the port is opened on the Node.
+
+Imagine:
+Node
+IP = 192.168.1.50
+
+and Kubernetes assigns:
+NodePort = 30080
+
+Now external traffic can come through:
+192.168.1.50:30080
+
+and Kubernetes forwards it:
+192.168.1.50:30080
+          ↓
+       Service
+          ↓
+        Pod
+
+NodePort typically uses a port from the Kubernetes NodePort range, commonly 30000–32767.
+
+Example:
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: backend-service
+
+spec:
+  type: NodePort
+
+  selector:
+    app: backend
+
+  ports:
+    - port: 80
+      targetPort: 80
+      nodePort: 30080
+
+Traffic conceptually reaches:
+NodeIP:30080
+and Kubernetes forwards it to the Service and then to the selected Pods.
+
+ . NodePort — Real-Life Example
+-------------------------------
+Imagine an apartment building.
+Building
+Address: 10 Main Street
+
+Inside the building:
+Apartment 101
+Apartment 102
+Apartment 103
+
+Visitors don't need to know which apartment handles a particular request.
+
+They enter through the building's designated entrance.
+
+NodePort is similar:
+Node
+192.168.1.50
+     |
+     | Port 30080
+     ↓
+  Service
+     |
+     ↓
+  Application Pods
+
+Why Don't We Use NodePort for Everything?
+-----------------------------------------
+Because NodePort is relatively basic.
+
+For a production application, you generally don't want users remembering:
+192.168.1.50:30080
+
+You want something like:
+https://mycompany.com
+
+You also typically want:
+Load balancing
+TLS/HTTPS
+Domain-based routing
+Better external traffic management
+
+That's where LoadBalancer and Ingress become useful.
+
+ > Situation 3 — I Want a Proper External Application Endpoint
+Suppose you're running an application in AWS, Azure, or Google Cloud.
+
+You want:
+Internet
+   ↓
+External Load Balancer
+   ↓
+Kubernetes Service
+   ↓
+Pods
+
+This is where:
+LoadBalancer
+comes in.
+
+The concept is:
+
+Internet
+    |
+    ↓
+Cloud Load Balancer
+    |
+    ↓
+Kubernetes Service
+    |
+    ↓
+Pods
+
+The cloud provider can provide an external load balancer.
+
+Example:
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: frontend-service
+
+spec:
+  selector:
+    app: frontend
+
+  ports:
+    - port: 80
+      targetPort: 8080
+
+  type: LoadBalancer
+
+Now Compare the Three
+---------------------
+Start with one question:
+Who needs to access the application?
+
+| Requirement                                   | Service Type     |
+| --------------------------------------------- | ---------------- |
+| Only inside Kubernetes                        | **ClusterIP**    |
+| Simple external access through a node port    | **NodePort**     |
+| External access through a cloud load balancer | **LoadBalancer** |
+
+Let's Build One Application Step-by-Step:
+=========================================
+Step 1 — Application runs in a Pod
+Backend Pod
+IP: 10.10.1.10
+The Pod has an IP because it needs to communicate over the Kubernetes network.
+
+Step 2 — We create more replicas
+Now:
+Backend Pod 1 → 10.10.1.10
+Backend Pod 2 → 10.10.1.11
+Backend Pod 3 → 10.10.1.12
+
+Now we have a problem:
+Which IP should the frontend use?
+It cannot safely depend on individual Pod IPs.
+
+Step 3 — Create a Service
+backend-service
+
+Now:
+
+Frontend
+    |
+    ↓
+backend-service
+    |
+    ├── Pod 1
+    ├── Pod 2
+    └── Pod 3
+
+The Service gives us a stable endpoint.
+
+Step 4 — Service Uses a Selector
+Pods:
+labels:
+  app: backend
+
+Service:
+selector:
+  app: backend
+
+Therefore:
+backend-service
+       |
+       | "Find app=backend"
+       |
+   ┌───┼────┐
+   ↓    ↓      ↓
+  P1    P2     P3
+
+What Happens When a Pod Dies?
+Suppose:
+P1 → 10.10.1.10
+P2 → 10.10.1.11
+P3 → 10.10.1.12
+
+P2 crashes.
+
+Kubernetes creates:
+P4 → 10.10.1.20
+
+Now:
+Service
+   |
+   ├── P1
+   ├── P3
+   └── P4
+
+The frontend still talks to:
+backend-service
+
+It doesn't need to know that P2 disappeared.
+This is the primary reason we use Services.
+
+What Happens When We Scale?
+Initially:
+Service
+   |
+   ├── Pod 1
+   ├── Pod 2
+   └── Pod 3
+
+Traffic increases.
+
+We scale to 5:
+Service
+   |
+   ├── Pod 1
+   ├── Pod 2
+   ├── Pod 3
+   ├── Pod 4
+   └── Pod 5
+
+The frontend still uses:
+backend-service
+
+No application configuration needs to change.
+That's another major benefit.
+
+Complete Internal Communication Flow:
+-------------------------------------
+          FRONTEND POD
+               |
+               | backend-service
+               ↓
+       ┌─────────────────┐
+       │ BACKEND SERVICE      │
+       └─────────────────┘
+               |
+        Service Selector
+        app = backend
+               |
+        ┌──────┼──────┐
+        ↓        ↓        ↓
+      Pod 1    Pod 2    Pod 3
+
+And if Pod 2 dies:
+          FRONTEND POD
+               |
+               ↓
+       BACKEND SERVICE
+               |
+        ┌──────┼──────┐
+        ↓        ↓        ↓
+      Pod 1    Pod 3    Pod 4
+
+Scenario:
+---------
+Suppose kubernetes is running:
+Frontend Pods
+   ↓
+F1
+F2
+F3
+
+Backend Pods
+   ↓
+B1
+B2
+B3
+
+Now the question is:
+How does the customer reach Frontend, and how does Frontend reach Backend?
+That's where Service, DNS, Service Discovery, and Ingress come in.
+
+First Understand the Problem:
+-----------------------------
+We already know that Pods have IP addresses.
+
+For example:
+
+Frontend Pod 1 → 10.10.1.10
+Frontend Pod 2 → 10.10.1.11
+Frontend Pod 3 → 10.10.1.12
+
+Backend Pod 1 → 10.10.2.10
+Backend Pod 2 → 10.10.2.11
+Backend Pod 3 → 10.10.2.12
+
+But remember:
+Pod IPs can change.
+
+So we don't want this:
+Frontend
+   ↓
+10.10.2.10
+because tomorrow that backend Pod might be replaced.
+
+Instead:
+Frontend
+   ↓
+backend-service
+   ↓
+Backend Pods
+
+The Service provides the stable endpoint.
+
+Where Does DNS Come Into the Picture?:
+--------------------------------------
+Now imagine the frontend application needs to call the backend.
+It could technically use the Service's IP address.
+But that's still inconvenient.
+Instead, Kubernetes provides DNS names for Services.
+
+So the frontend can simply use:
+backend-service
+instead of remembering an IP address.
+
+The flow becomes:
+Frontend Pod
+     |
+     | "I need backend-service"
+     ↓
+Kubernetes DNS
+     |
+     | "backend-service = this Service"
+     ↓
+Backend Service
+     |
+     ↓
+Backend Pods
+
+This is Service Discovery.
+
+What Is Service Discovery?:
+---------------------------
+Service Discovery means:
+Finding another application using a stable name instead of knowing the individual Pod IP.
+
+For example:
+Frontend
+    |
+    | backend-service
+    ↓
+Backend Service
+    |
+    ↓
+Backend Pods
+
+The frontend doesn't care whether the backend has:
+3 Pods
+5 Pods
+10 Pods
+or whether individual Pods are replaced.
+
+It only knows:
+backend-service
+
+That's Service Discovery.
+
+What Does DNS Do?:
+------------------
+DNS translates a name into an address.
+You already know this from normal Internet usage.
+
+You type:
+google.com
+
+instead of:
+142.250.x.x
+
+Similarly, inside Kubernetes:
+backend-service
+can resolve to the Service's network address.
+
+So:
+Name
+ ↓
+DNS
+ ↓
+Address
+
+In Kubernetes:
+backend-service
+       ↓
+Kubernetes DNS
+       ↓
+Backend Service
+       ↓
+Backend Pods
+
+Kubernetes Service DNS:
+-----------------------
+Kubernetes automatically provides DNS records for Services.
+
+Suppose:
+Service name = backend-service
+Namespace = default
+
+Within the same namespace, applications can generally use:
+backend-service
+
+A fuller DNS name is:
+backend-service.default.svc.cluster.local
+
+Break that down:
+backend-service
+       ↓
+Service name
+
+default
+       ↓
+Namespace
+
+svc
+       ↓
+Kubernetes Service
+
+cluster.local
+       ↓
+Cluster DNS domain
+
+So:
+backend-service.default.svc.cluster.local
+
+means:
+"The backend-service Service inside the default namespace."
+
+Why Do We Need DNS?:
+--------------------
+Imagine you have 50 applications.
+Without Service DNS, applications would need to know Service IP addresses.
+
+For example:
+Frontend → 10.96.23.15
+Payment  → 10.96.41.21
+Orders   → 10.96.52.30
+Inventory → 10.96.62.10
+
+That's difficult to maintain.
+
+With DNS:
+Frontend → payment-service
+Frontend → order-service
+Frontend → inventory-service
+
+Much easier.
+
+So remember:
+DNS gives applications a name-based way to find Services.
+
+Now What Is Ingress?:
+---------------------
+Think about a company website.
+
+Suppose you have:
+shop.example.com
+api.example.com
+admin.example.com
+
+And inside Kubernetes you have:
+Frontend Service
+Backend Service
+Admin Service
+
+A customer comes from the Internet.
+The request first needs to enter the Kubernetes environment.
+
+You could expose each application separately:
+Internet
+   |
+   ├── Frontend LoadBalancer
+   ├── Backend LoadBalancer
+   └── Admin LoadBalancer
+
+This can become unnecessarily complicated.
+Instead, we can have one Ingress entry point that decides where HTTP/HTTPS traffic should go.
+
+                    INTERNET
+                       |
+                       ↓
+                  INGRESS
+                       |
+          ┌────────────┼────────────┐
+          ↓                ↓                ↓
+     Frontend           Backend           Admin
+      Service           Service          Service
+          ↓                ↓                ↓
+        Pods              Pods             Pods
+
+That's the basic idea.
+
+Ingress Is Like a Traffic Router:
+---------------------------------
+This is the easiest analogy.
+
+Imagine a large office building:
+                   Visitors
+                       |
+                       ↓
+                 Reception Desk
+                       |
+          ┌────────────┼────────────┐
+          ↓                ↓                ↓
+       Sales              HR             Finance
+
+The visitor doesn't know where every employee sits.
+
+They tell reception:
+"I want to go to Finance."
+Reception sends them to Finance.
+
+Ingress does something similar for web traffic.
+
+Internet Request
+       |
+       ↓
+Ingress
+       |
+       | "Where should this request go?"
+       |
+       ├── /shop  → Frontend Service
+       ├── /api   → Backend Service
+       └── /admin → Admin Service
+
+ *** Ingress Does NOT Directly Manage Pods
+This is extremely important.
+
+The relationship is:
+Ingress
+   ↓
+Service
+   ↓
+Pods
+
+Not:
+Ingress
+   ↓
+Pod
+
+For example:
+Customer
+   |
+   ↓
+Ingress
+   |
+   ↓
+frontend-service
+   |
+   ↓
+Frontend Pods
+
+And:
+
+Customer
+   |
+   ↓
+Ingress
+   |
+   ↓
+backend-service
+   |
+   ↓
+Backend Pods
+
+So:
+Ingress routes traffic to Services. Services route traffic to Pods.
+
+Then What Is an Ingress Controller?:
+------------------------------------
+There are actually two things:
+
+Ingress
+Contains the routing rules.
+
+Ingress Controller
+Actually watches those rules and handles the traffic.
+
+Ingress
+   ↓
+"These are my rules."
+
+Ingress Controller
+   ↓
+"I will implement those rules."
+
+For example, your Ingress rules might say:
+/shop → frontend-service
+/api  → backend-service
+
+The Ingress Controller receives the request and performs that routing.
+
+Ingress Example:
+----------------
+Suppose the customer accesses:
+https://shop.example.com/shop
+
+Traffic flows:
+
+Customer
+   |
+   ↓
+Internet
+   |
+   ↓
+Ingress Controller
+   |
+   | /shop
+   ↓
+frontend-service
+   |
+   ↓
+Frontend Pods
+
+Now suppose:
+https://shop.example.com/api
+
+Traffic flows:
+
+Customer
+   |
+   ↓
+Internet
+   |
+   ↓
+Ingress Controller
+   |
+   | /api
+   ↓
+backend-service
+   |
+   ↓
+Backend Pods
+
+The Ingress Controller is essentially saying:
+"Based on the URL, which Service should receive this request?"
+
+Ingress Routing Based on Hostnames:
+-----------------------------------
+Ingress can also route based on domain names.
+
+For example:
+shop.example.com
+       ↓
+Frontend Service
+
+api.example.com
+       ↓
+Backend Service
+
+admin.example.com
+       ↓
+Admin Service
+
+The flow:
+
+                    INTERNET
+                       |
+                       ↓
+              INGRESS CONTROLLER
+                       |
+        ┌──────────────┼──────────────┐
+        ↓                   ↓                  ↓
+shop.example.com  api.example.com  admin.example.com
+        ↓              ↓              ↓
+Frontend Service  Backend Service  Admin Service
+
+This is one of the major reasons Ingress is useful.
+
+complete relationship:
+              EXTERNAL USER
+                    |
+                    ↓
+             DNS / Domain Name
+                    |
+                    ↓
+             Ingress Controller
+                    |
+                    ↓
+                 Service
+                    |
+                    ↓
+                  Pods
+
+For internal application communication:
+Frontend Pod
+     |
+     ↓
+backend-service
+     |
+     ↓
+Kubernetes DNS
+     |
+     ↓
+Backend Service
+     |
+     ↓
+Backend Pods
+
+The Complete Picture:
+---------------------
+                         CUSTOMER
+                            |
+                            ↓
+                    shop.example.com
+                            |
+                            ↓
+                  ┌──────────────────┐
+                  │ INGRESS CONTROLLER    │
+                  └──────────────────┘
+                            |
+                    Routing Rule
+                            |
+                 frontend-service
+                            |
+                   Service Selector
+                     app=frontend
+                            |
+              ┌─────────────┼─────────────┐
+              ↓                  ↓                 ↓
+          Frontend Pod     Frontend Pod     Frontend Pod
+              |
+              |
+              ↓
+        backend-service
+              |
+        Service Selector
+          app=backend
+              |
+       ┌──────┼──────┐
+       ↓         ↓        ↓
+     Backend  Backend  Backend
+       Pod      Pod      Pod
+
+Hands-on:
+---------
+We'll use Minikube for this one:
+
+Flow:
+1. Create a Deployment
+       ↓
+2. Create a ClusterIP Service
+       ↓
+3. Test Service
+       ↓
+4. Create NodePort Service
+       ↓
+5. Access the application externally
+       ↓
+6. Use kubectl expose
+       ↓
+7. Test Service communication
+
+*** Make sure to install Minikube on the EC2 server
+
+1. Create a Deployment
+We can use NGINX (kubectl create deployment web --image=nginx)
+check the Deployment (kubectl get deployments)
+check the Pod (kubectl get pods)
+
+2. Create a ClusterIP Service
+Now we want another application inside Kubernetes to access this web application.
+create a Service (kubectl expose deployment web --name=web-service --port=80)
+check service (kubectl get services)
+
+The flow is now: web-service - web pod
+The service gives us a stable endpoint
+
+3. Understand the Service Selector
+run (kubectl describe service web-service)
+look for (Selector: app=web)
+now inspect the pod (kubectl get pod --show-labels)
+we can see a label similar to (app=web)
+
+Therefore:
+Service
+Selector:
+app=web
+     |
+     ↓
+Pod
+Label:
+app=web
+That's exactly how the Service knows which Pods it should send traffic to.
+
+4. Test ClusterIP
+A ClusterIP is intended for internal access.
+create a temporary Pod inside the cluster (kubectl run test-client --image=busybox:1.36 --restart=Never -- sleep 3600)
+now enter that pod (kubectl exec -it test-client -- sh)
+inside the pod, test the service name (wget -qO- http://web-service)
+You should receive the NGINX response.
+
+This proves: test-client pod - web-service - web pod
+The test client did not need to know the Pod IP.
+It used: web-service
+This is Service Discovery using Kubernetes DNS
+
+exit
+
+then remove the test pod (kubectl delete pod test-client)
+
+5. Create a NodePort service
+Now, we want to access the application from outside the cluster.
+kubectl expose deployment web --name=web-nodeport --type=NodePort --port=80
+check the service (kubectl get services)
+
+means:
+Service Port = 80
+NodePort     = 30xxx
+
+6. What is happening with NodePort?
+The flow is:
+Your Browser - Minikube Node (Node IP: NodePort) - NodePort Service - Web Pod
+
+Example: Browser - 192.168.x.x:30080 - web-nodeport - NGINX pod
+
+The important difference from ClusterIP is:
+ClusterIP
+Inside Cluster - Service - Pod
+
+NodePort
+Outside - Node IP + NodePort - Service - Pod
+
+7. Access NodePort in Minikube
+Minikube provides a convenient way to open the Service.
+Run (minikube service web-nodeport)
+Minikube will provide/access the appropriate URL for the NodePort Service.
+You should see the NGINX welcome page.
+Flow: Browser - Minikube node - NodePort - web-nodeport - NGINX Pod
+
+8. Scale the Deployment
+Now let's create multiple Pods (kubectl scale deployment web --replicas=3)
+check (kubectl get pods)
+now we can see 3 pods
+The service still remains (web-nodeport); and its selector continue to find (app=web)
+
+so:
+                 web-nodeport
+                       |
+               Selector: app=web
+                       |
+          ┌────────────┼────────────┐
+          ↓                ↓                ↓
+        Pod 1            Pod 2            Pod 3
+
+The Service can distribute traffic among the available Pods.
+
+9. Test Service Communication Again
+Create the temporary test client (kubectl run test-client --image=busybox:1.36 --restart=Never -- sleep 3600)
+Go inside the pod (kubectl exec -it test-client -- sh)
+Now (wget -qO- http://web-service)
+You should get the NGINX response,
+Notice what the client used: (web-service), not (Pod IP) That's the entire purpose of Service Discovery.
+
+exit
+
+Clean up (kubectl delete pod test-client)
+
+10. Now, demonstrate pod IP changing
+kubectl get pods -o wide
+now delete one pod (kubectl delete pod <pod-name>)
+check again (kubectl get pods -o wide)
+Kubernetes creates a replacement Pod with potentially a different IP, but your service remains (web-service)
+
+Where Does kubectl expose Fit?
+kubectl expose is simply a convenient command for creating a Service from an existing resource.
+kubectl expose deployment web --port=80
+
+For production environments, you will commonly define Services in YAML so that the configuration can be version-controlled and reproduced.
+Service YAML:
+ > ClusterIP Service:
+
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: web-service
+
+spec:
+  type: ClusterIP
+
+  selector:
+    app: web
+
+  ports:
+    - port: 80
+      targetPort: 80
+
+Explanation:
+kind: Service
+       ↓
+Create a Service
+
+name: web-service
+       ↓
+Give it the name web-service
+
+type: ClusterIP
+       ↓
+Keep it internal
+
+selector:
+  app: web
+       ↓
+Find Pods having app=web
+
+port: 80
+       ↓
+Service accepts traffic on port 80
+
+targetPort: 80
+       ↓
+Send traffic to port 80 on the selected Pod
+
+So, the YAML simply describes:
+web-service
+     |
+     | Find app=web
+     ↓
+Web Pods
+
+ > NodePort YAML
+
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: web-nodeport
+
+spec:
+  type: NodePort
+
+  selector:
+    app: web
+
+  ports:
+    - port: 80
+      targetPort: 80
+      nodePort: 30080
+
+Explanation:
+Service
+   ↓
+Name = web-nodeport
+   ↓
+Find Pods with app=web
+   ↓
+Service listens on 80
+   ↓
+Forward to Pod port 80
+   ↓
+Expose NodePort 30080
+
+So, the YAML simply describes:
+Browser
+   |
+   ↓
+Node IP:30080
+   |
+   ↓
+Service:80
+   |
+   ↓
+Pod:80
+
+ > Ingress YAML:
+
+Suppose we already have:
+frontend-service
+backend-service
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+
+metadata:
+  name: application-ingress
+
+spec:
+  rules:
+    - host: shop.example.com
+
+      http:
+        paths:
+          - path: /shop
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend-service
+                port:
+                  number: 80
+
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: backend-service
+                port:
+                  number: 80
+
+Explanation:
+Ingress name:
+application-ingress
+
+If the user visits:
+shop.example.com/shop
+
+send traffic to:
+frontend-service
+
+If the user visits:
+shop.example.com/api
+
+send traffic to:
+backend-service
+
+YAML flow:
+/shop → frontend-service
+/api  → backend-service
+
+                  Internet
+                     |
+                     ↓
+              Ingress Controller
+                     |
+             ┌───────┴───────┐
+             ↓                    ↓
+           /shop                /api
+             ↓                    ↓
+     frontend-service       backend-service
+             ↓                    ↓
+        Frontend Pods        Backend Pods
+
+That's what Ingress does.
+
+Simple Explanation:
+-------------------
+ . Pod -  IP tells the network where an individual Pod currently is.
+ . Service - gives us a stable way to reach a group of Pods.
+ . Selector - tells the Service which Pods belong to it.
+ . DNS - lets applications find the Service by name instead of remembering its IP.
+ . Service Discovery - is the overall process of finding an application through that stable Service name.
+ . ClusterIP - is for internal access.
+ . NodePort - gives simple external access through a node and port.
+ . LoadBalancer - provides external access through a load-balancing mechanism, typically supplied by a cloud/platform.
+ . Ingress - is a set of HTTP/HTTPS routing rules that decides which Service should receive an external web request.
+ . Ingress Controller - is the software that actually implements those Ingress rules.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

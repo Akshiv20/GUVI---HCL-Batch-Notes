@@ -1,0 +1,1049 @@
+Day 38 - Kubernetes:
+====================
+Part 1 — Kubernetes Persistent Storage:
+---------------------------------------
+We already know that a Pod runs our application.
+
+For example:
+Pod
+ └── MySQL Container
+
+Now suppose MySQL stores:
+Customer data
+Orders
+Payments
+Products
+
+Where is that data stored?
+Normally, data is written to the container's filesystem.
+The problem is that Pods are temporary.
+
+Suppose:
+MySQL Pod
+   ↓
+Customer data
+   ↓
+Pod crashes
+   ↓
+Pod deleted
+
+A new pod may be created:
+Old Pod
+   ↓
+❌ Deleted
+
+New MySQL Pod
+   ↓
+Starts again
+
+If the database was using only temporary Pod storage, important data can be lost.
+So Kubernetes needs a way to keep data outside the Pod lifecycle.
+That's where:
+ . Persistent Volume (PV)
+ . Persistent Volume Claim (PVC)
+ . StorageClass
+ . Dynamic Provisioning
+come in.
+
+The Basic Storage Flow:
+-----------------------
+                APPLICATION
+                     |
+                     ↓
+                    POD
+                     |
+                     ↓
+                    PVC
+                     |
+                     ↓
+                    PV
+                     |
+                     ↓
+             ACTUAL STORAGE
+
+The important idea:
+Pod uses PVC → PVC gets storage from PV → PV represents actual storage.
+
+What Is a Persistent Volume?
+----------------------------
+A Persistent Volume (PV) is storage that Kubernetes makes available to applications.
+
+Think of it as:
+A piece of storage reserved for Kubernetes workloads.
+
+For example:
+PV
+Capacity: 10 GB
+
+The PV could ultimately represent storage such as:
+AWS EBS
+Azure Disk
+Google Persistent Disk
+NFS
+Local Disk
+The application doesn't need to know the underlying storage technology.
+
+ > Real-Life Example:
+---------------------
+Imagine a company has a storage room.
+Storage Room
+     |
+     ├── 10 GB space
+     ├── 50 GB space
+     └── 100 GB space
+
+Kubernetes represents these storage resources as PVs:
+PV-1 → 10 GB
+PV-2 → 50 GB
+PV-3 → 100 GB
+The application can request one of these resources.
+
+What Is a PVC?
+--------------
+A Persistent Volume Claim (PVC) is a request for storage.
+
+This is important:
+PV
+"I have storage available."
+
+PVC
+"I need storage."
+
+So:
+PV
+"I have 20 GB."
+
+PVC
+"I need 10 GB."
+
+Kubernetes can bind the PVC to an appropriate PV.
+
+PV vs PVC:
+----------
+Think about a hotel.
+Hotel
+  ↓
+Rooms available
+
+The rooms are like:
+PV
+
+A customer says:
+"I need a room for two people."
+
+That's like:
+PVC
+
+The hotel assigns an available room.
+
+PVC
+   ↓
+PV
+
+So:
+PV = storage available
+PVC = request for storage
+
+Why Doesn't the Pod Directly Use the PV?
+----------------------------------------
+Because Kubernetes separates the application's storage requirement from the actual storage implementation.
+
+The Pod says:
+"I need this PVC."
+
+The PVC says:
+"I need 10 GB."
+
+The PV provides:
+"Here is 10 GB."
+
+so:
+Pod - PVC - PV - Storage
+This separation makes applications more portable.
+
+ > Example PVC:
+---------------
+A simple PVC might look like this:
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+
+metadata:
+  name: mysql-pvc
+
+spec:
+  accessModes:
+    - ReadWriteOnce
+
+  resources:
+    requests:
+      storage: 10Gi
+
+Explanation:
+Create a PVC
+     ↓
+Name = mysql-pvc
+     ↓
+I need storage
+     ↓
+I need 10 GB
+     ↓
+I want ReadWriteOnce access
+
+What Is ReadWriteOnce?
+----------------------
+This describes how the storage can be accessed.
+
+ReadWriteOnce — RWO
+One node
+   ↓
+Can read + write
+
+ReadOnlyMany — ROX
+Multiple nodes
+   ↓
+Can read
+   ↓
+Cannot write
+
+ReadWriteMany — RWX
+Multiple nodes
+   ↓
+Can read + write
+
+| Access Mode | Meaning                        |
+| ----------- | ------------------------------ |
+| RWO         | Read/write from one node       |
+| ROX         | Read-only from multiple nodes  |
+| RWX         | Read/write from multiple nodes |
+
+How Does a Pod Use the PVC?:
+----------------------------
+Now the Pod needs to mount the PVC.
+
+Pod
+ |
+ | "I need mysql-pvc"
+ ↓
+PVC
+ |
+ ↓
+PV
+ |
+ ↓
+Actual Storage
+
+For example:
+------------
+volumes:
+  - name: mysql-storage
+    persistentVolumeClaim:
+      claimName: mysql-pvc
+
+And the container mounts that volume:
+volumeMounts:
+  - name: mysql-storage
+    mountPath: /var/lib/MySQL
+
+So the application writes:
+/var/lib/mysql
+and that data is stored through the persistent storage.
+
+Complete Storage Flow:
+----------------------
+               MYSQL APPLICATION
+                       |
+                       ↓
+                      POD
+                       |
+              "I need storage"
+                       |
+                       ↓
+                     PVC
+                       |
+              "I need 10 GB"
+                       |
+                       ↓
+                      PV
+                       |
+             "Here is 10 GB"
+                       |
+                       ↓
+              ACTUAL STORAGE
+                       |
+                       ↓
+                 Customer Data
+
+Now, if the Pod is deleted:
+Old Pod
+   ↓
+❌ Deleted
+
+PVC
+   ↓
+Still exists
+
+PV
+   ↓
+Still exists
+
+Storage
+   ↓
+Still exists
+
+A new Pod can mount the same PVC and access the existing data.
+That's the entire reason for persistent storage.
+
+What Is a StorageClass?:
+------------------------
+A StorageClass is NOT the storage itself.
+It is a definition/instruction for how Kubernetes should obtain storage.
+
+Imagine manually creating PVs for every application:
+PV-1 → 10 GB
+PV-2 → 20 GB
+PV-3 → 50 GB
+PV-4 → 100 GB
+This becomes difficult to manage.
+Wouldn't it be easier if an application simply said:
+"Give me 20 GB of storage."
+
+and Kubernetes automatically created the required storage?
+That's what StorageClass helps with.
+
+ > StorageClass in Simple Words:
+--------------------------------
+A StorageClass defines how Kubernetes should create/provision storage.
+
+PVC
+"I need 20 GB."
+
+StorageClass
+"I know how to create that storage."
+
+        ↓
+
+Storage System
+        ↓
+New Storage
+
+So:
+StorageClass is like a storage template or storage provisioning policy.
+
+ > StorageClass Example:
+------------------------
+A PVC can specify:
+storageClassName: standard
+
+For example:
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+
+metadata:
+  name: app-pvc
+
+spec:
+  storageClassName: standard
+
+  accessModes:
+    - ReadWriteOnce
+
+  resources:
+    requests:
+      storage: 10Gi
+
+The important part:
+storageClassName: standard
+
+means:
+"Use the standard StorageClass to provide my storage."
+
+ > Do We Have Only standard StorageClass?
+-----------------------------------------
+No.
+standard is just a name commonly used for a StorageClass. It is not the only possible class.
+
+A Kubernetes cluster can have multiple StorageClasses:
+StorageClasses
+ . standard
+ . fast-ssd
+ . slow-storage
+ . premium
+
+For example:
+standard
+   ↓
+Normal/general-purpose storage
+
+fast-ssd
+   ↓
+Faster SSD-based storage
+
+premium
+   ↓
+Higher-performance storage
+
+You can see the StorageClasses available in a cluster with:
+kubectl get storageclass
+
+"StorageClass is a category/template for provisioning storage. standard is just one possible StorageClass name."
+
+Where Does the Actual Storage Come From?
+----------------------------------------
+This is the most important question.
+
+Suppose you create:
+StorageClass: fast-ssd
+
+The StorageClass itself does not contain 10 GB.
+Instead, it tells Kubernetes how to obtain the storage.
+
+For example, in AWS:
+StorageClass
+      ↓
+AWS EBS provisioner
+      ↓
+AWS creates an EBS volume
+      ↓
+Kubernetes uses that volume
+
+So the actual storage ultimately comes from the storage system/cloud provider.
+
+Depending on your environment, it could be:
+AWS       → EBS
+Azure     → Azure Disk
+GCP       → Persistent Disk
+On-prem   → SAN / NFS / local storage
+
+Therefore:
+StorageClass = instructions
+Actual storage = provided by the underlying storage system
+
+ > Now Where Does PVC Come In?
+------------------------------
+The flow is:
+
+Pod
+ ↓
+PVC
+ ↓
+StorageClass
+ ↓
+Storage Provisioner
+ ↓
+Actual Storage
+ ↓
+PV
+
+So StorageClass does not replace PVC.
+
+Instead:
+PVC requests the storage, and StorageClass tells Kubernetes how to provide that storage.
+
+Complete Flow:
+--------------
+Imagine:
+You = Application
+
+You say:
+"I need 10 GB of fast storage."
+That's the PVC.
+
+PVC
+"I need 10 GB"
+
+Then you specify:
+"Use the fast SSD option."
+That's the StorageClass.
+
+StorageClass
+"Use fast SSD storage"
+
+The storage provider then creates/provides the actual storage.
+
+Storage Provider
+      ↓
+Creates actual storage
+
+Kubernetes represents that provisioned storage as a PV.
+
+PVC
+ ↓
+PV
+ ↓
+Actual Storage
+
+What Is Dynamic Volume Provisioning?:
+-------------------------------------
+Without dynamic provisioning:
+Administrator
+     ↓
+Creates PV
+     ↓
+User creates PVC
+     ↓
+PVC gets PV
+
+With dynamic provisioning:
+User
+ ↓
+Creates PVC
+ ↓
+StorageClass
+ ↓
+Automatically creates storage
+ ↓
+PV
+ ↓
+PVC
+
+So:
+Dynamic provisioning means Kubernetes can automatically create the required persistent storage when a PVC requests it.
+This is extremely useful in cloud environments.
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+*** The provisioner is the component that actually knows how to create/provision the storage.
+
+What Is a Provisioner?:
+-----------------------
+Provisioner = the component that knows how to create/connect Kubernetes storage with the underlying storage platform.
+
+For example:
+Kubernetes
+    |
+    ↓
+Provisioner
+    |
+    ↓
+AWS EBS
+
+The provisioner effectively says:
+"Kubernetes requested 10 GB. I know how to ask AWS for that storage."
+
+In modern Kubernetes environments, this is generally handled through the CSI (Container Storage Interface) ecosystem.
+
+Suppose the PVC requests:
+10 GB
+
+The StorageClass says:
+Use AWS EBS
+
+The provisioner asks AWS to create:
+10 GB EBS volume
+
+Then Kubernetes has a PV representing that storage:
+PV
+Capacity: 10 GB
+
+And the PVC becomes:
+Bound
+
+So:
+PVC
+ ↓
+PV
+ ↓
+EBS Volume
+
+Then the Pod can use the PVC.
+
+| Component        | What it means                                                            |
+| ---------------- | ------------------------------------------------------------------------ |
+| **PVC**          | "I need storage."                                                        |
+| **StorageClass** | "This is how my storage should be provisioned."                          |
+| **Provisioner**  | "I know how to create/provide that storage."                             |
+| **PV**           | "Here is the Kubernetes storage resource available to your application." |
+And underneath the PV is the actual physical/cloud storage.
+
+Complete Storage Architecture:
+------------------------------
+                    APPLICATION
+                         |
+                         ↓
+                        POD
+                         |
+                 "I need storage"
+                         |
+                         ↓
+                        PVC
+                  "I need 10 GB"
+                         |
+                         ↓
+                  STORAGECLASS
+             "How should I get it?"
+                         |
+                         ↓
+                   PROVISIONER
+             "I know how to create it"
+                         |
+                         ↓
+                STORAGE PLATFORM
+             AWS EBS / Azure Disk /
+             NFS / other storage
+                         |
+                         ↓
+                 ACTUAL STORAGE
+                         |
+                         ↓
+                        PV
+                         |
+                         ↓
+                  PVC is BOUND
+                         |
+                         ↓
+                        POD
+
+PVC asks for storage, StorageClass defines how that storage should be provided, the provisioner creates/provides the storage from the underlying storage platform, and Kubernetes represents that storage as a PV which the PVC binds to.
+
+Part 2 — Kubernetes RBAC:
+-------------------------
+RBAC = Role-Based Access Control.
+
+Its purpose is:
+Decide who can do what inside Kubernetes.
+
+Why Do We Need RBAC?
+--------------------
+Imagine you have a Kubernetes cluster used by:
+ . Developer
+ . DevOps Engineer
+ . Administrator
+ . Monitoring Application
+ . CI/CD System
+
+Should everyone have full access?
+Obviously not.
+
+For example:
+Developer
+
+Should be able to:
+View Pods
+View Services
+Create Deployments
+
+But perhaps shouldn't:
+Delete Namespaces
+Modify cluster-wide security
+
+Administrator
+May need:
+Full cluster access
+So Kubernetes needs permissions.
+
+That's RBAC.
+
+RBAC = Who Can Do What?:
+------------------------
+Think of three questions:
+WHO?
+ ↓
+CAN DO WHAT?
+ ↓
+ON WHICH RESOURCE?
+
+For example:
+Developer
+   ↓
+Can get/list Pods
+   ↓
+In namespace "development"
+
+That's an RBAC rule.
+
+The Four Important RBAC Concepts:
+---------------------------------
+For your training, focus on:
+ . Role
+ . RoleBinding
+ . ServiceAccount
+ . Permissions
+
+ > What Is a Role?:
+-------------------
+A Role defines what actions are allowed on resources within a namespace.
+
+ . For example:
+Role:
+Can view Pods
+Can view Services
+Cannot delete Pods
+Think of Role as a permission document.
+
+Example:
+kind: Role
+
+metadata:
+  name: pod-reader
+
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list", "watch"]
+
+Explanation:
+Role = pod-reader
+
+Resource:
+Pods
+
+Allowed actions:
+get
+list
+watch
+
+What Are Verbs?
+---------------
+Kubernetes permissions use verbs.
+
+Common ones:
+get
+list
+watch
+create
+update
+patch
+delete
+
+Simple meanings:
+| Verb     | Meaning                 |
+| -------- | ----------------------- |
+| `get`    | View one resource       |
+| `list`   | View multiple resources |
+| `watch`  | Watch for changes       |
+| `create` | Create resource         |
+| `update` | Modify resource         |
+| `delete` | Delete resource         |
+
+Example:
+get pods
+
+means:
+"You can view a Pod."
+
+
+delete pods
+
+means:
+"You can delete Pods."
+
+What Is a RoleBinding?:
+-----------------------
+Creating a Role doesn't automatically give anyone those permissions.
+
+We need to connect:
+Person
+   ↓
+Role
+That's what RoleBinding does.
+
+Think:
+Role
+"These permissions exist."
+
+RoleBinding
+"Give these permissions to this user."
+
+So:
+Developer
+    ↓
+RoleBinding
+    ↓
+pod-reader Role
+    ↓
+Can view Pods
+
+Example:
+--------
+kind: RoleBinding
+
+metadata:
+  name: developer-pod-reader
+
+subjects:
+  - kind: User
+    name: developer
+
+roleRef:
+  kind: Role
+  name: pod-reader
+
+Explanation:
+------------
+User:
+developer
+
+Give them:
+pod-reader Role
+
+Role vs RoleBinding:
+--------------------
+This distinction is extremely important.
+
+Role
+What permissions exist?
+
+RoleBinding
+Who receives those permissions?
+
+What Is a ServiceAccount?:
+--------------------------
+A ServiceAccount is an identity for an application running inside Kubernetes.
+This is important because RBAC isn't only for humans.
+
+Suppose:
+Monitoring Application
+        |
+        ↓
+Needs to read Pods
+The application needs an identity.
+
+We can create:
+ServiceAccount
+
+For example:
+monitoring-sa
+
+Then:
+Monitoring Pod
+      ↓
+monitoring-sa
+      ↓
+RoleBinding
+      ↓
+Role
+      ↓
+Can read Pods
+
+Human User vs ServiceAccount:
+-----------------------------
+Human
+Developer
+   ↓
+RBAC
+
+Application
+Monitoring Pod
+   ↓
+ServiceAccount
+   ↓
+RBAC
+
+So a ServiceAccount is essentially:
+An identity used by workloads/applications inside Kubernetes.
+
+Securing Cluster Access:
+------------------------
+Don't give everyone:
+administrator
+Instead follow least privilege.
+Least Privilege
+
+Give users/applications:
+Only the permissions they actually need.
+
+ > For example:
+---------------
+Developer
+   ↓
+Can view Pods
+Can create Deployments
+Can view Services
+
+but:
+Cannot modify cluster-wide configuration
+Cannot delete namespaces
+Cannot access everything
+
+This reduces the impact if an account is compromised or someone makes a mistake.
+
+Role vs ClusterRole:
+--------------------
+Role
+Works within a namespace.
+
+ClusterRole
+Used for permissions that can apply across the cluster or to cluster-scoped resources.
+
+So:
+Role
+   ↓
+Namespace-specific
+
+ClusterRole
+   ↓
+Cluster-wide
+
+Similarly:
+RoleBinding
+
+binds permissions within a namespace, while:
+ClusterRoleBinding
+
+can grant a ClusterRole across the cluster.
+
+| Concept                  | Simple Meaning                                    |
+| ------------------------ | ------------------------------------------------- |
+| **RBAC**                 | Controls who can do what                          |
+| **Role**                 | Defines permissions                               |
+| **RoleBinding**          | Gives those permissions to a user/service account |
+| **ServiceAccount**       | Identity for an application/workload              |
+| **Least Privilege**      | Give only the permissions actually required       |
+| **ClusterRole**          | Cluster-level permissions                         |
+| **ClusterRoleBinding**   | Grants a ClusterRole to an identity               |
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

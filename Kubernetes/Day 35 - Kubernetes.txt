@@ -1,0 +1,526 @@
+Day 35 - Kubernetes:
+====================
+What is Kubernetes?:
+--------------------
+Kubernetes (K8s) is an open-source container orchestration platform used to deploy, manage, scale, and maintain containerized applications.
+If Docker is used to create and run containers, Kubernetes is used to manage large numbers of containers across multiple machines.
+
+Example
+Suppose an e-commerce application has:
+Frontend → 5 containers
+Backend  → 10 containers
+Payment  → 3 containers
+Database → 2 containers
+Managing 20 containers manually becomes difficult.
+
+You need Kubernetes to handle things such as:
+ . Starting containers
+ . Stopping containers
+ . Restarting failed containers
+ . Scaling applications
+ . Distributing containers across machines
+ . Service discovery
+ . Load balancing
+ . Rolling updates
+ . Rollbacks
+ . Maintaining the desired application state
+
+Kubernetes is a system that automatically manages containerized applications running across multiple machines.
+
+Why Do We Need Container Orchestration?
+---------------------------------------
+Before Kubernetes, imagine managing containers manually.
+
+You might have:
+Server 1
+ ├── Frontend container
+ ├── Backend container
+ └── Payment container
+
+Server 2
+ ├── Frontend container
+ └── Backend container
+
+Server 3
+ ├── Database container
+ └── Backend container
+
+Now consider what happens when:
+ . Server 1 crashes
+ . A backend container stops
+ . Traffic suddenly increases
+ . You need 20 more backend containers
+ . You release a new application version
+ . One container consumes too much CPU
+ . Containers need to communicate with each other
+Manual management doesn't scale well.
+Container Orchestration solves these problems.
+
+Major orchestration requirements include:
+| Requirement         | What it means                                |
+| ------------------- | -------------------------------------------- |
+| Scheduling          | Decide where containers should run           |
+| Scaling             | Increase/decrease application instances      |
+| Self-healing        | Restart or replace failed workloads          |
+| Load balancing      | Distribute traffic                           |
+| Service discovery   | Allow applications to find each other        |
+| Rolling updates     | Deploy new versions gradually                |
+| Rollback            | Return to a previous version                 |
+| Resource management | Control CPU and memory usage                 |
+| High availability   | Keep applications available despite failures |
+
+Kubernetes Architecture Overview:
+---------------------------------
+A Kubernetes cluster is broadly divided into:
+                 Kubernetes Cluster
+                        |
+          +-------------+-------------+
+          |                           |
+     Control Plane                  Worker Nodes
+     (Management)                    (Workloads)
+          |                           |
+     API Server                   Pod
+     Scheduler                    Pod
+     Controllers                  Pod
+     etcd                         Pod
+
+The two important concepts are:
+ . Control Plane
+Responsible for managing and making decisions about the cluster.
+
+ . Worker Nodes
+Responsible for running the actual application workloads.
+
+What is a Kubernetes Cluster?:
+------------------------------
+A cluster is a group of machines working together to run Kubernetes workloads.
+
+A cluster contains:
+Kubernetes Cluster
+│
+├── Control Plane
+│
+├── Worker Node
+├── Worker Node
+└── Worker Node
+A production cluster commonly has multiple worker nodes and may have multiple control-plane nodes for high availability.
+
+Master Node vs Worker Node:
+---------------------------
+The older Kubernetes terminology commonly used Master Node.
+
+Modern Kubernetes terminology generally uses:
+Control Plane
+
+So:
+Master Node ≈ Control Plane Node
+
+However, technically, a control plane can consist of multiple nodes/components rather than being just one "master machine."
+
+Control Plane:
+--------------
+The control plane manages the cluster.
+
+Its responsibilities include:
+ . Accepting requests
+ . Deciding where workloads should run
+ . Monitoring cluster state
+ . Maintaining desired state
+ . Storing cluster information
+
+Important components:
+Control Plane
+│
+├── kube-apiserver
+├── kube-scheduler
+├── kube-controller-manager
+└── etcd
+Let's understand each component individually.
+
+ > API Server
+The kube-apiserver is the main communication endpoint of Kubernetes.
+Almost everything communicates through the Kubernetes API.
+
+Example:
+kubectl
+   |
+   ↓
+API Server
+   |
+   +---- Scheduler
+   +---- Controller Manager
+   +---- kubelet
+   +---- etcd
+
+API
+API = Application Programming Interface
+In Kubernetes, the API provides a standardized way to interact with cluster resources.
+
+Why is the API Server important?
+It acts as the central entry point for Kubernetes operations.
+
+It handles:
+ . Authentication
+ . Authorization
+ . Request validation
+ . API operations
+ . Communication with other components
+
+ > Kubernetes Scheduler
+The kube-scheduler decides which worker node should run a newly created Pod.
+
+Suppose Kubernetes needs to run:
+Pod: backend
+
+There are:
+Node A → CPU available
+Node B → CPU almost full
+Node C → CPU available
+
+The scheduler evaluates the available nodes and selects a suitable node.
+
+Important point
+The scheduler decides:
+Where should this Pod run?
+
+It doesn't actually run the container itself.
+The kubelet on the selected worker node is responsible for ensuring the Pod runs there.
+
+ > Kubernetes Controller Manager
+The kube-controller-manager runs various Kubernetes controllers.
+
+A controller continuously compares:
+Desired State
+       vs
+Current State
+
+and attempts to make them match.
+
+Example
+You specify:
+Replicas = 3
+
+Kubernetes currently has:
+Running Pods = 2
+
+Controller detects:
+Desired = 3
+Current = 2
+
+Therefore:
+Create another Pod
+
+Now:
+Desired = 3
+Current = 3
+
+Everything is correct.
+
+This is a fundamental Kubernetes principle:
+Kubernetes continuously works toward the desired state.
+
+ > etcd Basics
+etcd is a distributed key-value store used by Kubernetes to store important cluster state.
+Think of it as Kubernetes' persistent cluster database.
+
+It stores information such as:
+ . Cluster configuration
+ . Kubernetes objects
+ . Desired state
+ . Metadata
+ . Resource information
+
+For example:
+
+Deployment:
+  replicas = 5
+
+Service:
+  name = payment-service
+
+Pod:
+  status = Running
+
+This information is stored in the Kubernetes data store, etcd.
+
+Key-value concept
+A simple key-value structure looks like:
+
+Key                         Value
+------------------------------------------------
+/app/replicas               5
+/service/payment            ClusterIP
+/pod/backend/status         Running
+
+Why is etcd critical?
+Because Kubernetes depends on the state stored there.
+If etcd is lost without a recoverable backup, the cluster's stored state can be seriously affected.
+Therefore, production Kubernetes environments must treat etcd backup and security as critical operational concerns.
+
+How the Main Components Work Together:
+--------------------------------------
+Suppose you want:
+Backend application
+5 replicas
+
+The flow is conceptually:
+                kubectl
+                   |
+                   ↓
+              API Server
+                   |
+                   ↓
+                 etcd
+                   |
+                   ↓
+          Controller Manager
+                   |
+          Desired = 5 replicas
+          Current = 0 replicas
+                   |
+                   ↓
+              Scheduler
+                   |
+       Select suitable nodes
+                   |
+          +--------+--------+
+          ↓        ↓        ↓
+       Node 1    Node 2    Node 3
+          |        |        |
+         Pod      Pod      Pod
+         Pod      Pod
+
+The worker-node components then ensure the assigned Pods actually run.
+
+Worker Node:
+------------
+A worker node is a machine where application workloads actually run.
+
+A worker node typically contains:
+Worker Node
+│
+├── kubelet
+├── container runtime
+├── kube-proxy
+└── Pods
+
+ > Important distinction
+Control Plane:
+"What should happen?"
+
+Worker Node:
+"Run it."
+
+For example:
+Developer:
+"Run 5 instances of my backend."
+        ↓
+Control Plane:
+"Okay, desired state = 5."
+        ↓
+Scheduler:
+"Place these Pods on suitable nodes."
+        ↓
+Worker Nodes:
+"Run the containers."
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
